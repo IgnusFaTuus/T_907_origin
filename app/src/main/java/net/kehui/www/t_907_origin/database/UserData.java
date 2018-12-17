@@ -1,4 +1,4 @@
-package net.kehui.www.t_907_origin.datebase;
+package net.kehui.www.t_907_origin.database;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
@@ -8,7 +8,7 @@ import org.greenrobot.greendao.annotation.Generated;
  * Created by IF on 2018/12/15.
  */
 @Entity
-public class UserDate {
+public class UserData {
     @Id(autoincrement = true)
     private Long id;
     private String InfoId;
@@ -24,8 +24,8 @@ public class UserDate {
     private int Gain;
     private String language;
 
-    @Generated(hash = 268366833)
-    public UserDate(Long id, String InfoId, long testTime, String testMethod,
+    @Generated(hash = 661905420)
+    public UserData(Long id, String InfoId, long testTime, String testMethod,
             String testRange, String testPosition, String cableFullLength,
             String cablePhase, String cableType, String faultType,
             String faultLength, int Gain, String language) {
@@ -44,8 +44,8 @@ public class UserDate {
         this.language = language;
     }
 
-    @Generated(hash = 358779104)
-    public UserDate() {
+    @Generated(hash = 1838565001)
+    public UserData() {
     }
 
     public Long getId() {

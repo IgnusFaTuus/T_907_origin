@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">T-907-ORIGIN</string>
     <string name="btn_mtd">方式</string>
-    <string name="btn_range" >范围</string>
+    <string name="btn_range">范围</string>
     <string name="btn_adj">调节</string>
     <string name="btn_opt">操作</string>
     <string name="btn_file">文档</string>
@@ -41,4 +41,5 @@
     <string name="btn_lang">语言切换</string>
     <drawable name="clr_normal">#FF303F9F</drawable>
     <drawable name="clr_pressed">#9501f9</drawable>
+    <string name="title_activity_base">BaseActivity</string>
 </resources>
