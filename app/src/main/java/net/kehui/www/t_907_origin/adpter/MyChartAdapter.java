@@ -2,7 +2,7 @@ package net.kehui.www.t_907_origin.adpter;
 
 import net.kehui.www.t_907_origin.ui.SparkView.SparkAdapter;
 
-public class MyChartAdpter extends SparkAdapter {
+public class MyChartAdapter extends SparkAdapter {
 
     private int[] mTempArray;
     private int[] mCompareArray;
@@ -23,7 +23,7 @@ public class MyChartAdpter extends SparkAdapter {
         isShowCompareLine = showCompareLine;
     }
 
-    public MyChartAdpter(int[] mTempArray, int[] mCompareArray, boolean isShowCompareLine, int
+    public MyChartAdapter(int[] mTempArray, int[] mCompareArray, boolean isShowCompareLine, int
             splitNum, boolean isShowSplitLine) {
         this.mTempArray = mTempArray;
         this.mCompareArray = mCompareArray;

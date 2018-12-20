@@ -384,14 +384,15 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //canvas.drawPath(baseLinePath, baseLinePaint);
+        canvas.drawPath(baseLinePath, baseLinePaint);
         canvas.drawPath(renderPath, sparkLinePaint);
         canvas.drawPath(renderPath2, baseLinePaint);
         canvas.drawPath(scrubLinePath2, scrubLinePaint2);
         canvas.drawPath(scrubLinePath, scrubLinePaint);
 
         setScrubLine2(50);
-        drawTria(canvas, xPoints.get(startPoint), getHeight() - getPaddingBottom(), xPoints.get(startPoint), getPaddingTop(), 30, 10);
+        drawTria(canvas, xPoints.get(startPoint), getHeight() - getPaddingBottom(),
+                xPoints.get(startPoint), getPaddingTop(), 30, 10);
 
     }
 

@@ -20,9 +20,9 @@ public class MyApplication extends Application {
     private DaoSession mDaoSession;
     public static MyApplication instances;
 
-    public final Locale Locale_Russia = new Locale("RU", "ru", "");
-    public final Locale Locale_French = new Locale("FR", "fr", "");
-    public final Locale Locale_Spanisch = new Locale("Es", "es", "");
+    //public final Locale Locale_Russia = new Locale("RU", "ru", "");
+    //public final Locale Locale_French = new Locale("FR", "fr", "");
+    //public final Locale Locale_Spanisch = new Locale("Es", "es", "");
 
     @Override
     public void onCreate() {

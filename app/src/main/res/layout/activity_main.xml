@@ -96,11 +96,10 @@
             android:layout_height="0dp"
             android:layout_weight="2">
 
-            <com.robinhood.spark.SparkView
-                android:id="@+id/mainwave"
+            <net.kehui.www.t_907_origin.ui.SparkView.SparkView
+                android:id="@+id/mainWave"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:spark_animateChanges="true"
                 app:spark_lineColor="@color/colorAccent"
                 app:spark_scrubEnabled="true" />
         </RelativeLayout>

@@ -9,10 +9,12 @@ import android.view.View;
 import android.view.WindowManager;
 
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
 
 public class BaseActivity extends AppCompatActivity {
 
-    public int[] mTempWaveArray;
+    public int[]          mTempWaveArray;
+    public MyChartAdapter myChartAdapterWave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.robinhood.spark.SparkView;
-
+import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
+import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
 import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
 import net.kehui.www.t_907_origin.fragment.FileFragment;
@@ -52,8 +52,8 @@ public class MainActivity extends BaseActivity {
     LinearLayout fctBottom;
     @BindView(R.id.content)
     FrameLayout  content;
-    @BindView(R.id.mainwave)
-    SparkView    mainwave;
+    @BindView(R.id.mainWave)
+    SparkView    mainWave;
     @BindView(R.id.fullView)
     ImageView    fullView;
     @BindView(R.id.hintText)
@@ -98,10 +98,10 @@ public class MainActivity extends BaseActivity {
         btn_file.setEnabled(true);
         btn_setting.setEnabled(true);
 
-        //getWaveData();
+        getWaveData();
     }
 
-    /*private void getWaveData() {
+    private void getWaveData() {
         InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
                 "wave.txt");
         BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
@@ -110,7 +110,7 @@ public class MainActivity extends BaseActivity {
         int c = 0;
         try {
             c = bis.read();
-            while (c != 1) {
+            while (c != -1) {
                 baos.write(c);
                 c = bis.read();
             }
@@ -121,11 +121,16 @@ public class MainActivity extends BaseActivity {
             for (int i = 0; i < split.length; i++) {
                 mTempWaveArray[i] = 0;
             }
+            myChartAdapterWave = new MyChartAdapter(mTempWaveArray, null,
+                    false,0,false);
+            mainWave.setAdapter(myChartAdapterWave);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-    }*/
+    }
+
+    //private void setChartListenner
 
     private void initViews() {
         btn_mtd = findViewById(R.id.btn_mtd);
