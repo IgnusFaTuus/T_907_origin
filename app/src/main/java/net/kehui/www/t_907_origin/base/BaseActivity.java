@@ -15,6 +15,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public int[]          mTempWaveArray;
     public MyChartAdapter myChartAdapterWave;
+    public boolean isDraw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        mTempWaveArray = new int[500];
+        mTempWaveArray = new int[400];
+        isDraw = true;
     }
 
 }

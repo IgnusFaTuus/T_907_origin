@@ -6,14 +6,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
-import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
 import net.kehui.www.t_907_origin.fragment.FileFragment;
 import net.kehui.www.t_907_origin.fragment.MethodFragment;
@@ -48,18 +47,18 @@ public class MainActivity extends BaseActivity {
     Button       btnFile;
     @BindView(R.id.btn_setting)
     Button       btnSetting;
+    @BindView(R.id.btn_test)
+    Button btnTest;
     @BindView(R.id.fct_bottom)
     LinearLayout fctBottom;
     @BindView(R.id.content)
     FrameLayout  content;
     @BindView(R.id.mainWave)
-    SparkView    mainWave;
+    SparkView       mainWave;
     @BindView(R.id.fullView)
     ImageView    fullView;
     @BindView(R.id.hintText)
     TextView     hintText;
-    @BindView(R.id.btn_test)
-    ImageButton  btnTest;
     //用于展示Fragement
     private MethodFragment  methodFragment;
     private RangeFragment   rangeFragment;
@@ -67,15 +66,6 @@ public class MainActivity extends BaseActivity {
     private OptionFragment  optionFragment;
     private FileFragment    fileFragment;
     private SettingFragment settingFragment;
-
-    //界面布局
-    private Button btn_mtd;
-    private Button btn_range;
-    private Button btn_adj;
-    private Button btn_opt;
-    private Button btn_file;
-    private Button btn_setting;
-
     private FragmentManager fragmentManager;
 
 
@@ -86,22 +76,21 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //初始化布局元素
-        initViews();
+
         fragmentManager = getFragmentManager();
         //第一次启动时选中第0个tab
         setTabSelection(0);
-        btn_mtd.setEnabled(false);
-        btn_range.setEnabled(true);
-        btn_adj.setEnabled(true);
-        btn_opt.setEnabled(true);
-        btn_file.setEnabled(true);
-        btn_setting.setEnabled(true);
+        btnMtd.setEnabled(false);
+        btnRange.setEnabled(true);
+        btnAdj.setEnabled(true);
+        btnOpt.setEnabled(true);
+        btnFile.setEnabled(true);
+        btnSetting.setEnabled(true);
 
-        getWaveData();
+        //getWaveData();
     }
 
-    private void getWaveData() {
+    /*private void getWaveData() {
         InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
                 "wave.txt");
         BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
@@ -128,18 +117,10 @@ public class MainActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-    }
+    }*/
 
     //private void setChartListenner
 
-    private void initViews() {
-        btn_mtd = findViewById(R.id.btn_mtd);
-        btn_range = findViewById(R.id.btn_range);
-        btn_adj = findViewById(R.id.btn_adj);
-        btn_opt = findViewById(R.id.btn_opt);
-        btn_file = findViewById(R.id.btn_file);
-        btn_setting = findViewById(R.id.btn_setting);
-    }
 
 
 
@@ -232,62 +213,62 @@ public class MainActivity extends BaseActivity {
             // 点击方式tab，选中第1个tab
             case R.id.btn_mtd:
                 setTabSelection(0);
-                btn_mtd.setEnabled(false);
-                btn_range.setEnabled(true);
-                btn_adj.setEnabled(true);
-                btn_opt.setEnabled(true);
-                btn_file.setEnabled(true);
-                btn_setting.setEnabled(true);
+                btnMtd.setEnabled(false);
+                btnRange.setEnabled(true);
+                btnAdj.setEnabled(true);
+                btnOpt.setEnabled(true);
+                btnFile.setEnabled(true);
+                btnSetting.setEnabled(true);
                 break;
             // 点击范围tab，选中第2个tab
             case R.id.btn_range:
                 setTabSelection(1);
-                btn_mtd.setEnabled(true);
-                btn_range.setEnabled(false);
-                btn_adj.setEnabled(true);
-                btn_opt.setEnabled(true);
-                btn_file.setEnabled(true);
-                btn_setting.setEnabled(true);
+                btnMtd.setEnabled(true);
+                btnRange.setEnabled(false);
+                btnAdj.setEnabled(true);
+                btnOpt.setEnabled(true);
+                btnFile.setEnabled(true);
+                btnSetting.setEnabled(true);
                 break;
             // 点击调节tab，选中第3个tab
             case R.id.btn_adj:
                 setTabSelection(2);
-                btn_mtd.setEnabled(true);
-                btn_range.setEnabled(true);
-                btn_adj.setEnabled(false);
-                btn_opt.setEnabled(true);
-                btn_file.setEnabled(true);
-                btn_setting.setEnabled(true);
+                btnMtd.setEnabled(true);
+                btnRange.setEnabled(true);
+                btnAdj.setEnabled(false);
+                btnOpt.setEnabled(true);
+                btnFile.setEnabled(true);
+                btnSetting.setEnabled(true);
                 break;
             //点击操作tab，选中第4个tab
             case R.id.btn_opt:
                 setTabSelection(3);
-                btn_mtd.setEnabled(true);
-                btn_range.setEnabled(true);
-                btn_adj.setEnabled(true);
-                btn_opt.setEnabled(false);
-                btn_file.setEnabled(true);
-                btn_setting.setEnabled(true);
+                btnMtd.setEnabled(true);
+                btnRange.setEnabled(true);
+                btnAdj.setEnabled(true);
+                btnOpt.setEnabled(false);
+                btnFile.setEnabled(true);
+                btnSetting.setEnabled(true);
                 break;
             // 点击文档tab，选中第5个tab
             case R.id.btn_file:
                 setTabSelection(4);
-                btn_mtd.setEnabled(true);
-                btn_range.setEnabled(true);
-                btn_adj.setEnabled(true);
-                btn_opt.setEnabled(true);
-                btn_file.setEnabled(false);
-                btn_setting.setEnabled(true);
+                btnMtd.setEnabled(true);
+                btnRange.setEnabled(true);
+                btnAdj.setEnabled(true);
+                btnOpt.setEnabled(true);
+                btnFile.setEnabled(false);
+                btnSetting.setEnabled(true);
                 break;
             // 点击设置tab，选中第6个tab
             case R.id.btn_setting:
                 setTabSelection(5);
-                btn_mtd.setEnabled(true);
-                btn_range.setEnabled(true);
-                btn_adj.setEnabled(true);
-                btn_opt.setEnabled(true);
-                btn_file.setEnabled(true);
-                btn_setting.setEnabled(false);
+                btnMtd.setEnabled(true);
+                btnRange.setEnabled(true);
+                btnAdj.setEnabled(true);
+                btnOpt.setEnabled(true);
+                btnFile.setEnabled(true);
+                btnSetting.setEnabled(false);
                 break;
             default:
                 break;

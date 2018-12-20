@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
+
 import net.kehui.www.t_907_origin.application.MyApplication;
 
 import java.util.ArrayList;

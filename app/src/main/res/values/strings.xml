@@ -6,6 +6,7 @@
     <string name="btn_opt">操作</string>
     <string name="btn_file">文档</string>
     <string name="btn_setting">设置</string>
+    <string name="btn_test">测试</string>
     <string name="btn_tdr">低压脉冲</string>
     <string name="btn_icm">脉冲电流</string>
     <string name="btn_sim">二次脉冲</string>

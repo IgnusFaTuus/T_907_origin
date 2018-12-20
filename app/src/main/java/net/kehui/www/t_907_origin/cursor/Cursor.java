@@ -70,7 +70,6 @@ public class Cursor extends View {
     AT_MOST：  布局文件中的宽和高为wrap_content 属性时，控件的大小一般会随着子View大小大或内容的多少的变化而变化
     UNSPECIFIED：view大小没有限制，想多大就多大
     */
-
     private int viewHeight(int measureSpec) {
         int result = 0;
         int mode = MeasureSpec.getMode(measureSpec);
