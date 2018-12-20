@@ -358,14 +358,6 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         invalidate();
     }
 
-    //红色光标定位
-    public void setScrubLine3(int position) {
-        scrubLinePath.reset();
-        scrubLinePath.moveTo(xPoints.get(position), getPaddingTop());
-        scrubLinePath.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
-        invalidate();
-    }
-
 
     //紫色光标
     public void setScrubLine2(int position) {
@@ -391,9 +383,9 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         canvas.drawPath(scrubLinePath2, scrubLinePaint2);
         canvas.drawPath(scrubLinePath, scrubLinePaint);
 
-        setScrubLine2(50);
+        /*setScrubLine2(50);
         drawTria(canvas, xPoints.get(startPoint), getHeight() - getPaddingBottom(),
-                xPoints.get(startPoint), getPaddingTop(), 30, 10);
+                xPoints.get(startPoint), getPaddingTop(), 30, 10);*/
 
     }
 

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -55,8 +54,8 @@ public class MainActivity extends BaseActivity {
     FrameLayout  content;
     @BindView(R.id.mainWave)
     SparkView       mainWave;
-    @BindView(R.id.fullView)
-    ImageView    fullView;
+    @BindView(R.id.fullWave)
+    SparkView    fullWave;
     @BindView(R.id.hintText)
     TextView     hintText;
     //用于展示Fragement
@@ -87,10 +86,10 @@ public class MainActivity extends BaseActivity {
         btnFile.setEnabled(true);
         btnSetting.setEnabled(true);
 
-        //getWaveData();
+        getWaveData();
     }
 
-    /*private void getWaveData() {
+    private void getWaveData() {
         InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
                 "wave.txt");
         BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
@@ -117,12 +116,7 @@ public class MainActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-    }*/
-
-    //private void setChartListenner
-
-
-
+    }
 
     public void setTabSelection(int index) {
         // 开启一个Fragment事务

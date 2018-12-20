@@ -29,12 +29,12 @@ public class MyChartAdapter extends SparkAdapter {
         this.mCompareArray = mCompareArray;
         this.isShowCompareLine = isShowCompareLine;
         this.splitNum = splitNum;
-        this.isShowSplitLine = isShowCompareLine;
+        this.isShowSplitLine = isShowSplitLine;
     }
 
     @Override
     public int getCount() {
-        return 0;
+        return 400;
     }
 
     @Override
