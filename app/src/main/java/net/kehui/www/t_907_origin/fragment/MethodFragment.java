@@ -33,7 +33,10 @@ public class MethodFragment extends Fragment implements OnClickListener {
 
         initButton();
 
-
+        btn_tdr.setEnabled(false);
+        btn_icm.setEnabled(true);
+        btn_sim.setEnabled(true);
+        btn_decay.setEnabled(true);
     }
 
     private void initButton() {
@@ -58,7 +61,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_decay.setEnabled(true);
 
                 methodRange = 1;
-                TextView textView1 = getActivity().findViewById(R.id.btn_tdr);
+                TextView textViewtdr = getActivity().findViewById(R.id.btn_tdr);
                 break;
             case R.id.btn_icm:
                 btn_tdr.setEnabled(true);
@@ -67,7 +70,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_decay.setEnabled(true);
 
                 methodRange = 2;
-                TextView textView2 = getActivity().findViewById(R.id.btn_icm);
+                TextView textViewicm = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_sim:
                 btn_tdr.setEnabled(true);
@@ -76,7 +79,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_decay.setEnabled(true);
 
                 methodRange = 1;
-                TextView textView3 = getActivity().findViewById(R.id.btn_sim);
+                TextView textViewsim = getActivity().findViewById(R.id.btn_sim);
                 break;
             case R.id.btn_decay:
                 btn_tdr.setEnabled(true);
@@ -85,7 +88,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_decay.setEnabled(false);
 
                 methodRange = 2;
-                TextView textView4 = getActivity().findViewById(R.id.btn_decay);
+                TextView textViewdecay = getActivity().findViewById(R.id.btn_decay);
                 break;
                 default:break;
         }

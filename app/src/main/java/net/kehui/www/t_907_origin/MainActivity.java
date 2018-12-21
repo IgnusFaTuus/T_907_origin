@@ -47,13 +47,13 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.btn_setting)
     Button       btnSetting;
     @BindView(R.id.btn_test)
-    Button btnTest;
+    Button       btnTest;
     @BindView(R.id.fct_bottom)
     LinearLayout fctBottom;
     @BindView(R.id.content)
     FrameLayout  content;
     @BindView(R.id.mainWave)
-    SparkView       mainWave;
+    SparkView    mainWave;
     @BindView(R.id.fullWave)
     SparkView    fullWave;
     @BindView(R.id.hintText)
@@ -86,7 +86,6 @@ public class MainActivity extends BaseActivity {
         btnFile.setEnabled(true);
         btnSetting.setEnabled(true);
 
-        getWaveData();
     }
 
     private void getWaveData() {
@@ -107,10 +106,10 @@ public class MainActivity extends BaseActivity {
             String[] split = s.split("\\s+");
 
             for (int i = 0; i < split.length; i++) {
-                mTempWaveArray[i] = 0;
+                mTempWaveArray[i] = Integer.valueOf(split[i],16);
             }
             myChartAdapterWave = new MyChartAdapter(mTempWaveArray, null,
-                    false,0,false);
+                    false, 0, false);
             mainWave.setAdapter(myChartAdapterWave);
         } catch (IOException e) {
             e.printStackTrace();
@@ -201,7 +200,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @OnClick({R.id.btn_mtd, R.id.btn_range, R.id.btn_adj, R.id.btn_opt, R.id.btn_file, R.id
-            .btn_setting})
+            .btn_setting,R.id.btn_test})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             // 点击方式tab，选中第1个tab
@@ -264,8 +263,14 @@ public class MainActivity extends BaseActivity {
                 btnFile.setEnabled(true);
                 btnSetting.setEnabled(false);
                 break;
+            case R.id.btn_test:
+                clickTest();
             default:
                 break;
         }
+    }
+
+    private void clickTest() {
+        getWaveData();
     }
 }

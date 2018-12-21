@@ -14,11 +14,11 @@ import net.kehui.www.t_907_origin.util.PrefUtils;
 import java.util.Locale;
 
 public class MyApplication extends Application {
-    private DaoMaster.DevOpenHelper mHelper;
-    private SQLiteDatabase db;
-    private DaoMaster mDaoMaster;
-    private DaoSession mDaoSession;
-    public static MyApplication instances;
+    private       DaoMaster.DevOpenHelper mHelper;
+    private       SQLiteDatabase          db;
+    private       DaoMaster               mDaoMaster;
+    private       DaoSession              mDaoSession;
+    public static MyApplication           instances;
 
     //public final Locale Locale_Russia = new Locale("RU", "ru", "");
     //public final Locale Locale_French = new Locale("FR", "fr", "");
@@ -29,7 +29,8 @@ public class MyApplication extends Application {
         super.onCreate();
         MultiLanguageUtil.init(getApplicationContext());
         instances = this;
-        MultiLanguageUtil.getInstance().updateLanguage(PrefUtils.getString(MyApplication.getInstances(), AppConfig.CURRENT_LANGUAGE, "follow_sys"));
+        MultiLanguageUtil.getInstance().updateLanguage(PrefUtils.getString(MyApplication
+                .getInstances(), AppConfig.CURRENT_LANGUAGE, "follow_sys"));
 
         setDatabase();
         //_socket = null;
@@ -39,8 +40,10 @@ public class MyApplication extends Application {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        MultiLanguageUtil.getInstance().updateLanguage(PrefUtils.getString(MyApplication.getInstances(), AppConfig.CURRENT_LANGUAGE, "follow_sys"));
-//        switchLanguage(PrefUtils.getString(MyApplication.getInstances(), AppConfig.CURRENT_LANGUAGE, "follow_sys"));
+        MultiLanguageUtil.getInstance().updateLanguage(PrefUtils.getString(MyApplication
+                .getInstances(), AppConfig.CURRENT_LANGUAGE, "follow_sys"));
+        //        switchLanguage(PrefUtils.getString(MyApplication.getInstances(), AppConfig
+        // .CURRENT_LANGUAGE, "follow_sys"));
     }
 
     public static MyApplication getInstances() {

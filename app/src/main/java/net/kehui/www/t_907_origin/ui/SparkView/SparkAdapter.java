@@ -71,9 +71,9 @@ public abstract class SparkAdapter {
         final boolean hasBaseLine = hasBaseLine();
 
         float minY = hasBaseLine ? getBaseLine() : 0;
-        float maxY = hasBaseLine ? minY : 4095;
+        float maxY = hasBaseLine ? minY : 255;
         float minX = 0;
-        float maxX = 400;
+        float maxX = 540;
         for (int i = 0; i < count; i++) {
             final float x = getX(i);
             minX = Math.min(minX, x);

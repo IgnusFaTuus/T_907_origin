@@ -85,7 +85,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     private Paint baseLinePaint;
     private Paint scrubLinePaint;
     private Paint scrubLinePaint2;
-    private Paint arrowLinePaint;
+    //private Paint arrowLinePaint;
 
     private SparkView.OnScrubListener scrubListener;
     private ScrubGestureDetector scrubGestureDetector;
@@ -158,13 +158,12 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
 
         baseLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         baseLinePaint.setStyle(Paint.Style.STROKE);
-        baseLinePaint.setColor(Color.RED);
+        baseLinePaint.setColor(Color.WHITE);
         baseLinePaint.setStrokeWidth(lineWidth);
 
         scrubLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         scrubLinePaint.setStyle(Paint.Style.STROKE);
         scrubLinePaint.setStrokeWidth(scrubLineWidth);
-//        scrubLinePaint.setColor(scrubLineColor);
         scrubLinePaint.setColor(Color.RED);
         scrubLinePaint.setStrokeCap(Paint.Cap.ROUND);
 
@@ -175,11 +174,11 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         scrubLinePaint2.setColor(Color.parseColor("#9533b2"));
         scrubLinePaint2.setStrokeCap(Paint.Cap.ROUND);
 
-        arrowLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        /*arrowLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         arrowLinePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         arrowLinePaint.setStrokeWidth(5);
         arrowLinePaint.setColor(Color.parseColor("#5a5a5a"));
-        arrowLinePaint.setStrokeCap(Paint.Cap.ROUND);
+        arrowLinePaint.setStrokeCap(Paint.Cap.ROUND);*/
 
         final Handler handler = new Handler();
         final float touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -383,18 +382,18 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         canvas.drawPath(scrubLinePath2, scrubLinePaint2);
         canvas.drawPath(scrubLinePath, scrubLinePaint);
 
-        /*setScrubLine2(50);
-        drawTria(canvas, xPoints.get(startPoint), getHeight() - getPaddingBottom(),
+        //setScrubLine2(5);
+        /*drawTria(canvas, xPoints.get(startPoint), getHeight() - getPaddingBottom(),
                 xPoints.get(startPoint), getPaddingTop(), 30, 10);*/
 
     }
 
-    public void setStartPoint(int startPoint) {
+   /* public void setStartPoint(int startPoint) {
         this.startPoint = startPoint;
     }
 
-    //    scrubLinePath2.moveTo(xPoints.get(position), getPaddingTop());
-//    scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
+    scrubLinePath2.moveTo(xPoints.get(position), getPaddingTop());
+scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
     protected void drawTria(Canvas canvas, float fromX, float fromY, float toX, float toY,
                             int heigth, int bottom) {
 // heigth和bottom分别为三角形的高与底的一半,调节三角形大小
@@ -416,7 +415,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
                 + (bottom / juli * juliX));
         path.close(); // 使这些点构成封闭的三边形
         canvas.drawPath(path, arrowLinePaint);
-    }
+    }*/
 
     /**
      * Get the color of the sparkline

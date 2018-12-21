@@ -34,22 +34,27 @@ public class MyChartAdapter extends SparkAdapter {
 
     @Override
     public int getCount() {
-        return 400;
+        return 540;
     }
 
     @Override
     public Object getItem(int index) {
-        return null;
+        return index;
+    }
+
+    @Override
+    public float getX(int index) {
+        return super.getX(index);
     }
 
     @Override
     public float getY(int index) {
-        return 0;
+        return mTempArray[index];
     }
 
     @Override
     public float getY1(int index) {
-        return 0;
+        return mCompareArray[index];
     }
 
     @Override

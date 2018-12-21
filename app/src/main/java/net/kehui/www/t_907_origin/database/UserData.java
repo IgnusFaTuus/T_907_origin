@@ -10,30 +10,32 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity
 public class UserData {
     @Id(autoincrement = true)
-    private Long id;
+    private Long   id;
     private String InfoId;
-    private long testTime;
+    private long   testTime;
     private String testMethod;
     private String testRange;
+    private String waveVelocity;
     private String testPosition;
     private String cableFullLength;
     private String cablePhase;
     private String cableType;
     private String faultType;
     private String faultLength;
-    private int Gain;
+    private int    Gain;
     private String language;
 
-    @Generated(hash = 661905420)
+    @Generated(hash = 2067042902)
     public UserData(Long id, String InfoId, long testTime, String testMethod,
-            String testRange, String testPosition, String cableFullLength,
-            String cablePhase, String cableType, String faultType,
-            String faultLength, int Gain, String language) {
+            String testRange, String waveVelocity, String testPosition,
+            String cableFullLength, String cablePhase, String cableType,
+            String faultType, String faultLength, int Gain, String language) {
         this.id = id;
         this.InfoId = InfoId;
         this.testTime = testTime;
         this.testMethod = testMethod;
         this.testRange = testRange;
+        this.waveVelocity = waveVelocity;
         this.testPosition = testPosition;
         this.cableFullLength = cableFullLength;
         this.cablePhase = cablePhase;
@@ -150,6 +152,14 @@ public class UserData {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public String getWaveVelocity() {
+        return waveVelocity;
+    }
+
+    public void setWaveVelocity(String waveVelocity) {
+        this.waveVelocity = waveVelocity;
     }
 }
 

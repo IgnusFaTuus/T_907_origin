@@ -29,14 +29,15 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
         public final static Property TestTime = new Property(2, long.class, "testTime", false, "TEST_TIME");
         public final static Property TestMethod = new Property(3, String.class, "testMethod", false, "TEST_METHOD");
         public final static Property TestRange = new Property(4, String.class, "testRange", false, "TEST_RANGE");
-        public final static Property TestPosition = new Property(5, String.class, "testPosition", false, "TEST_POSITION");
-        public final static Property CableFullLength = new Property(6, String.class, "cableFullLength", false, "CABLE_FULL_LENGTH");
-        public final static Property CablePhase = new Property(7, String.class, "cablePhase", false, "CABLE_PHASE");
-        public final static Property CableType = new Property(8, String.class, "cableType", false, "CABLE_TYPE");
-        public final static Property FaultType = new Property(9, String.class, "faultType", false, "FAULT_TYPE");
-        public final static Property FaultLength = new Property(10, String.class, "faultLength", false, "FAULT_LENGTH");
-        public final static Property Gain = new Property(11, int.class, "Gain", false, "GAIN");
-        public final static Property Language = new Property(12, String.class, "language", false, "LANGUAGE");
+        public final static Property WaveVelocity = new Property(5, String.class, "waveVelocity", false, "WAVE_VELOCITY");
+        public final static Property TestPosition = new Property(6, String.class, "testPosition", false, "TEST_POSITION");
+        public final static Property CableFullLength = new Property(7, String.class, "cableFullLength", false, "CABLE_FULL_LENGTH");
+        public final static Property CablePhase = new Property(8, String.class, "cablePhase", false, "CABLE_PHASE");
+        public final static Property CableType = new Property(9, String.class, "cableType", false, "CABLE_TYPE");
+        public final static Property FaultType = new Property(10, String.class, "faultType", false, "FAULT_TYPE");
+        public final static Property FaultLength = new Property(11, String.class, "faultLength", false, "FAULT_LENGTH");
+        public final static Property Gain = new Property(12, int.class, "Gain", false, "GAIN");
+        public final static Property Language = new Property(13, String.class, "language", false, "LANGUAGE");
     }
 
 
@@ -57,14 +58,15 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
                 "\"TEST_TIME\" INTEGER NOT NULL ," + // 2: testTime
                 "\"TEST_METHOD\" TEXT," + // 3: testMethod
                 "\"TEST_RANGE\" TEXT," + // 4: testRange
-                "\"TEST_POSITION\" TEXT," + // 5: testPosition
-                "\"CABLE_FULL_LENGTH\" TEXT," + // 6: cableFullLength
-                "\"CABLE_PHASE\" TEXT," + // 7: cablePhase
-                "\"CABLE_TYPE\" TEXT," + // 8: cableType
-                "\"FAULT_TYPE\" TEXT," + // 9: faultType
-                "\"FAULT_LENGTH\" TEXT," + // 10: faultLength
-                "\"GAIN\" INTEGER NOT NULL ," + // 11: Gain
-                "\"LANGUAGE\" TEXT);"); // 12: language
+                "\"WAVE_VELOCITY\" TEXT," + // 5: waveVelocity
+                "\"TEST_POSITION\" TEXT," + // 6: testPosition
+                "\"CABLE_FULL_LENGTH\" TEXT," + // 7: cableFullLength
+                "\"CABLE_PHASE\" TEXT," + // 8: cablePhase
+                "\"CABLE_TYPE\" TEXT," + // 9: cableType
+                "\"FAULT_TYPE\" TEXT," + // 10: faultType
+                "\"FAULT_LENGTH\" TEXT," + // 11: faultLength
+                "\"GAIN\" INTEGER NOT NULL ," + // 12: Gain
+                "\"LANGUAGE\" TEXT);"); // 13: language
     }
 
     /** Drops the underlying database table. */
@@ -98,40 +100,45 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
             stmt.bindString(5, testRange);
         }
  
+        String waveVelocity = entity.getWaveVelocity();
+        if (waveVelocity != null) {
+            stmt.bindString(6, waveVelocity);
+        }
+ 
         String testPosition = entity.getTestPosition();
         if (testPosition != null) {
-            stmt.bindString(6, testPosition);
+            stmt.bindString(7, testPosition);
         }
  
         String cableFullLength = entity.getCableFullLength();
         if (cableFullLength != null) {
-            stmt.bindString(7, cableFullLength);
+            stmt.bindString(8, cableFullLength);
         }
  
         String cablePhase = entity.getCablePhase();
         if (cablePhase != null) {
-            stmt.bindString(8, cablePhase);
+            stmt.bindString(9, cablePhase);
         }
  
         String cableType = entity.getCableType();
         if (cableType != null) {
-            stmt.bindString(9, cableType);
+            stmt.bindString(10, cableType);
         }
  
         String faultType = entity.getFaultType();
         if (faultType != null) {
-            stmt.bindString(10, faultType);
+            stmt.bindString(11, faultType);
         }
  
         String faultLength = entity.getFaultLength();
         if (faultLength != null) {
-            stmt.bindString(11, faultLength);
+            stmt.bindString(12, faultLength);
         }
-        stmt.bindLong(12, entity.getGain());
+        stmt.bindLong(13, entity.getGain());
  
         String language = entity.getLanguage();
         if (language != null) {
-            stmt.bindString(13, language);
+            stmt.bindString(14, language);
         }
     }
 
@@ -160,40 +167,45 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
             stmt.bindString(5, testRange);
         }
  
+        String waveVelocity = entity.getWaveVelocity();
+        if (waveVelocity != null) {
+            stmt.bindString(6, waveVelocity);
+        }
+ 
         String testPosition = entity.getTestPosition();
         if (testPosition != null) {
-            stmt.bindString(6, testPosition);
+            stmt.bindString(7, testPosition);
         }
  
         String cableFullLength = entity.getCableFullLength();
         if (cableFullLength != null) {
-            stmt.bindString(7, cableFullLength);
+            stmt.bindString(8, cableFullLength);
         }
  
         String cablePhase = entity.getCablePhase();
         if (cablePhase != null) {
-            stmt.bindString(8, cablePhase);
+            stmt.bindString(9, cablePhase);
         }
  
         String cableType = entity.getCableType();
         if (cableType != null) {
-            stmt.bindString(9, cableType);
+            stmt.bindString(10, cableType);
         }
  
         String faultType = entity.getFaultType();
         if (faultType != null) {
-            stmt.bindString(10, faultType);
+            stmt.bindString(11, faultType);
         }
  
         String faultLength = entity.getFaultLength();
         if (faultLength != null) {
-            stmt.bindString(11, faultLength);
+            stmt.bindString(12, faultLength);
         }
-        stmt.bindLong(12, entity.getGain());
+        stmt.bindLong(13, entity.getGain());
  
         String language = entity.getLanguage();
         if (language != null) {
-            stmt.bindString(13, language);
+            stmt.bindString(14, language);
         }
     }
 
@@ -210,14 +222,15 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
             cursor.getLong(offset + 2), // testTime
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // testMethod
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // testRange
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // testPosition
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // cableFullLength
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // cablePhase
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // cableType
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // faultType
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // faultLength
-            cursor.getInt(offset + 11), // Gain
-            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12) // language
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // waveVelocity
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // testPosition
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // cableFullLength
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // cablePhase
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // cableType
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // faultType
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // faultLength
+            cursor.getInt(offset + 12), // Gain
+            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13) // language
         );
         return entity;
     }
@@ -229,14 +242,15 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
         entity.setTestTime(cursor.getLong(offset + 2));
         entity.setTestMethod(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setTestRange(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setTestPosition(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setCableFullLength(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setCablePhase(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setCableType(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setFaultType(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setFaultLength(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setGain(cursor.getInt(offset + 11));
-        entity.setLanguage(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setWaveVelocity(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setTestPosition(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setCableFullLength(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setCablePhase(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setCableType(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setFaultType(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setFaultLength(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setGain(cursor.getInt(offset + 12));
+        entity.setLanguage(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
      }
     
     @Override

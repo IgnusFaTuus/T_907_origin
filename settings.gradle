@@ -1,1 +1,1 @@
-include ':app', ':sparkdemo'
+include ':app'

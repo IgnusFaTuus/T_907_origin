@@ -43,4 +43,5 @@
     <drawable name="clr_normal">#FF303F9F</drawable>
     <drawable name="clr_pressed">#9501f9</drawable>
     <string name="title_activity_base">BaseActivity</string>
+    <string name="fault_distance">"距离:  "</string>
 </resources>

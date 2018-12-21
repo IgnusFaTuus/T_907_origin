@@ -46,6 +46,19 @@ public class RangeFragment extends Fragment {
         return rangeLayout;
     }
 
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        btn500m.setEnabled(false);
+        btn1km.setEnabled(true);
+        btn2km.setEnabled(true);
+        btn4km.setEnabled(true);
+        btn8km.setEnabled(true);
+        btn16km.setEnabled(true);
+        btn32km.setEnabled(true);
+        btn64km.setEnabled(true);
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
