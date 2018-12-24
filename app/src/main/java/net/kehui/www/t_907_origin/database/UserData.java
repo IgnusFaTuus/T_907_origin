@@ -27,9 +27,9 @@ public class UserData {
 
     @Generated(hash = 2067042902)
     public UserData(Long id, String InfoId, long testTime, String testMethod,
-            String testRange, String waveVelocity, String testPosition,
-            String cableFullLength, String cablePhase, String cableType,
-            String faultType, String faultLength, int Gain, String language) {
+                    String testRange, String waveVelocity, String testPosition,
+                    String cableFullLength, String cablePhase, String cableType,
+                    String faultType, String faultLength, int Gain, String language) {
         this.id = id;
         this.InfoId = InfoId;
         this.testTime = testTime;

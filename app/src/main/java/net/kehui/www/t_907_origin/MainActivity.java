@@ -85,6 +85,7 @@ public class MainActivity extends BaseActivity {
         btnOpt.setEnabled(true);
         btnFile.setEnabled(true);
         btnSetting.setEnabled(true);
+        getWaveData();
 
     }
 
@@ -108,9 +109,12 @@ public class MainActivity extends BaseActivity {
             for (int i = 0; i < split.length; i++) {
                 mTempWaveArray[i] = Integer.valueOf(split[i],16);
             }
-            myChartAdapterWave = new MyChartAdapter(mTempWaveArray, null,
+            myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
                     false, 0, false);
-            mainWave.setAdapter(myChartAdapterWave);
+            myChartAdapterFullWave = new MyChartAdapter(mTempWaveArray, null,
+                    false, 0, false);
+            mainWave.setAdapter(myChartAdapterMainWave);
+            fullWave.setAdapter(myChartAdapterFullWave);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,69 +209,93 @@ public class MainActivity extends BaseActivity {
         switch (view.getId()) {
             // 点击方式tab，选中第1个tab
             case R.id.btn_mtd:
-                setTabSelection(0);
-                btnMtd.setEnabled(false);
-                btnRange.setEnabled(true);
-                btnAdj.setEnabled(true);
-                btnOpt.setEnabled(true);
-                btnFile.setEnabled(true);
-                btnSetting.setEnabled(true);
+                clickMethod();
                 break;
             // 点击范围tab，选中第2个tab
             case R.id.btn_range:
-                setTabSelection(1);
-                btnMtd.setEnabled(true);
-                btnRange.setEnabled(false);
-                btnAdj.setEnabled(true);
-                btnOpt.setEnabled(true);
-                btnFile.setEnabled(true);
-                btnSetting.setEnabled(true);
+                clickRange();
                 break;
             // 点击调节tab，选中第3个tab
             case R.id.btn_adj:
-                setTabSelection(2);
-                btnMtd.setEnabled(true);
-                btnRange.setEnabled(true);
-                btnAdj.setEnabled(false);
-                btnOpt.setEnabled(true);
-                btnFile.setEnabled(true);
-                btnSetting.setEnabled(true);
+                clickAdjust();
                 break;
             //点击操作tab，选中第4个tab
             case R.id.btn_opt:
-                setTabSelection(3);
-                btnMtd.setEnabled(true);
-                btnRange.setEnabled(true);
-                btnAdj.setEnabled(true);
-                btnOpt.setEnabled(false);
-                btnFile.setEnabled(true);
-                btnSetting.setEnabled(true);
+                clickOption();
                 break;
             // 点击文档tab，选中第5个tab
             case R.id.btn_file:
-                setTabSelection(4);
-                btnMtd.setEnabled(true);
-                btnRange.setEnabled(true);
-                btnAdj.setEnabled(true);
-                btnOpt.setEnabled(true);
-                btnFile.setEnabled(false);
-                btnSetting.setEnabled(true);
+                clickFile();
                 break;
             // 点击设置tab，选中第6个tab
             case R.id.btn_setting:
-                setTabSelection(5);
-                btnMtd.setEnabled(true);
-                btnRange.setEnabled(true);
-                btnAdj.setEnabled(true);
-                btnOpt.setEnabled(true);
-                btnFile.setEnabled(true);
-                btnSetting.setEnabled(false);
+                clickSetting();
                 break;
             case R.id.btn_test:
                 clickTest();
             default:
                 break;
         }
+    }
+
+    private void clickSetting() {
+        setTabSelection(5);
+        btnMtd.setEnabled(true);
+        btnRange.setEnabled(true);
+        btnAdj.setEnabled(true);
+        btnOpt.setEnabled(true);
+        btnFile.setEnabled(true);
+        btnSetting.setEnabled(false);
+    }
+
+    private void clickFile() {
+        setTabSelection(4);
+        btnMtd.setEnabled(true);
+        btnRange.setEnabled(true);
+        btnAdj.setEnabled(true);
+        btnOpt.setEnabled(true);
+        btnFile.setEnabled(false);
+        btnSetting.setEnabled(true);
+    }
+
+    private void clickOption() {
+        setTabSelection(3);
+        btnMtd.setEnabled(true);
+        btnRange.setEnabled(true);
+        btnAdj.setEnabled(true);
+        btnOpt.setEnabled(false);
+        btnFile.setEnabled(true);
+        btnSetting.setEnabled(true);
+    }
+
+    private void clickAdjust() {
+        setTabSelection(2);
+        btnMtd.setEnabled(true);
+        btnRange.setEnabled(true);
+        btnAdj.setEnabled(false);
+        btnOpt.setEnabled(true);
+        btnFile.setEnabled(true);
+        btnSetting.setEnabled(true);
+    }
+
+    private void clickRange() {
+        setTabSelection(1);
+        btnMtd.setEnabled(true);
+        btnRange.setEnabled(false);
+        btnAdj.setEnabled(true);
+        btnOpt.setEnabled(true);
+        btnFile.setEnabled(true);
+        btnSetting.setEnabled(true);
+    }
+
+    private void clickMethod() {
+        setTabSelection(0);
+        btnMtd.setEnabled(false);
+        btnRange.setEnabled(true);
+        btnAdj.setEnabled(true);
+        btnOpt.setEnabled(true);
+        btnFile.setEnabled(true);
+        btnSetting.setEnabled(true);
     }
 
     private void clickTest() {

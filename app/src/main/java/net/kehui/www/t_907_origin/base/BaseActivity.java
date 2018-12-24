@@ -14,7 +14,8 @@ import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
 public class BaseActivity extends AppCompatActivity {
 
     public int[]          mTempWaveArray;
-    public MyChartAdapter myChartAdapterWave;
+    public MyChartAdapter myChartAdapterMainWave;
+    public MyChartAdapter myChartAdapterFullWave;
     public boolean        isDraw;
 
     @Override

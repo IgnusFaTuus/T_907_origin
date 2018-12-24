@@ -78,7 +78,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                TextView textView500 = getActivity().findViewById(R.id.btn_icm);
+                //TextView textView500 = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_1km:
                 btn500m.setEnabled(true);
@@ -89,7 +89,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                TextView textView1k = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_2km:
                 btn500m.setEnabled(true);
@@ -100,7 +99,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                TextView textView2k = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_4km:
                 btn500m.setEnabled(true);
@@ -111,7 +109,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                TextView textView4k = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_8km:
                 btn500m.setEnabled(true);
@@ -122,7 +119,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                TextView textView8k = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_16km:
                 btn500m.setEnabled(true);
@@ -133,7 +129,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(false);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                TextView textView16k = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_32km:
                 btn500m.setEnabled(true);
@@ -144,7 +139,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(false);
                 btn64km.setEnabled(true);
-                TextView textView32k = getActivity().findViewById(R.id.btn_icm);
                 break;
             case R.id.btn_64km:
                 btn500m.setEnabled(true);
@@ -155,7 +149,6 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(false);
-                TextView textView64k = getActivity().findViewById(R.id.btn_icm);
                 break;
                 default:break;
         }
