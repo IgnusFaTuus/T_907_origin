@@ -40,8 +40,10 @@
     <string name="btn_time_minus">时间-</string>
     <string name="btn_zero">光标零点</string>
     <string name="btn_lang">语言切换</string>
+    <string name="btn_wifi">WIFI列表</string>
     <drawable name="clr_normal">#FF303F9F</drawable>
     <drawable name="clr_pressed">#9501f9</drawable>
     <string name="title_activity_base">BaseActivity</string>
     <string name="fault_distance">"距离:  "</string>
+    <string name="btn_cursor">光标</string>
 </resources>

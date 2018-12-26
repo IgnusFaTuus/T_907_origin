@@ -1,4 +1,4 @@
-package net.kehui.www.t_907_origin;
+package net.kehui.www.t_907_origin.view;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
@@ -48,8 +48,6 @@ public class MainActivity extends BaseActivity {
     Button       btnSetting;
     @BindView(R.id.btn_test)
     Button       btnTest;
-    @BindView(R.id.fct_bottom)
-    LinearLayout fctBottom;
     @BindView(R.id.content)
     FrameLayout  content;
     @BindView(R.id.mainWave)
@@ -87,6 +85,8 @@ public class MainActivity extends BaseActivity {
         btnSetting.setEnabled(true);
         getWaveData();
 
+
+
     }
 
     private void getWaveData() {
@@ -106,8 +106,8 @@ public class MainActivity extends BaseActivity {
             String s = baos.toString();
             String[] split = s.split("\\s+");
 
-            for (int i = 0; i < split.length; i++) {
-                mTempWaveArray[i] = Integer.valueOf(split[i],16);
+            for (int i = 8,j=0; i < 548; i++,j++) {
+                mTempWaveArray[j] = 128;
             }
             myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
                     false, 0, false);
@@ -233,6 +233,7 @@ public class MainActivity extends BaseActivity {
                 break;
             case R.id.btn_test:
                 clickTest();
+                break;
             default:
                 break;
         }
@@ -298,7 +299,40 @@ public class MainActivity extends BaseActivity {
         btnSetting.setEnabled(true);
     }
 
+
+
     private void clickTest() {
-        getWaveData();
+        getTestWaveData();
+    }
+    private void getTestWaveData() {
+        InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
+                "wave.txt");
+        BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        int c = 0;
+        try {
+            c = bis.read();
+            while (c != -1) {
+                baos.write(c);
+                c = bis.read();
+            }
+            bis.close();
+            String s = baos.toString();
+            String[] split = s.split("\\s+");
+
+            for (int i = 8,j=0; i < 548; i++,j++) {
+                mTempWaveArray[j] = Integer.valueOf(split[i],16);
+            }
+            myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
+                    false, 0, false);
+            myChartAdapterFullWave = new MyChartAdapter(mTempWaveArray, null,
+                    false, 0, false);
+            mainWave.setAdapter(myChartAdapterMainWave);
+            fullWave.setAdapter(myChartAdapterFullWave);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

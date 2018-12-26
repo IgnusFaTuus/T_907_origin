@@ -48,7 +48,6 @@
             android:layout_height="45dp"
             android:text="@string/btn_lang"
             android:textColor="@android:color/black"/>
-
     </LinearLayout>
 
 </RelativeLayout>

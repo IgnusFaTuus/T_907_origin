@@ -5,72 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#303f9f"
-    tools:context="net.kehui.www.t_907_origin.MainActivity">
-
-    <LinearLayout
-        android:id="@+id/fct_bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/content"
-        android:background="@drawable/border"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btn_mtd"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="75dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
-            android:text="@string/btn_mtd"
-            android:textColor="@android:color/black" />
-
-        <Button
-            android:id="@+id/btn_range"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="75dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
-            android:text="@string/btn_range"
-            android:textColor="@android:color/black" />
-
-        <Button
-            android:id="@+id/btn_adj"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="75dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
-            android:text="@string/btn_adj"
-            android:textColor="@android:color/black" />
-
-        <Button
-            android:id="@+id/btn_opt"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="75dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
-            android:text="@string/btn_opt"
-            android:textColor="@android:color/black" />
-
-        <Button
-            android:id="@+id/btn_file"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="75dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
-            android:text="@string/btn_file"
-            android:textColor="@android:color/black" />
-
-        <Button
-            android:id="@+id/btn_setting"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="75dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
-            android:text="@string/btn_setting"
-            android:textColor="@android:color/black" />
-
-    </LinearLayout>
+    tools:context="net.kehui.www.t_907_origin.view.MainActivity">
 
     <FrameLayout
         android:id="@+id/content"
@@ -82,6 +17,7 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/wave_display"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/fct_bottom"
@@ -102,14 +38,14 @@
                 android:layout_height="match_parent"
                 app:spark_animateChanges="true"
                 app:spark_lineColor="@color/spark_line_color"
-                app:spark_scrubEnabled="true"/>
+                app:spark_scrubEnabled="true" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="25dp"
                 android:layout_marginTop="15dp"
+                android:layout_marginRight="25dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -118,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/fault_distance"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="16dp"/>
+                    android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/tv_distance"
@@ -126,8 +62,16 @@
                     android:layout_height="wrap_content"
                     android:text="0m"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="16dp"/>
+                    android:textSize="16dp" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/status_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="State" />
         </RelativeLayout>
 
         <LinearLayout
@@ -165,14 +109,103 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_test"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="75dp"
+    <RelativeLayout
+        android:id="@+id/fct_bottom"
+        android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:text="@string/btn_test"
-        android:textColor="@android:color/black" />
+        android:layout_toStartOf="@+id/content">
+
+        <LinearLayout
+            android:id="@+id/fct_bottom_r"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/border"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_mtd"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:text="@string/btn_mtd"
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/btn_range"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:text="@string/btn_range"
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/btn_adj"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:text="@string/btn_adj"
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/btn_opt"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:text="@string/btn_opt"
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/btn_file"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:text="@string/btn_file"
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/btn_setting"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:text="@string/btn_setting"
+                android:textColor="@android:color/black" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fct_bottom_l"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/border"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_test"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+
+                android:text="@string/btn_test"
+                android:textColor="@android:color/black" />
+            <Button
+                android:id="@+id/btn_cursor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+
+                android:text="@string/btn_cursor"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
