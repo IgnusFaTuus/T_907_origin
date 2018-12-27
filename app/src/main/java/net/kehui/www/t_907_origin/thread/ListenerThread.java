@@ -26,7 +26,7 @@ public class ListenerThread extends Thread {
         this.port = port;
         this.handler = handler;
         try {
-            serverSocket = new ServerSocket(port);//监听本机的12345端口
+            serverSocket = new ServerSocket(port);//监听本机的9000端口
         } catch (IOException e) {
             e.printStackTrace();
         }
