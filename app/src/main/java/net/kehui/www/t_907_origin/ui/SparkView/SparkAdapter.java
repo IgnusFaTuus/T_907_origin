@@ -20,6 +20,7 @@ import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.graphics.RectF;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import java.util.List;
 
@@ -29,6 +30,10 @@ import java.util.List;
  */
 public abstract class SparkAdapter {
     private final DataSetObservable observable = new DataSetObservable();
+
+    public abstract boolean getCursorState();   //GC20181223
+
+    public abstract int getMax();   //GC20181227
 
     /**
      * @return the number of points to be drawn
@@ -67,13 +72,13 @@ public abstract class SparkAdapter {
      * @return a RectF of the bounds desired around this adapter's data.
      */
     public RectF getDataBounds() {
-        final int count = getCount();
+        final int count = getMax(); //GC20181227
+        Log.e("count","" + count);
         final boolean hasBaseLine = hasBaseLine();
-
         float minY = hasBaseLine ? getBaseLine() : 0;
         float maxY = hasBaseLine ? minY : 255;
         float minX = 0;
-        float maxX = 540;
+        float maxX = getMax();  //GC20181227
         for (int i = 0; i < count; i++) {
             final float x = getX(i);
             minX = Math.min(minX, x);

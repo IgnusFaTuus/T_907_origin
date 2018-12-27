@@ -37,7 +37,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-
 import net.kehui.www.t_907_origin.application.MyApplication;
 
 import java.util.ArrayList;
@@ -49,7 +48,6 @@ import java.util.List;
  */
 public class SparkView extends View implements ScrubGestureDetector.ScrubListener {
     private static final String TAG = "Spark";
-
     // styleable values
     @ColorInt
     private int lineColor;
@@ -202,7 +200,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         if (adapter == null) return;
         if (getWidth() == 0 || getHeight() == 0) return;
 
-        final int adapterCount = adapter.getCount();
+        final int adapterCount = adapter.getMax();  //GC20181227
 
         // to draw anything, we need 2 or more points
         if (adapterCount < 2) {
@@ -241,7 +239,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
 
         // if we're filling the graph in, close the path's circuit
         if (fill) {
-            float lastX = scaleHelper.getX(adapter.getCount() - 1);
+            float lastX = scaleHelper.getX(adapter.getMax() - 1);   //GC20181227
             float bottom = getHeight() - getPaddingBottom();
             // line straight down to the bottom of the view
             sparkPath.lineTo(lastX, bottom);
@@ -251,11 +249,8 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
             sparkPath.close();
         }
 
-
         //画第二条线
-        Log.e("QQQ", "adapter" +
-                ".getIsShowCompare()" + adapter.getCompare());
-
+        Log.e("QQQ", "adapter" + ".getIsShowCompare()" + adapter.getCompare());
 
         if (adapter.getCompare()) {
             Toast.makeText(MyApplication.getInstances().getApplicationContext(), "adapter" +
@@ -278,7 +273,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
 
             // if we're filling the graph in, close the path's circuit
             if (fill) {
-                float lastX = scaleHelper.getX(adapter.getCount() - 1);
+                float lastX = scaleHelper.getX(adapter.getMax() - 1);   //GC20181227
                 float bottom = getHeight() - getPaddingBottom();
                 // line straight down to the bottom of the view
                 sparkPath2.lineTo(lastX, bottom);
@@ -349,17 +344,29 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     public Path getSparkLinePath() {
         return new Path(sparkPath);
     }
-
-    public void setScrubLine(float x) {
+    //GC 绘制移动的红色光标
+    public void setScrubLineRealMove(float x) {
         scrubLinePath.reset();
         scrubLinePath.moveTo(x, getPaddingTop());
         scrubLinePath.lineTo(x, getHeight() - getPaddingBottom());
         invalidate();
     }
-
-
-    //紫色光标
-    public void setScrubLine2(int position) {
+    //GC 绘制移动的紫色光标
+    public void setScrubLineVirtualMove(float x) {
+        scrubLinePath2.reset();
+        scrubLinePath2.moveTo(x, getPaddingTop());
+        scrubLinePath2.lineTo(x, getHeight() - getPaddingBottom());
+        invalidate();
+    }
+    //GC20181224 设置光标位置
+    public void setScrubLineReal(int position) {
+        scrubLinePath.reset();
+        scrubLinePath.moveTo(xPoints.get(position), getPaddingTop());
+        scrubLinePath.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
+        invalidate();
+    }
+    //GC20181224 设置光标位置
+    public void setScrubLineVirtual(int position) {
         scrubLinePath2.reset();
         scrubLinePath2.moveTo(xPoints.get(position), getPaddingTop());
         scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
@@ -381,22 +388,18 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         canvas.drawPath(renderPath2, baseLinePaint);
         canvas.drawPath(scrubLinePath2, scrubLinePaint2);
         canvas.drawPath(scrubLinePath, scrubLinePaint);
-
-        setScrubLine2(5);
+        //setScrubLine(50);
         /*drawTria(canvas, xPoints.get(startPoint), getHeight() - getPaddingBottom(),
                 xPoints.get(startPoint), getPaddingTop(), 30, 10);*/
 
     }
 
-   /* public void setStartPoint(int startPoint) {
+    public void setStartPoint(int startPoint) {
         this.startPoint = startPoint;
     }
 
-    scrubLinePath2.moveTo(xPoints.get(position), getPaddingTop());
-scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
-    protected void drawTria(Canvas canvas, float fromX, float fromY, float toX, float toY,
-                            int heigth, int bottom) {
-// heigth和bottom分别为三角形的高与底的一半,调节三角形大小
+    /*protected void drawTria(Canvas canvas, float fromX, float fromY, float toX, float toY, int heigth, int bottom) {
+        // heigth和bottom分别为三角形的高与底的一半,调节三角形大小
         canvas.drawLine(xPoints.get(startPoint), getHeight() - getPaddingBottom(), xPoints.get(startPoint), getPaddingTop(), arrowLinePaint);
         float juli = (float) Math.sqrt((toX - fromX) * (toX - fromX)
                 + (toY - fromY) * (toY - fromY));// 获取线段距离
@@ -406,7 +409,7 @@ scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
         float dianY = toY - (heigth / juli * juliY);
         float dian2X = fromX + (heigth / juli * juliX);
         float dian2Y = fromY + (heigth / juli * juliY);
-//终点的箭头
+        //终点的箭头
         Path path = new Path();
         path.moveTo(toX, toY);// 此点为三边形的起点
         path.lineTo(dianX + (bottom / juli * juliY), dianY
@@ -734,7 +737,7 @@ scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
             this.width = contentRect.width() - lineWidthOffset;
             this.height = contentRect.height() - lineWidthOffset;
 
-            this.size = adapter.getCount();
+            this.size = adapter.getMax();   //GC20181227
 
             // get data bounds from adapter
             RectF bounds = adapter.getDataBounds();
@@ -834,7 +837,7 @@ scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
     @Override
     public void onScrubbed(float x, float y) {
         scX = x;
-        if (adapter == null || adapter.getCount() == 0) return;
+        if (adapter == null || adapter.getMax()== 0) return;    //GC20181227
         if (scrubListener != null) {
             getParent().requestDisallowInterceptTouchEvent(true);
             int index = getNearestIndex(xPoints, x);
@@ -842,8 +845,14 @@ scrubLinePath2.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
                 scrubListener.onScrubbed(adapter.getItem(index));
             }
         }
-
-        setScrubLine(x);
+        //GC20181223 光标切换
+        Log.e("QQQ", "adapter" + ".selectCursor()" + adapter.getCursorState());
+        if (adapter.getCursorState()){
+            setScrubLineRealMove(x);
+        }else{
+            setScrubLineVirtualMove(x);
+        }
+        //setScrubLine(x);
     }
 
     public float getScX() {

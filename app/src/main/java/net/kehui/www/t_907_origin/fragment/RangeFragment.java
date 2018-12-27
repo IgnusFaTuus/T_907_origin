@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.view.MainActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -78,7 +79,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                //TextView textView500 = getActivity().findViewById(R.id.btn_icm);
+                ((MainActivity)getActivity()).setRange(1);  //GC20181225
                 break;
             case R.id.btn_1km:
                 btn500m.setEnabled(true);
@@ -89,6 +90,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
+                ((MainActivity)getActivity()).setRange(2);
                 break;
             case R.id.btn_2km:
                 btn500m.setEnabled(true);
@@ -99,6 +101,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
+                ((MainActivity)getActivity()).setRange(3);
                 break;
             case R.id.btn_4km:
                 btn500m.setEnabled(true);
@@ -109,6 +112,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
+                ((MainActivity)getActivity()).setRange(4);
                 break;
             case R.id.btn_8km:
                 btn500m.setEnabled(true);
@@ -119,6 +123,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
+                ((MainActivity)getActivity()).setRange(5);
                 break;
             case R.id.btn_16km:
                 btn500m.setEnabled(true);
@@ -129,6 +134,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(false);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
+                ((MainActivity)getActivity()).setRange(6);
                 break;
             case R.id.btn_32km:
                 btn500m.setEnabled(true);
@@ -139,6 +145,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(false);
                 btn64km.setEnabled(true);
+                ((MainActivity)getActivity()).setRange(7);
                 break;
             case R.id.btn_64km:
                 btn500m.setEnabled(true);
@@ -149,8 +156,10 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(false);
+                ((MainActivity)getActivity()).setRange(8);
                 break;
-                default:break;
+            default:
+                break;
         }
     }
 }
