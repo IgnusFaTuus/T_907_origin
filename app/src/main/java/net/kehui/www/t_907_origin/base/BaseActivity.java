@@ -37,7 +37,10 @@ public class BaseActivity extends AppCompatActivity {
     public int positionReal;
     public int positionVirtual; //GC20181224 光标位置
     public int method;
-    public int range;   //GC20181225
+    public int range;
+    public int gain;
+    public int velocity;
+    public int delay;     //GC20181225
     public int max;     //GC20181227
     public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
     public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //GC20181227 不同范围点数选择
@@ -114,8 +117,8 @@ public class BaseActivity extends AppCompatActivity {
     private void initData() {
         positionReal = 0;
         positionVirtual = 0;
-        method = 1;
-        range = 1;
+        method = 17;
+        range = 17;
         max = 540;
         mTempWaveArray = new int[max];
     }

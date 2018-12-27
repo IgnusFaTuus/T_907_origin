@@ -7,4 +7,5 @@ public class Constant {
     //热点名称
     public final String WIFI_HOTSPOT_SSID = "T-907";
     public static int Gain = 16;
+    public static int method = 1;
 }

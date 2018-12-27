@@ -60,28 +60,30 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(1); //GC20181225
+                ((MainActivity)getActivity()).setMethod(17); //GC20181225
+                ((MainActivity) getActivity()).sendInitData();
+
                 break;
             case R.id.btn_icm:
                 btn_tdr.setEnabled(true);
                 btn_icm.setEnabled(false);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(2);
+                ((MainActivity)getActivity()).setMethod(34);
                 break;
             case R.id.btn_sim:
                 btn_tdr.setEnabled(true);
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(false);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(3);
+                ((MainActivity)getActivity()).setMethod(51);
                 break;
             case R.id.btn_decay:
                 btn_tdr.setEnabled(true);
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(false);
-                ((MainActivity)getActivity()).setMethod(4);
+                ((MainActivity)getActivity()).setMethod(68);
                 break;
             default:
                 break;

@@ -69,6 +69,8 @@ public class MainActivity extends BaseActivity {
     private FileFragment fileFragment;
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
+    private int commend_1;
+    private int commend_2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -305,69 +307,71 @@ public class MainActivity extends BaseActivity {
     }
 
     private void clickTest() {
-        //Log.e("range","" + range);
-        //Log.e("method","" + method);
+        /*Log.e("range","" + range);
+        Log.e("method","" + method);
+        Log.e("commend_1", "" + commend_1);
+        Log.e("commend_2", "" + commend_2);*/
         switch (range){
-            case 1 :
-                if ( (method == 1) || (method == 3) ){
+            case 17 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[0];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[0];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 2 :
-                if ( (method == 1) || (method == 3) ){
+            case 34 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[1];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[1];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 3 :
-                if ( (method == 1) || (method == 3) ){
+            case 51 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[2];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[2];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 4 :
-                if ( (method == 1) || (method == 3) ){
+            case 68 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[3];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[3];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 5 :
-                if ( (method == 1) || (method == 3) ){
+            case 85 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[4];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[4];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 6 :
-                if ( (method == 1) || (method == 3) ){
+            case 102 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[5];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[5];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 7 :
-                if ( (method == 1) || (method == 3) ){
+            case 119 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[6];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[6];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 8 :
-                if ( (method == 1) || (method == 3) ){
+            case 136 :
+                if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[7];
-                }else if((method == 2) || (method == 4)){
+                }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[7];
                 }
                 mTempWaveArray = new int[max];  //GC20181227
@@ -422,18 +426,94 @@ public class MainActivity extends BaseActivity {
         }
 
     }
+
+/*
+//G       数据头   数据长度  指令  传输数据  校验和
+//G     eb90aa55     03      01      11       15
+
+eb90aa55 03 01 11 15	    测试0x11
+eb90aa55 03 01 22 26	    取消测试0x22
+
+eb90aa55 03 02 11 16		TDR低压脉冲方式
+eb90aa55 03 02 22 27		ICM脉冲电流方式
+eb90aa55 03 02 33 38		SIM二次脉冲方式
+
+eb90aa55 03 03 11 17		范围500m
+eb90aa55 03 03 22 28
+eb90aa55 03 03 33 39
+eb90aa55 03 03 44 4a
+eb90aa55 03 03 55 5b
+eb90aa55 03 03 66 6c
+eb90aa55 03 03 77 7d
+eb90aa55 03 03 88 8e		范围64km
+
+
+eb90aa55 03 04 11 18		增益+
+eb90aa55 03 04 22 29		增益-
+
+eb90aa55 03 05 11 19		延时+
+eb90aa55 03 05 22 2a		延时-
+
+eb90aa55 03 07 11 1b  	    平衡+
+eb90aa55 03 07 22 2c		平衡-
+*/
+    public void sendInitData() {
+        int[] ints = {235, 90, 170, 55, 03};
+        byte[] request = new byte[8];
+        int sum = request[4] + request[5] + request[6];
+
+
+
+
+        request[0] = (byte) ints[0];
+        request[1] = (byte) ints[1];
+        request[2] = (byte) ints[2];
+        request[3] = (byte) ints[3];
+        request[4] = (byte) ints[4];
+        request[5] = (byte) commend_1;
+        request[6] = (byte) commend_2;
+        request[7] = (byte) sum;
+        sendString(request);
+
+    }
+
+    public void sendString(byte[] request) {
+    }
+
     //GC
     public int getMethod() {
         return method;
     }
     public void setMethod(int method) {
         this.method = method;
+        commend_1 = 2;
+        commend_2 = method;
     }
     public int getRange() {
         return range;
     }
     public void setRange(int range) {
         this.range = range;
+        commend_1 = 3;
+        commend_2 = range;
+    }
+    public int getGain() {
+        return gain;
+    }
+    public void setGain(int range) {
+        this.gain = gain;
+    }
+    public int getVelocity() {
+        return velocity;
+    }
+    public void setVelocity(int range) {
+        this.velocity = velocity;
+    }
+    public int getDelay() {
+        return delay;
+    }
+    public void setDelay(int range) {
+        this.delay = delay;
     }
     @Override
     protected void onDestroy() {
