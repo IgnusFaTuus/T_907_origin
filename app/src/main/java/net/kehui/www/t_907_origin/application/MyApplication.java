@@ -36,7 +36,7 @@ public class MyApplication extends Application {
                 .getInstances(), AppConfig.CURRENT_LANGUAGE, "follow_sys"));
 
         setDatabase();
-        //_socket = null;
+        _socket = null;
 
     }
 

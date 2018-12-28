@@ -73,7 +73,7 @@ public abstract class SparkAdapter {
      */
     public RectF getDataBounds() {
         final int count = getMax(); //GC20181227
-        Log.e("count","" + count);
+        //Log.e("count","" + count);
         final boolean hasBaseLine = hasBaseLine();
         float minY = hasBaseLine ? getBaseLine() : 0;
         float maxY = hasBaseLine ? minY : 255;

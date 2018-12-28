@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.base.BaseActivity;
+import net.kehui.www.t_907_origin.thread.ConnectThread;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
@@ -74,6 +75,7 @@ public class MainActivity extends BaseActivity {
     private FileFragment fileFragment;
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
+
     private int commend_1;
     private int commend_2;
 
@@ -195,7 +197,7 @@ public class MainActivity extends BaseActivity {
         fullWave.setAdapter(myChartAdapterFullWave);
 
     }
-    //监听光标位置
+    //监听光标位置    //?1
     private void setChartListener() {
         mainWave.setScrubListener(new SparkView.OnScrubListener() {
             @Override
@@ -480,8 +482,9 @@ eb90aa55 03 07 22 2c		平衡-
         request[5] = (byte) commend_1;
         request[6] = (byte) commend_2;
         request[7] = (byte) sum;
-        sendString(request);
+        //sendString(request);
 
+        connectThread.sendData("123");
     }
 
     public void sendString(byte[] request) {
@@ -551,4 +554,4 @@ eb90aa55 03 07 22 2c		平衡-
 //GC20181223 光标切换
 //GC20181224 监听并绘制光标位置
 //GC20181225 传递方式范围状态
-//GC20181227 不同范围点数选择
+//GC20181227 不同方式范围点数选择
