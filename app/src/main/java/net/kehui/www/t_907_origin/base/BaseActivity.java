@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
+import net.kehui.www.t_907_origin.application.MyApplication;
 import net.kehui.www.t_907_origin.event.UINoticeEvent;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
 import net.kehui.www.t_907_origin.thread.ListenerThread;
@@ -48,6 +49,7 @@ public class BaseActivity extends AppCompatActivity {
     public MyChartAdapter myChartAdapterMainWave;
     public MyChartAdapter myChartAdapterFullWave;
     public boolean clickCursor; //GC20181223 光标切换
+    public Socket  mSocket;
 
 
     /*全局的handler对象用来执行UI更新*/
@@ -120,7 +122,9 @@ public class BaseActivity extends AppCompatActivity {
         method = 17;
         range = 17;
         max = 540;
+        mSocket = MyApplication.getInstances().get_socket();;
         mTempWaveArray = new int[max];
+        clickCursor = false;
     }
 
 
@@ -163,7 +167,7 @@ public class BaseActivity extends AppCompatActivity {
         return routeIp;
     }
 
-    private Handler           handler  = new Handler() {
+    private Handler handler  = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             EventBus.getDefault().post(new UINoticeEvent(msg.what));

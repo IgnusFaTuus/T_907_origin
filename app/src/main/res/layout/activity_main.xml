@@ -36,7 +36,7 @@
                 android:id="@+id/mainWave"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:spark_animateChanges="true"
+                android:padding="4dp"
                 app:spark_lineColor="@color/spark_line_color"
                 app:spark_scrubEnabled="true" />
 
@@ -80,7 +80,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
-                app:spark_animateChanges="true"
+                android:padding="4dp"
                 app:spark_lineColor="@color/spark_line_color" />
 
             <LinearLayout
@@ -121,7 +121,7 @@
             <Button
                 android:id="@+id/btn_mtd"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:text="@string/btn_mtd"
@@ -130,7 +130,7 @@
             <Button
                 android:id="@+id/btn_range"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:text="@string/btn_range"
@@ -139,7 +139,7 @@
             <Button
                 android:id="@+id/btn_adj"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:text="@string/btn_adj"
@@ -148,7 +148,7 @@
             <Button
                 android:id="@+id/btn_opt"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:text="@string/btn_opt"
@@ -157,7 +157,7 @@
             <Button
                 android:id="@+id/btn_file"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:text="@string/btn_file"
@@ -166,7 +166,7 @@
             <Button
                 android:id="@+id/btn_setting"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:text="@string/btn_setting"
@@ -185,7 +185,7 @@
             <Button
                 android:id="@+id/btn_test"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
 
                 android:text="@string/btn_test"
@@ -193,7 +193,7 @@
             <Button
                 android:id="@+id/btn_cursor"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="75dp"
+                android:layout_width="60dp"
                 android:layout_height="45dp"
 
                 android:text="@string/btn_cursor"

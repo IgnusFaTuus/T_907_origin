@@ -27,7 +27,7 @@ public class MyChartAdapter extends SparkAdapter {
     }
     //GC20181223
     public void setCursorState(boolean cursorState) {
-        this.isCursorState = cursorState;
+        isCursorState = cursorState;
     }
     @Override
     public boolean getCursorState(){
@@ -43,14 +43,13 @@ public class MyChartAdapter extends SparkAdapter {
         return isMax;
     }
     public MyChartAdapter(int[] mTempArray, int[] mCompareArray, boolean isShowCompareLine, int
-            splitNum, boolean isShowSplitLine, int isMax, boolean isCursorState) {
+            splitNum, boolean isShowSplitLine, int isMax) {
         this.mTempArray = mTempArray;
         this.mCompareArray = mCompareArray;
         this.isShowCompareLine = isShowCompareLine;
         this.splitNum = splitNum;
         this.isShowSplitLine = isShowSplitLine;
         this.isMax = isMax; //GC20181227
-        this.isCursorState = isCursorState;
     }
 
     @Override

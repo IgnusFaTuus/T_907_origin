@@ -2,6 +2,7 @@ package net.kehui.www.t_907_origin.application;
 
 import android.app.Application;
 
+import android.bluetooth.BluetoothSocket;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -11,6 +12,7 @@ import net.kehui.www.t_907_origin.util.MultiLanguageUtil;
 import net.kehui.www.t_907_origin.util.PrefUtils;
 
 
+import java.net.Socket;
 import java.util.Locale;
 
 public class MyApplication extends Application {
@@ -19,6 +21,7 @@ public class MyApplication extends Application {
     private       DaoMaster               mDaoMaster;
     private       DaoSession              mDaoSession;
     public static MyApplication           instances;
+    private Socket _socket;
 
     //public final Locale Locale_Russia = new Locale("RU", "ru", "");
     //public final Locale Locale_French = new Locale("FR", "fr", "");
@@ -71,6 +74,12 @@ public class MyApplication extends Application {
 
     public SQLiteDatabase getDb() {
         return db;
+    }
+    public Socket get_socket() {
+        return _socket;
+    }
+    public void set_socket(Socket _socket) {
+        this._socket = _socket;
     }
 
 }

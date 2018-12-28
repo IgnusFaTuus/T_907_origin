@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity {
 
     public boolean hasSendMessage;      //GN 控制命令是否发送成功的标志
     public byte[]  tempRequest            = new byte[8];
-    public Socket  mSocket;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,9 +188,9 @@ public class MainActivity extends BaseActivity {
             mTempWaveArray[i] = 128;
         }
         myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
-                false, 0, false, max, false);  //GC20181227
+                false, 0, false, max);  //GC20181227
         myChartAdapterFullWave = new MyChartAdapter(mTempWaveArray, null,
-                false, 0, false, max, false);  //GC20181227
+                false, 0, false, max);  //GC20181227
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
 
@@ -393,8 +393,9 @@ public class MainActivity extends BaseActivity {
     }
     //GC20181223 光标切换
     private void clickCursor(){
-        myChartAdapterMainWave.setCursorState(clickCursor);
+        clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
+        myChartAdapterMainWave.setCursorState(clickCursor);
     }
 
     private void getTestWaveData() {
@@ -418,9 +419,9 @@ public class MainActivity extends BaseActivity {
                 mTempWaveArray[i] = Integer.valueOf(split[i], 16);
             }
             myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
-                    false, 0, false, max, false);  //GC20181227
+                    false, 0, false, max);  //GC20181227
             myChartAdapterFullWave = new MyChartAdapter(mTempWaveArray, null,
-                    false, 0, false, max, false);  //GC20181227
+                    false, 0, false, max);  //GC20181227
             mainWave.setAdapter(myChartAdapterMainWave);
             fullWave.setAdapter(myChartAdapterFullWave);
             //GC
@@ -471,9 +472,6 @@ eb90aa55 03 07 22 2c		平衡-
         byte[] request = new byte[8];
         int sum = request[4] + request[5] + request[6];
 
-
-
-
         request[0] = (byte) ints[0];
         request[1] = (byte) ints[1];
         request[2] = (byte) ints[2];
@@ -495,7 +493,7 @@ eb90aa55 03 07 22 2c		平衡-
                 Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show();
             }
             try {
-                OutputStream os = mSocket.getOutputStream(); // 蓝牙连接输出流
+                OutputStream os = mSocket.getOutputStream(); // WIFI连接输出流
                 os.write(request);
                 hasSendMessage = true;
             } catch (IOException e) {
