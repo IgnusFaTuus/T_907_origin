@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.base.BaseActivity;
@@ -20,10 +21,14 @@ import net.kehui.www.t_907_origin.fragment.OptionFragment;
 import net.kehui.www.t_907_origin.fragment.RangeFragment;
 import net.kehui.www.t_907_origin.fragment.SettingFragment;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,6 +76,10 @@ public class MainActivity extends BaseActivity {
     private FragmentManager fragmentManager;
     private int commend_1;
     private int commend_2;
+
+    public boolean hasSendMessage;      //GN 控制命令是否发送成功的标志
+    public byte[]  tempRequest            = new byte[8];
+    public Socket  mSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -478,6 +487,23 @@ eb90aa55 03 07 22 2c		平衡-
     }
 
     public void sendString(byte[] request) {
+        if (!hasSendMessage) {
+            for (int i = 0; i < request.length; i++) {
+                tempRequest[i] = request[i];
+            }
+            if (mSocket == null) {
+                Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show();
+            }
+            try {
+                OutputStream os = mSocket.getOutputStream(); // 蓝牙连接输出流
+                os.write(request);
+                hasSendMessage = true;
+            } catch (IOException e) {
+                //Toast.makeText(this, "发送失败" + e.toString(), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            //Toast.makeText(MainActivity.this, "还没有收到来自设备端的回复", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //GC

@@ -70,6 +70,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
                 ((MainActivity)getActivity()).setMethod(34);
+                ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_sim:
                 btn_tdr.setEnabled(true);
@@ -77,6 +78,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_sim.setEnabled(false);
                 btn_decay.setEnabled(true);
                 ((MainActivity)getActivity()).setMethod(51);
+                ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_decay:
                 btn_tdr.setEnabled(true);
@@ -84,6 +86,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(false);
                 ((MainActivity)getActivity()).setMethod(68);
+                ((MainActivity) getActivity()).sendInitData();
                 break;
             default:
                 break;
