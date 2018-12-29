@@ -21,6 +21,10 @@ public class ConnectThread extends Thread{
     private       Handler      handler;
     private       InputStream  inputStream;
     private       OutputStream outputStream;
+    private byte[] buffer = new byte[1024];
+    private byte[] data;
+    private int [] data1;
+    private int bytes;
 
     public ConnectThread(Socket socket, Handler handler){
         setName("ConnectThread");
@@ -43,28 +47,31 @@ public class ConnectThread extends Thread{
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
-            byte[] buffer = new byte[1024];
-            int bytes;
             while (true){
                 //读取数据
                 bytes = inputStream.read(buffer);
                 if (bytes > 0) {
-                    final byte[] data = new byte[bytes];
+                    data = new byte[bytes];
                     System.arraycopy(buffer, 0, data, 0, bytes);
-
                     Message message = Message.obtain();
                     message.what = 2;
-                    Bundle bundle = new Bundle();
+                    /*Bundle bundle = new Bundle();
                     bundle.putString("MSG",new String(data));
                     message.setData(bundle);
                     handler.sendMessage(message);
 
-                    Log.w("AAA","读取到数据:"+new String(data));
+                    Log.w("AAA","读取到数据:"+new String(data));*/
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public byte[] getWIFIData(){
+        byte[] receiveData = data;
+        Log.w("AAA","读取到数据:"+ String.valueOf(receiveData));
+        return receiveData;
     }
 
     /**

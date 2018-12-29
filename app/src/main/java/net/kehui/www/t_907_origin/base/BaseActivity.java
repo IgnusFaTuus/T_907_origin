@@ -47,7 +47,15 @@ public class BaseActivity extends AppCompatActivity {
     public int max;     //GC20181227
     public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
     public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //GC20181227 不同范围点数选择
-    public int[] mTempWaveArray;
+
+    public int[] WIFIStream;    //传过来的WIFI数组
+    public int[] waveArray;
+    public int[] commandArray;
+    public int len = 0;         //传过来的WIFI数组长度
+    public int waveLength = 0;
+    public int commandLength = 0;
+    public boolean commandState; //命令接收状态
+
     public MyChartAdapter myChartAdapterMainWave;
     public MyChartAdapter myChartAdapterFullWave;
     public boolean clickCursor; //GC20181223 光标切换
@@ -83,6 +91,7 @@ public class BaseActivity extends AppCompatActivity {
                     Socket socket = new Socket(getWifiRouteIPAddress(BaseActivity.this), PORT);
                     connectThread = new ConnectThread(socket, handler);
                     connectThread.start();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     runOnUiThread(new Runnable() {
@@ -113,7 +122,7 @@ public class BaseActivity extends AppCompatActivity {
         max = 540;
         //MyApplication.getInstances().set_socket(mSocket);
         //mSocket = MyApplication.getInstances().get_socket();
-        mTempWaveArray = new int[max];
+        waveArray = new int[max];
         clickCursor = false;
     }
 

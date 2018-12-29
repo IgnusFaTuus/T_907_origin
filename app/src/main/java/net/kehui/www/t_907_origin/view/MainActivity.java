@@ -8,11 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.base.BaseActivity;
-import net.kehui.www.t_907_origin.thread.ConnectThread;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
@@ -22,14 +20,10 @@ import net.kehui.www.t_907_origin.fragment.OptionFragment;
 import net.kehui.www.t_907_origin.fragment.RangeFragment;
 import net.kehui.www.t_907_origin.fragment.SettingFragment;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,8 +70,8 @@ public class MainActivity extends BaseActivity {
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
 
-    private int commend_1;
-    private int commend_2;
+    private int command_1;
+    private int command_2;
 
     public boolean hasSendMessage;      //GN 控制命令是否发送成功的标志
     public byte[]  tempRequest            = new byte[8];
@@ -187,11 +181,11 @@ public class MainActivity extends BaseActivity {
     //GC 初始化sparkView
     private void initWaveData() {
         for (int i = 0; i < max; i++) {
-            mTempWaveArray[i] = 128;
+            waveArray[i] = 128;
         }
-        myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
+        myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);  //GC20181227
-        myChartAdapterFullWave = new MyChartAdapter(mTempWaveArray, null,
+        myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);  //GC20181227
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
@@ -320,8 +314,8 @@ public class MainActivity extends BaseActivity {
     private void clickTest() {
         /*Log.e("range","" + range);
         Log.e("method","" + method);
-        Log.e("commend_1", "" + commend_1);
-        Log.e("commend_2", "" + commend_2);*/
+        Log.e("command_1", "" + command_1);
+        Log.e("command_2", "" + command_2);*/
         switch (range){
             case 0x11 :
                 if ( (method == 17) || (method == 51) ){
@@ -329,7 +323,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[0];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case 0x22 :
                 if ( (method == 17) || (method == 51) ){
@@ -337,7 +331,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[1];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case 0x33 :
                 if ( (method == 17) || (method == 51) ){
@@ -345,7 +339,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[2];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case 0x44 :
                 if ( (method == 17) || (method == 51) ){
@@ -353,7 +347,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[3];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case 0x55 :
                 if ( (method == 17) || (method == 51) ){
@@ -361,7 +355,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[4];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case 0x66 :
                 if ( (method == 17) || (method == 51) ){
@@ -369,7 +363,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[5];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case 0x77 :
                 if ( (method == 17) || (method == 51) ){
@@ -377,7 +371,7 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[6];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             case (byte) 0x88:
                 if ( (method == 17) || (method == 51) ){
@@ -385,58 +379,41 @@ public class MainActivity extends BaseActivity {
                 }else if((method == 34) || (method == 68)){
                     max = readIcmDecay[7];
                 }
-                mTempWaveArray = new int[max];  //GC20181227
+                waveArray = new int[max];  //GC20181227
                 break;
             default:
                 break;
         }
-        getTestWaveData();
+        //getTestWaveData();
         Log.e("clickCursor","" + clickCursor);
+        int a = connectThread.getWIFIData().length;
+        max = a;
+        byte[] wifi = connectThread.getWIFIData();
+        for(int i = 0; i < a ;i++){
+            waveArray[i] = wifi[i] & 0xff;
+        }
+        Log.e("a","" + a);
+        drawWIFIData();
+        /*command_1 = 0x01;
+        command_2 = 0x11;
+        sendCommand();
+        receiveCommand();
+        if(commandState){
+            command_1 = 0x09;
+            command_2 = 0x11;
+            sendCommand();
+            receiveCommand();
+            if(commandState){
+                receiveWave();
+            }
+        }*/
     }
+
     //GC20181223 光标切换
     private void clickCursor(){
         clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
         myChartAdapterMainWave.setCursorState(clickCursor);
-    }
-
-    private void getTestWaveData() {
-        InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
-                "wave.txt");
-        BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        int c = 0;
-        try {
-            c = bis.read();
-            while (c != -1) {
-                baos.write(c);
-                c = bis.read();
-            }
-            bis.close();
-            String s = baos.toString();
-            String[] split = s.split("\\s+");
-
-            for (int i = 0; i < max; i++) {
-                mTempWaveArray[i] = Integer.valueOf(split[i], 16);
-            }
-            myChartAdapterMainWave = new MyChartAdapter(mTempWaveArray, null,
-                    false, 0, false, max);  //GC20181227
-            myChartAdapterFullWave = new MyChartAdapter(mTempWaveArray, null,
-                    false, 0, false, max);  //GC20181227
-            mainWave.setAdapter(myChartAdapterMainWave);
-            fullWave.setAdapter(myChartAdapterFullWave);
-            //GC
-            positionReal = Integer.valueOf(split[6], 16);
-            mainWave.setScrubLineReal(positionReal);
-            positionVirtual = Integer.valueOf(split[7], 16);
-            mainWave.setScrubLineVirtual(positionVirtual);
-            tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
 /*
@@ -469,36 +446,135 @@ eb90aa55 03 05 22 2a		延时-
 eb90aa55 03 07 11 1b  	    平衡+
 eb90aa55 03 07 22 2c		平衡-
 */
-    public void sendInitData() {
+    public void sendCommand() {
         byte[] request = new byte[8];
         request[0] = (byte) 0xEB;
         request[1] = (byte) 0x90;
         request[2] = (byte) 0xAA;
         request[3] = (byte) 0x55;
         request[4] = (byte) 0x03;
-        request[5] = (byte) commend_1;
-        request[6] = (byte) commend_2;
+        request[5] = (byte) command_1;
+        request[6] = (byte) command_2;
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
         connectThread.sendCommand(request);
 
     }
+
+    public void receiveCommand(){
+        getCommandStream();
+        System.arraycopy(WIFIStream, 0, commandArray, 0, len);
+        if(commandLength < 8){
+            getCommandStream();
+            for(int i = 0, j = commandLength; i < len; i++, j++){
+                commandArray[j] = WIFIStream[i];
+            }
+        }else{
+            commandLength = 0;
+            if(commandArray[6] == 0x33){
+                commandState = true;
+            }else if(commandArray[6] == 0x44){
+                commandState = false;
+            }
+        }
+
+    }
+
+    public void getCommandStream(){
+        len = connectThread.getWIFIData().length;
+        byte[] wifi = connectThread.getWIFIData();
+        for(int i = 0; i < len ;i++){
+            WIFIStream[i] = wifi[i] & 0xff;
+        }
+        commandLength += len;
+    }
+
+    public void receiveWave(){
+        getWaveStream();
+        System.arraycopy(WIFIStream, 0, waveArray, 0, len);
+        if(waveLength < max + 9){
+            getWaveStream();
+            for(int i = 0, j = commandLength; i < len; i++, j++){
+                waveArray[j] = WIFIStream[i];
+            }
+        }else{
+            drawWIFIData();
+        }
+    }
+
+    public void getWaveStream(){
+        len = connectThread.getWIFIData().length;
+        byte[] wifi = connectThread.getWIFIData();
+        for(int i = 0; i < len ;i++){
+            WIFIStream[i] = wifi[i] & 0xff;
+        }
+        waveLength += len;
+    }
+
+    private void drawWIFIData() {
+        myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
+                false, 0, false, max);  //GC20181227
+        myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
+                false, 0, false, max);  //GC20181227
+        mainWave.setAdapter(myChartAdapterMainWave);
+        fullWave.setAdapter(myChartAdapterFullWave);
+    }
+
+    private void getTestWaveData() {
+        InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
+                "wave.txt");
+        BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        int c = 0;
+        try {
+            c = bis.read();
+            while (c != -1) {
+                baos.write(c);
+                c = bis.read();
+            }
+            bis.close();
+            String s = baos.toString();
+            String[] split = s.split("\\s+");
+
+            for (int i = 0; i < max; i++) {
+                waveArray[i] = Integer.valueOf(split[i], 16);
+            }
+            myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
+                    false, 0, false, max);  //GC20181227
+            myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
+                    false, 0, false, max);  //GC20181227
+            mainWave.setAdapter(myChartAdapterMainWave);
+            fullWave.setAdapter(myChartAdapterFullWave);
+            //GC
+            positionReal = Integer.valueOf(split[6], 16);
+            mainWave.setScrubLineReal(positionReal);
+            positionVirtual = Integer.valueOf(split[7], 16);
+            mainWave.setScrubLineVirtual(positionVirtual);
+            tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     //GC
     public int getMethod() {
         return method;
     }
     public void setMethod(int method) {
         this.method = method;
-        commend_1 = 0x02;
-        commend_2 = method;
+        command_1 = 0x02;
+        command_2 = method;
     }
     public int getRange() {
         return range;
     }
     public void setRange(int range) {
         this.range = range;
-        commend_1 = 0x03;
-        commend_2 = range;
+        command_1 = 0x03;
+        command_2 = range;
     }
     public int getGain() {
         return gain;

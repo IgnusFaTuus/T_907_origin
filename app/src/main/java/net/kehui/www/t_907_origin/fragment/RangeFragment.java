@@ -6,8 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.view.MainActivity;
@@ -80,7 +78,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x11);  //GC20181225
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_1km:
                 btn500m.setEnabled(true);
@@ -92,7 +90,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x22);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_2km:
                 btn500m.setEnabled(true);
@@ -104,7 +102,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x33);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_4km:
                 btn500m.setEnabled(true);
@@ -116,7 +114,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x44);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_8km:
                 btn500m.setEnabled(true);
@@ -128,7 +126,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x55);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_16km:
                 btn500m.setEnabled(true);
@@ -140,7 +138,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x66);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_32km:
                 btn500m.setEnabled(true);
@@ -152,7 +150,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(false);
                 btn64km.setEnabled(true);
                 ((MainActivity)getActivity()).setRange(0x77);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_64km:
                 btn500m.setEnabled(true);
@@ -164,7 +162,7 @@ public class RangeFragment extends Fragment {
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(false);
                 ((MainActivity)getActivity()).setRange(0x88);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             default:
                 break;

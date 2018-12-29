@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.view.MainActivity;
@@ -60,8 +58,8 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(0x11); //GC20181225
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity)getActivity()).setMethod((byte) 0x11); //GC20181225
+                ((MainActivity) getActivity()).sendCommand();
 
                 break;
             case R.id.btn_icm:
@@ -70,7 +68,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
                 ((MainActivity)getActivity()).setMethod(0x22);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_sim:
                 btn_tdr.setEnabled(true);
@@ -78,7 +76,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_sim.setEnabled(false);
                 btn_decay.setEnabled(true);
                 ((MainActivity)getActivity()).setMethod(0x33);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_decay:
                 btn_tdr.setEnabled(true);
@@ -86,7 +84,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(false);
                 ((MainActivity)getActivity()).setMethod(0x44);
-                ((MainActivity) getActivity()).sendInitData();
+                ((MainActivity) getActivity()).sendCommand();
                 break;
             default:
                 break;
