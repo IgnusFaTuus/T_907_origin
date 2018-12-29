@@ -60,7 +60,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(17); //GC20181225
+                ((MainActivity)getActivity()).setMethod(0x11); //GC20181225
                 ((MainActivity) getActivity()).sendInitData();
 
                 break;
@@ -69,7 +69,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(false);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(34);
+                ((MainActivity)getActivity()).setMethod(0x22);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_sim:
@@ -77,7 +77,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(false);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(51);
+                ((MainActivity)getActivity()).setMethod(0x33);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_decay:
@@ -85,7 +85,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(false);
-                ((MainActivity)getActivity()).setMethod(68);
+                ((MainActivity)getActivity()).setMethod(0x44);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             default:

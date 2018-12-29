@@ -93,4 +93,15 @@ public class ConnectThread extends Thread{
             }
         }
     }
+    public void sendCommand(byte[] request){
+        if(outputStream!=null){
+            try {
+                outputStream.write(request);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

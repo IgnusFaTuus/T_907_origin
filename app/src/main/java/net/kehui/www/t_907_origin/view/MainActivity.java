@@ -323,7 +323,7 @@ public class MainActivity extends BaseActivity {
         Log.e("commend_1", "" + commend_1);
         Log.e("commend_2", "" + commend_2);*/
         switch (range){
-            case 17 :
+            case 0x11 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[0];
                 }else if((method == 34) || (method == 68)){
@@ -331,7 +331,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 34 :
+            case 0x22 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[1];
                 }else if((method == 34) || (method == 68)){
@@ -339,7 +339,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 51 :
+            case 0x33 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[2];
                 }else if((method == 34) || (method == 68)){
@@ -347,7 +347,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 68 :
+            case 0x44 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[3];
                 }else if((method == 34) || (method == 68)){
@@ -355,7 +355,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 85 :
+            case 0x55 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[4];
                 }else if((method == 34) || (method == 68)){
@@ -363,7 +363,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 102 :
+            case 0x66 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[5];
                 }else if((method == 34) || (method == 68)){
@@ -371,7 +371,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 119 :
+            case 0x77 :
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[6];
                 }else if((method == 34) || (method == 68)){
@@ -379,7 +379,7 @@ public class MainActivity extends BaseActivity {
                 }
                 mTempWaveArray = new int[max];  //GC20181227
                 break;
-            case 136 :
+            case (byte) 0x88:
                 if ( (method == 17) || (method == 51) ){
                     max = readTdrSim[7];
                 }else if((method == 34) || (method == 68)){
@@ -470,50 +470,26 @@ eb90aa55 03 07 11 1b  	    平衡+
 eb90aa55 03 07 22 2c		平衡-
 */
     public void sendInitData() {
-        int[] ints = {235, 90, 170, 55, 03};
         byte[] request = new byte[8];
-        int sum = request[4] + request[5] + request[6];
-
-        request[0] = (byte) ints[0];
-        request[1] = (byte) ints[1];
-        request[2] = (byte) ints[2];
-        request[3] = (byte) ints[3];
-        request[4] = (byte) ints[4];
+        request[0] = (byte) 0xEB;
+        request[1] = (byte) 0x90;
+        request[2] = (byte) 0xAA;
+        request[3] = (byte) 0x55;
+        request[4] = (byte) 0x03;
         request[5] = (byte) commend_1;
         request[6] = (byte) commend_2;
+        int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
-        //sendString(request);
+        connectThread.sendCommand(request);
 
-        connectThread.sendData("123");
     }
-
-    public void sendString(byte[] request) {
-        if (!hasSendMessage) {
-            for (int i = 0; i < request.length; i++) {
-                tempRequest[i] = request[i];
-            }
-            if (mSocket == null) {
-                Toast.makeText(this, "失败", Toast.LENGTH_SHORT).show();
-            }
-            try {
-                OutputStream os = mSocket.getOutputStream(); // WIFI连接输出流
-                os.write(request);
-                hasSendMessage = true;
-            } catch (IOException e) {
-                //Toast.makeText(this, "发送失败" + e.toString(), Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            //Toast.makeText(MainActivity.this, "还没有收到来自设备端的回复", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     //GC
     public int getMethod() {
         return method;
     }
     public void setMethod(int method) {
         this.method = method;
-        commend_1 = 2;
+        commend_1 = 0x02;
         commend_2 = method;
     }
     public int getRange() {
@@ -521,7 +497,7 @@ eb90aa55 03 07 22 2c		平衡-
     }
     public void setRange(int range) {
         this.range = range;
-        commend_1 = 3;
+        commend_1 = 0x03;
         commend_2 = range;
     }
     public int getGain() {

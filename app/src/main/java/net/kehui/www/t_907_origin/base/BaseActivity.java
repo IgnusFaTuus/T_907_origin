@@ -41,6 +41,7 @@ public class BaseActivity extends AppCompatActivity {
     public int method;
     public int range;
     public int gain;
+    public int change;
     public int velocity;
     public int delay;     //GC20181225
     public int max;     //GC20181227
@@ -97,7 +98,7 @@ public class BaseActivity extends AppCompatActivity {
 
         WifiUtil wifiUtil = new WifiUtil(this);
         wifiUtil.openWifi();
-        wifiUtil.addNetwork(wifiUtil.CreateWifiInfo("T-9071", "123456789", 3));
+        wifiUtil.addNetwork(wifiUtil.CreateWifiInfo("T-907", "123456789", 3));
 
         /*listenerThread = new ListenerThread(PORT, handler);
         listenerThread.start();*/
@@ -108,10 +109,10 @@ public class BaseActivity extends AppCompatActivity {
         positionReal = 0;
         positionVirtual = 0;
         method = 17;
-        range = 17;
+        range = 0x11;
         max = 540;
-        MyApplication.getInstances().set_socket(mSocket);
-        mSocket = MyApplication.getInstances().get_socket();
+        //MyApplication.getInstances().set_socket(mSocket);
+        //mSocket = MyApplication.getInstances().get_socket();
         mTempWaveArray = new int[max];
         clickCursor = false;
     }

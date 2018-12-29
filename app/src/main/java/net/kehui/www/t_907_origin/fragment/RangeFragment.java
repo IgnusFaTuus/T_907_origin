@@ -79,7 +79,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(17);  //GC20181225
+                ((MainActivity)getActivity()).setRange(0x11);  //GC20181225
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_1km:
@@ -91,7 +91,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(34);
+                ((MainActivity)getActivity()).setRange(0x22);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_2km:
@@ -103,7 +103,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(51);
+                ((MainActivity)getActivity()).setRange(0x33);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_4km:
@@ -115,7 +115,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(68);
+                ((MainActivity)getActivity()).setRange(0x44);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_8km:
@@ -127,7 +127,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(85);
+                ((MainActivity)getActivity()).setRange(0x55);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_16km:
@@ -139,7 +139,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(false);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(102);
+                ((MainActivity)getActivity()).setRange(0x66);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_32km:
@@ -151,7 +151,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(false);
                 btn64km.setEnabled(true);
-                ((MainActivity)getActivity()).setRange(119);
+                ((MainActivity)getActivity()).setRange(0x77);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             case R.id.btn_64km:
@@ -163,7 +163,7 @@ public class RangeFragment extends Fragment {
                 btn16km.setEnabled(true);
                 btn32km.setEnabled(true);
                 btn64km.setEnabled(false);
-                ((MainActivity)getActivity()).setRange(136);
+                ((MainActivity)getActivity()).setRange(0x88);
                 ((MainActivity) getActivity()).sendInitData();
                 break;
             default:
