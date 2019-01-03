@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * Created by IF on 2018/12/26
@@ -53,19 +54,28 @@ public class ConnectThread extends Thread{
                 if (bytes > 0) {
                     data = new byte[bytes];
                     System.arraycopy(buffer, 0, data, 0, bytes);
-                    Message message = Message.obtain();
+                    /*Message message = Message.obtain();
                     message.what = 2;
-                    /*Bundle bundle = new Bundle();
+                    Bundle bundle = new Bundle();
                     bundle.putString("MSG",new String(data));
                     message.setData(bundle);
-                    handler.sendMessage(message);
+                    handler.sendMessage(message);*/
 
-                    Log.w("AAA","读取到数据:"+new String(data));*/
+                    Log.w("AAA","读取到数据:"+new String(data));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int[] getWIFIStream(){
+        int[] receiveData = new int[bytes];
+        for(int i = 0; i < bytes ;i++){
+            receiveData[i] = data[i] & 0xff;
+        }
+        Log.w("GGG","读取到数据:"+ Arrays.toString(receiveData));
+        return receiveData;
     }
 
     public byte[] getWIFIData(){
@@ -100,8 +110,9 @@ public class ConnectThread extends Thread{
             }
         }
     }
+
     public void sendCommand(byte[] request){
-        if(outputStream!=null){
+        if(outputStream != null){
             try {
                 outputStream.write(request);
 

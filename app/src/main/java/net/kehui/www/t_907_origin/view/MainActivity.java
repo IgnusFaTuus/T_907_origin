@@ -7,18 +7,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.kehui.www.t_907_origin.R;
-import net.kehui.www.t_907_origin.base.BaseActivity;
-import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
+import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
 import net.kehui.www.t_907_origin.fragment.FileFragment;
 import net.kehui.www.t_907_origin.fragment.MethodFragment;
 import net.kehui.www.t_907_origin.fragment.OptionFragment;
 import net.kehui.www.t_907_origin.fragment.RangeFragment;
 import net.kehui.www.t_907_origin.fragment.SettingFragment;
+import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -61,6 +62,28 @@ public class MainActivity extends BaseActivity {
     Button btnTest;
     @BindView(R.id.btn_cursor)
     Button btnCursor;
+    @BindView(R.id.tv_method)
+    TextView tvMethod;
+    @BindView(R.id.tv_gain)
+    TextView tvGain;
+    @BindView(R.id.tv_vel)
+    TextView tvVel;
+    @BindView(R.id.tv_range)
+    TextView tvRange;
+    @BindView(R.id.vl_method)
+    TextView vlMethod;
+    @BindView(R.id.vl_gain)
+    TextView vlGain;
+    @BindView(R.id.vl_vel)
+    TextView vlVel;
+    @BindView(R.id.vl_range)
+    TextView vlRange;
+    @BindView(R.id.value_list)
+    LinearLayout valueList;
+    @BindView(R.id.stateList)
+    LinearLayout stateList;
+    @BindView(R.id.wave_display)
+    LinearLayout waveDisplay;
     //用于展示Fragment
     private MethodFragment methodFragment;
     private RangeFragment rangeFragment;
@@ -72,9 +95,6 @@ public class MainActivity extends BaseActivity {
 
     private int command_1;
     private int command_2;
-
-    public boolean hasSendMessage;      //GN 控制命令是否发送成功的标志
-    public byte[]  tempRequest            = new byte[8];
 
 
     @Override
@@ -92,6 +112,12 @@ public class MainActivity extends BaseActivity {
         btnOpt.setEnabled(true);
         btnFile.setEnabled(true);
         btnSetting.setEnabled(true);
+        vlMethod.setText(getResources().getString(R.string.btn_tdr));
+        vlRange.setText(getResources().getString(R.string.btn_500m));
+        vlGain.setText("16");
+        vlGain.setTextSize(12);
+        vlVel.setText("172m/μs");
+        vlVel.setTextSize(12);
         initWaveData();
         setChartListener(); //GC20181224 监听光标位置
 
@@ -178,6 +204,7 @@ public class MainActivity extends BaseActivity {
             transaction.hide(settingFragment);
         }
     }
+
     //GC 初始化sparkView
     private void initWaveData() {
         for (int i = 0; i < max; i++) {
@@ -191,20 +218,21 @@ public class MainActivity extends BaseActivity {
         fullWave.setAdapter(myChartAdapterFullWave);
 
     }
+
     //监听光标位置    //?1
     private void setChartListener() {
         mainWave.setScrubListener(new SparkView.OnScrubListener() {
             @Override
             public void onScrubbed(Object value) {
-                if(clickCursor){
+                if (clickCursor) {
                     positionReal = (int) value;
                     //Log.e("positionReal","" + positionReal);
-                }else {
+                } else {
                     positionVirtual = (int) value;
                     //Log.e("positionVirtual","" + positionVirtual);
                 }
                 tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
-                Log.e("VALUE","" + value); //GN 数值从0开始计数
+                Log.e("VALUE", "" + value); //GN 数值从0开始计数
             }
         });
     }
@@ -312,71 +340,67 @@ public class MainActivity extends BaseActivity {
     }
 
     private void clickTest() {
-        /*Log.e("range","" + range);
-        Log.e("method","" + method);
-        Log.e("command_1", "" + command_1);
-        Log.e("command_2", "" + command_2);*/
-        switch (range){
-            case 0x11 :
-                if ( (method == 17) || (method == 51) ){
+        switch (range) {
+            case 0x11:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[0];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[0];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
-            case 0x22 :
-                if ( (method == 17) || (method == 51) ){
+            case 0x22:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[1];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[1];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
-            case 0x33 :
-                if ( (method == 17) || (method == 51) ){
+            case 0x33:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[2];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[2];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
-            case 0x44 :
-                if ( (method == 17) || (method == 51) ){
+            case 0x44:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[3];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[3];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
-            case 0x55 :
-                if ( (method == 17) || (method == 51) ){
+            case 0x55:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[4];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[4];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
-            case 0x66 :
-                if ( (method == 17) || (method == 51) ){
+            case 0x66:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[5];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[5];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
-            case 0x77 :
-                if ( (method == 17) || (method == 51) ){
+            case 0x77:
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[6];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[6];
                 }
                 waveArray = new int[max];  //GC20181227
                 break;
             case (byte) 0x88:
-                if ( (method == 17) || (method == 51) ){
+                if ((method == 17) || (method == 51)) {
                     max = readTdrSim[7];
-                }else if((method == 34) || (method == 68)){
+                } else if ((method == 34) || (method == 68)) {
                     max = readIcmDecay[7];
                 }
                 waveArray = new int[max];  //GC20181227
@@ -384,68 +408,68 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
+        //Log.e("clickCursor","" + clickCursor);
         //getTestWaveData();
-        Log.e("clickCursor","" + clickCursor);
-        int a = connectThread.getWIFIData().length;
+        /*int a = connectThread.getWIFIData().length;
         max = a;
         byte[] wifi = connectThread.getWIFIData();
         for(int i = 0; i < a ;i++){
             waveArray[i] = wifi[i] & 0xff;
         }
         Log.e("a","" + a);
-        drawWIFIData();
+        drawWIFIData();*/
         /*command_1 = 0x01;
         command_2 = 0x11;
         sendCommand();
         receiveCommand();
-        if(commandState){
-            command_1 = 0x09;
-            command_2 = 0x11;
-            sendCommand();
-            receiveCommand();
-            if(commandState){
-                receiveWave();
-            }
-        }*/
+        command_1 = 0x09;
+        command_2 = 0x11;
+        sendCommand();
+        receiveCommand();
+        receiveWave();*/
+        command_1 = 0x01;
+        command_2 = 0x11;
+        sendCommand();
+
     }
 
     //GC20181223 光标切换
-    private void clickCursor(){
+    private void clickCursor() {
         clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
         myChartAdapterMainWave.setCursorState(clickCursor);
     }
 
-/*
-//G       数据头   数据长度  指令  传输数据  校验和
-//G     eb90aa55     03      01      11       15
+    /*
+    //G       数据头   数据长度  指令  传输数据  校验和
+    //G     eb90aa55     03      01      11       15
 
-eb90aa55 03 01 11 15	    测试0x11
-eb90aa55 03 01 22 26	    取消测试0x22
+    eb90aa55 03 01 11 15	    测试0x11
+    eb90aa55 03 01 22 26	    取消测试0x22
 
-eb90aa55 03 02 11 16		TDR低压脉冲方式
-eb90aa55 03 02 22 27		ICM脉冲电流方式
-eb90aa55 03 02 33 38		SIM二次脉冲方式
+    eb90aa55 03 02 11 16		TDR低压脉冲方式
+    eb90aa55 03 02 22 27		ICM脉冲电流方式
+    eb90aa55 03 02 33 38		SIM二次脉冲方式
 
-eb90aa55 03 03 11 17		范围500m
-eb90aa55 03 03 22 28
-eb90aa55 03 03 33 39
-eb90aa55 03 03 44 4a
-eb90aa55 03 03 55 5b
-eb90aa55 03 03 66 6c
-eb90aa55 03 03 77 7d
-eb90aa55 03 03 88 8e		范围64km
+    eb90aa55 03 03 11 17		范围500m
+    eb90aa55 03 03 22 28
+    eb90aa55 03 03 33 39
+    eb90aa55 03 03 44 4a
+    eb90aa55 03 03 55 5b
+    eb90aa55 03 03 66 6c
+    eb90aa55 03 03 77 7d
+    eb90aa55 03 03 88 8e		范围64km
 
 
-eb90aa55 03 04 11 18		增益+
-eb90aa55 03 04 22 29		增益-
+    eb90aa55 03 04 11 18		增益+
+    eb90aa55 03 04 22 29		增益-
 
-eb90aa55 03 05 11 19		延时+
-eb90aa55 03 05 22 2a		延时-
+    eb90aa55 03 05 11 19		延时+
+    eb90aa55 03 05 22 2a		延时-
 
-eb90aa55 03 07 11 1b  	    平衡+
-eb90aa55 03 07 22 2c		平衡-
-*/
+    eb90aa55 03 07 11 1b  	    平衡+
+    eb90aa55 03 07 22 2c		平衡-
+    */
     public void sendCommand() {
         byte[] request = new byte[8];
         request[0] = (byte) 0xEB;
@@ -458,54 +482,54 @@ eb90aa55 03 07 22 2c		平衡-
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
         connectThread.sendCommand(request);
+        //sendCommand(request);
 
     }
 
-    public void receiveCommand(){
+    public void receiveCommand() {
         getCommandStream();
         System.arraycopy(WIFIStream, 0, commandArray, 0, len);
-        if(commandLength < 8){
+        if (commandLength < 8) {
             getCommandStream();
-            for(int i = 0, j = commandLength; i < len; i++, j++){
+            for (int i = 0, j = commandLength; i < len; i++, j++) {
                 commandArray[j] = WIFIStream[i];
             }
-        }else{
+        } else {
             commandLength = 0;
-            if(commandArray[6] == 0x33){
+            if (commandArray[6] == 0x33) {
                 commandState = true;
-            }else if(commandArray[6] == 0x44){
+            } else if (commandArray[6] == 0x44) {
                 commandState = false;
             }
         }
-
     }
 
-    public void getCommandStream(){
+    public void getCommandStream() {
         len = connectThread.getWIFIData().length;
         byte[] wifi = connectThread.getWIFIData();
-        for(int i = 0; i < len ;i++){
+        for (int i = 0; i < len; i++) {
             WIFIStream[i] = wifi[i] & 0xff;
         }
         commandLength += len;
     }
 
-    public void receiveWave(){
+    public void receiveWave() {
         getWaveStream();
         System.arraycopy(WIFIStream, 0, waveArray, 0, len);
-        if(waveLength < max + 9){
+        if (waveLength < max + 9) {
             getWaveStream();
-            for(int i = 0, j = commandLength; i < len; i++, j++){
+            for (int i = 0, j = waveLength; i < len; i++, j++) {
                 waveArray[j] = WIFIStream[i];
             }
-        }else{
+        } else {
             drawWIFIData();
         }
     }
 
-    public void getWaveStream(){
+    public void getWaveStream() {
         len = connectThread.getWIFIData().length;
         byte[] wifi = connectThread.getWIFIData();
-        for(int i = 0; i < len ;i++){
+        for (int i = 0; i < len; i++) {
             WIFIStream[i] = wifi[i] & 0xff;
         }
         waveLength += len;
@@ -518,6 +542,38 @@ eb90aa55 03 07 22 2c		平衡-
                 false, 0, false, max);  //GC20181227
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
+    }
+
+    //GN 处理Wave
+    private void doWave(int[] WIFIArray, int length) {
+        int[] tempWave = new int[max + 9];   //波形临时数组
+        System.arraycopy(WIFIArray, 0, tempWave, 0, length);
+
+        if (waveLength == (max + 9)) {
+            for (int i = 8, j = 0; i < waveLength - 1; i++, j++) {
+                waveArray[j] = tempWave[i];
+            }
+            drawWIFIData();
+            waveLength = 0;
+
+        } else {
+            for (int i = 0, j = waveLength; i < length; i++, j++) {
+                tempWave[j] = WIFIArray[i];
+            }
+        }
+        waveLength += length;
+
+
+    }
+
+    //波形sum校验
+    /*private boolean doTempCrc(int[] tempWave) {
+
+    }*/
+    //控制命令sum校验
+    private boolean doTempCrc2(int[] tempCommand) {
+        int sum = tempCommand[4] + tempCommand[5] + tempCommand[6];
+        return tempCommand[7] == sum;
     }
 
     private void getTestWaveData() {
@@ -568,6 +624,7 @@ eb90aa55 03 07 22 2c		平衡-
         command_1 = 0x02;
         command_2 = method;
     }
+
     public int getRange() {
         return range;
     }
@@ -576,24 +633,79 @@ eb90aa55 03 07 22 2c		平衡-
         command_1 = 0x03;
         command_2 = range;
     }
+
     public int getGain() {
         return gain;
     }
     public void setGain(int range) {
         this.gain = gain;
     }
+
     public int getVelocity() {
         return velocity;
     }
     public void setVelocity(int range) {
         this.velocity = velocity;
     }
+
     public int getDelay() {
         return delay;
     }
     public void setDelay(int range) {
         this.delay = delay;
     }
+    //设置状态信息
+    public int getState() {
+        return state;
+    }
+    public void setState() {
+        switch (method) {
+            case 17:
+                vlMethod.setText(getResources().getString(R.string.btn_tdr));
+                break;
+            case 34:
+                vlMethod.setText(getResources().getString(R.string.btn_icm));
+                break;
+            case 51:
+                vlMethod.setText(getResources().getString(R.string.btn_sim));
+                break;
+            case 68:
+                vlMethod.setText(getResources().getString(R.string.btn_decay));
+                break;
+            default:
+                break;
+        }
+        switch (range) {
+            case 0x11:
+                vlRange.setText(getResources().getString(R.string.btn_500m));
+                break;
+            case 0x22:
+                vlRange.setText(getResources().getString(R.string.btn_1km));
+                break;
+            case 0x33:
+                vlRange.setText(getResources().getString(R.string.btn_2km));
+                break;
+            case 0x44:
+                vlRange.setText(getResources().getString(R.string.btn_4km));
+                break;
+            case 0x55:
+                vlRange.setText(getResources().getString(R.string.btn_8km));
+                break;
+            case 0x66:
+                vlRange.setText(getResources().getString(R.string.btn_16km));
+                break;
+            case 0x77:
+                vlRange.setText(getResources().getString(R.string.btn_32km));
+                break;
+            case 0x88:
+                vlRange.setText(getResources().getString(R.string.btn_64km));
+                break;
+            default:
+                break;
+        }
+
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

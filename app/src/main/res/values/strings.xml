@@ -46,4 +46,9 @@
     <string name="title_activity_base">BaseActivity</string>
     <string name="fault_distance">"距离:  "</string>
     <string name="btn_cursor">光标</string>
+    <string name="tv_method">方法: </string>
+    <string name="tv_gain">增益: </string>
+    <string name="tv_vel">波速度: </string>
+    <string name="tv_range">范围: </string>
+
 </resources>
