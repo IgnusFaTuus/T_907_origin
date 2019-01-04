@@ -27,19 +27,19 @@
             android:textColor="@android:color/black"/>
 
         <Button
-            android:id="@+id/btn_banlance_plus"
+            android:id="@+id/btn_balance_plus"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="@string/btn_banlance_plus"
+            android:text="@string/btn_balance_plus"
             android:textColor="@android:color/black"/>
 
         <Button
-            android:id="@+id/btn_banlance_minus"
+            android:id="@+id/btn_balance_minus"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="@string/btn_banlance_minus"
+            android:text="@string/btn_balance_minus"
             android:textColor="@android:color/black"/>
 
         <Button

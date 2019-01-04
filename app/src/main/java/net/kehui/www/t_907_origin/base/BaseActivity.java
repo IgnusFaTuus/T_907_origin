@@ -23,9 +23,11 @@ public class BaseActivity extends AppCompatActivity {
     public int range;
     public int gain;
     public int velocity;
-    public int delay;     //GC20181225
-    public int gainState;       //GC20190104
+    public int delay;       //GC20181225
+    public int balance;
+    public int gainState;       //GC20190104 数值传递
     public int velocityState;   //GC20190104
+    public int balanceState;   //GC20190104
     public int max;     //GC20181227
     public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
     public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //GC20181227 不同范围点数选择
@@ -57,7 +59,7 @@ public class BaseActivity extends AppCompatActivity {
 
         WifiUtil wifiUtil = new WifiUtil(this);
         wifiUtil.openWifi();
-        wifiUtil.addNetwork(wifiUtil.CreateWifiInfo("T-9071", "123456789", 3));
+        wifiUtil.addNetwork(wifiUtil.CreateWifiInfo("T-907", "123456789", 3));
 
     }
 
@@ -68,6 +70,7 @@ public class BaseActivity extends AppCompatActivity {
         range = 0x11;
         gainState = 12;
         velocityState = 172;
+        balanceState = 5;
         max = 540;
         waveArray = new int[max];
     }

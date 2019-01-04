@@ -151,6 +151,16 @@
                         android:textSize="12dp"
                         android:text="@string/tv_range"
                         android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/tv_balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text="@string/tv_balance"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="12dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -190,6 +200,15 @@
 
                     <TextView
                         android:id="@+id/vl_range"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:textSize="12dp"
+                        android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/vl_balance"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
@@ -299,7 +318,7 @@
                 android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:text="@string/btn_cursor"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/colorPurple" />
         </LinearLayout>
     </RelativeLayout>
 

@@ -44,47 +44,47 @@ import butterknife.OnClick;
 public class MainActivity extends BaseActivity {
 
     @BindView(R.id.content)
-    FrameLayout  content;
+    FrameLayout content;
     @BindView(R.id.mainWave)
-    SparkView    mainWave;
+    SparkView mainWave;
     @BindView(R.id.textView)
-    TextView     textView;
+    TextView textView;
     @BindView(R.id.tv_distance)
-    TextView     tvDistance;
+    TextView tvDistance;
     @BindView(R.id.fullWave)
-    SparkView    fullWave;
+    SparkView fullWave;
     @BindView(R.id.btn_mtd)
-    Button       btnMtd;
+    Button btnMtd;
     @BindView(R.id.btn_range)
-    Button       btnRange;
+    Button btnRange;
     @BindView(R.id.btn_adj)
-    Button       btnAdj;
+    Button btnAdj;
     @BindView(R.id.btn_opt)
-    Button       btnOpt;
+    Button btnOpt;
     @BindView(R.id.btn_file)
-    Button       btnFile;
+    Button btnFile;
     @BindView(R.id.btn_setting)
-    Button       btnSetting;
+    Button btnSetting;
     @BindView(R.id.btn_test)
-    Button       btnTest;
+    Button btnTest;
     @BindView(R.id.btn_cursor)
-    Button       btnCursor;
+    Button btnCursor;
     @BindView(R.id.tv_method)
-    TextView     tvMethod;
+    TextView tvMethod;
     @BindView(R.id.tv_gain)
-    TextView     tvGain;
+    TextView tvGain;
     @BindView(R.id.tv_vel)
-    TextView     tvVel;
+    TextView tvVel;
     @BindView(R.id.tv_range)
-    TextView     tvRange;
+    TextView tvRange;
     @BindView(R.id.vl_method)
-    TextView     vlMethod;
+    TextView vlMethod;
     @BindView(R.id.vl_gain)
-    TextView     vlGain;
+    TextView vlGain;
     @BindView(R.id.vl_vel)
-    TextView     vlVel;
+    TextView vlVel;
     @BindView(R.id.vl_range)
-    TextView     vlRange;
+    TextView vlRange;
     @BindView(R.id.value_list)
     LinearLayout valueList;
     @BindView(R.id.stateList)
@@ -92,26 +92,30 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.wave_display)
     LinearLayout waveDisplay;
     @BindView(R.id.wait_trigger)
-    TextView     waitTrigger;
+    TextView waitTrigger;
+    @BindView(R.id.tv_balance)
+    TextView tvBalance;
+    @BindView(R.id.vl_balance)
+    TextView vlBalance;
     //用于展示Fragment
-    private             MethodFragment  methodFragment;
-    private             RangeFragment   rangeFragment;
-    private             AdjustFragment  adjustFragment;
-    private             OptionFragment  optionFragment;
-    private             FileFragment    fileFragment;
-    private             SettingFragment settingFragment;
-    private             FragmentManager fragmentManager;
+    private MethodFragment methodFragment;
+    private RangeFragment rangeFragment;
+    private AdjustFragment adjustFragment;
+    private OptionFragment optionFragment;
+    private FileFragment fileFragment;
+    private SettingFragment settingFragment;
+    private FragmentManager fragmentManager;
     /*发送command的内容*/
-    private             int             command_1;
-    private             int             command_2;
+    private int command_1;
+    private int command_2;
     /*全局的handler对象用来执行UI更新*/
-    public static final int             DEVICE_CONNECTING = 1;  //设备连接
-    public static final int             DEVICE_CONNECTED  = 2;   //设备连接成功
-    public static final int             SEND_SUCCESS      = 3;       //发送command成功
-    public static final int             SEND_ERROR        = 4;         //发送command失败
-    public static final int             GET_STREAM        = 5;         //GC20190103 接收WIFI数据流
-    public static final int             RECEIVE_SUCCESS   = 6;   //设备接收command成功
-    public static final int             RECEIVE_ERROR     = 7;     //设备接收command失败
+    public static final int DEVICE_CONNECTING = 1;  //设备连接
+    public static final int DEVICE_CONNECTED = 2;   //设备连接成功
+    public static final int SEND_SUCCESS = 3;       //发送command成功
+    public static final int SEND_ERROR = 4;         //发送command失败
+    public static final int GET_STREAM = 5;         //GC20190103 接收WIFI数据流
+    public static final int RECEIVE_SUCCESS = 6;   //设备接收command成功
+    public static final int RECEIVE_ERROR = 7;     //设备接收command失败
 
     private Handler handler = new Handler() {
         @Override
@@ -168,9 +172,8 @@ public class MainActivity extends BaseActivity {
         vlMethod.setText(getResources().getString(R.string.btn_tdr));
         vlRange.setText(getResources().getString(R.string.btn_500m));
         vlGain.setText(String.valueOf(getGainState()));
-        vlGain.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
         vlVel.setText(String.valueOf(getVelocityState()) + "m/μs");
-        vlVel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
+        vlBalance.setText(String.valueOf(getBalanceState()));
         initWaveData();
         setChartListener(); //GC20181224 监听光标位置
         startThread();
@@ -287,7 +290,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //GC 初始化sparkView
-    private void initWaveData() {
+    public void initWaveData() {
         for (int i = 0; i < max; i++) {
             waveArray[i] = 128;
         }
@@ -297,7 +300,7 @@ public class MainActivity extends BaseActivity {
                 false, 0, false, max);  //GC20181227
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
-
+        btnCursor.setTextColor(getResources().getColor(R.color.colorPurple)); //GT 初始化光标按钮颜色
     }
 
     //监听光标位置    //?1
@@ -386,8 +389,6 @@ public class MainActivity extends BaseActivity {
         btnOpt.setEnabled(true);
         btnFile.setEnabled(true);
         btnSetting.setEnabled(true);
-        //GC
-        initWaveData();
     }
 
     private void clickOption() {
@@ -490,26 +491,35 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
-        //GC20190102 命令发送
-        command_1 = 0x01;
-        command_2 = 0x11;   //测试命令
-        sendCommand();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                command_1 = 0x09;
-                command_2 = 0x11;   //接收数据命令
-                sendCommand();
-            }
-        }, 1000);
-        clickTest = !clickTest;
-        if (clickTest) {
-            btnTest.setText(getResources().getString(R.string.btn_cancel));
-            waitTrigger.setVisibility(View.VISIBLE);
 
-        } else {
-            btnTest.setText(getResources().getString(R.string.btn_test));
-            waitTrigger.setVisibility(View.INVISIBLE);
+        if (method == 17) {
+            command_1 = 0x01;
+            command_2 = 0x11;   //GC20190102 测试命令
+            sendCommand();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    command_1 = 0x09;
+                    command_2 = 0x11;   //GC20190102 接收数据命令
+                    sendCommand();
+                }
+            }, 1000);
+
+        } else if ((method == 34) || (method == 68) || (method == 51)) {
+            clickTest = !clickTest;
+            if (clickTest) {
+                command_1 = 0x01;
+                command_2 = 0x22;   //取消测试命令
+                sendCommand();
+                btnTest.setText(getResources().getString(R.string.btn_cancel));
+                waitTrigger.setVisibility(View.VISIBLE);
+            } else {
+                command_1 = 0x01;
+                command_2 = 0x11;   //GC20190102 测试命令
+                sendCommand();
+                btnTest.setText(getResources().getString(R.string.btn_test));
+                waitTrigger.setVisibility(View.INVISIBLE);
+            }
 
         }
 
@@ -519,6 +529,11 @@ public class MainActivity extends BaseActivity {
     private void clickCursor() {
         clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
+        if(clickCursor){
+            btnCursor.setTextColor(getResources().getColor(R.color.colorRed));
+        }else{
+            btnCursor.setTextColor(getResources().getColor(R.color.colorPurple));
+        }
         myChartAdapterMainWave.setCursorState(clickCursor);
     }
 
@@ -685,55 +700,22 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private void getTestWaveData() {
-        InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
-                "wave.txt");
-        BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        int c = 0;
-        try {
-            c = bis.read();
-            while (c != -1) {
-                baos.write(c);
-                c = bis.read();
-            }
-            bis.close();
-            String s = baos.toString();
-            String[] split = s.split("\\s+");
-
-            for (int i = 0; i < max; i++) {
-                waveArray[i] = Integer.valueOf(split[i], 16);
-            }
-            myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                    false, 0, false, max);  //GC20181227
-            myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                    false, 0, false, max);  //GC20181227
-            mainWave.setAdapter(myChartAdapterMainWave);
-            fullWave.setAdapter(myChartAdapterFullWave);
-            //GC
-            positionReal = Integer.valueOf(split[6], 16);
-            mainWave.setScrubLineReal(positionReal);
-            positionVirtual = Integer.valueOf(split[7], 16);
-            mainWave.setScrubLineVirtual(positionVirtual);
-            tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     private void drawWIFIData() {
         myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);  //GC20181227
         myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);  //GC20181227
         mainWave.setAdapter(myChartAdapterMainWave);
-        fullWave.setAdapter(myChartAdapterFullWave);
+        fullWave.setAdapter(myChartAdapterFullWave);positionReal = 0;
+        //画光标
+        positionReal = 0;
+        mainWave.setScrubLineReal(positionReal);
+        positionVirtual = 250;
+        mainWave.setScrubLineVirtual(positionVirtual);
+        tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+        btnCursor.setTextColor(getResources().getColor(R.color.colorPurple)); //20190104 初始化光标按钮颜色
     }
 
-    //GC
     public int getMethod() {
         return method;
     }
@@ -745,15 +727,23 @@ public class MainActivity extends BaseActivity {
         switch (method) {
             case 17:
                 vlMethod.setText(getResources().getString(R.string.btn_tdr));
+                tvBalance.setVisibility(View.VISIBLE);
+                vlBalance.setVisibility(View.VISIBLE);
                 break;
             case 34:
                 vlMethod.setText(getResources().getString(R.string.btn_icm));
+                tvBalance.setVisibility(View.INVISIBLE);
+                vlBalance.setVisibility(View.INVISIBLE);
                 break;
             case 51:
                 vlMethod.setText(getResources().getString(R.string.btn_sim));
+                tvBalance.setVisibility(View.INVISIBLE);
+                vlBalance.setVisibility(View.INVISIBLE);
                 break;
             case 68:
                 vlMethod.setText(getResources().getString(R.string.btn_decay));
+                tvBalance.setVisibility(View.INVISIBLE);
+                vlBalance.setVisibility(View.INVISIBLE);
                 break;
             default:
                 break;
@@ -824,6 +814,16 @@ public class MainActivity extends BaseActivity {
         command_2 = gain;
     }
 
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+        command_1 = 0x07;
+        command_2 = balance;
+    }
+
     public int getVelocity() {
         return velocity;
     }
@@ -850,6 +850,16 @@ public class MainActivity extends BaseActivity {
         vlGain.setText(String.valueOf(gainState));
     }
 
+    //设置平衡变化
+    public int getBalanceState() {
+        return balanceState;
+    }
+
+    public void setBalanceState(int balanceState) {
+        this.balanceState = balanceState;
+        vlBalance.setText(String.valueOf(balanceState));
+    }
+
     //设置波速度变化
     public int getVelocityState() {
         return velocityState;
@@ -858,6 +868,116 @@ public class MainActivity extends BaseActivity {
     public void setVelocityState(int velocityState) {
         this.velocityState = velocityState;
         vlVel.setText(String.valueOf(velocityState) + "m/μs");
+    }
+
+    //GT 测试绘制效果
+    public void getTestWaveData() {
+        switch (range) {
+            case 0x11:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[0];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[0];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case 0x22:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[1];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[1];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case 0x33:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[2];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[2];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case 0x44:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[3];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[3];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case 0x55:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[4];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[4];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case 0x66:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[5];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[5];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case 0x77:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[6];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[6];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            case (byte) 0x88:
+                if ((method == 17) || (method == 51)) {
+                    max = readTdrSim[7];
+                } else if ((method == 34) || (method == 68)) {
+                    max = readIcmDecay[7];
+                }
+                waveArray = new int[max];  //GC20181227
+                break;
+            default:
+                break;
+        }
+        InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
+                "wave.txt");
+        BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        int c = 0;
+        try {
+            c = bis.read();
+            while (c != -1) {
+                baos.write(c);
+                c = bis.read();
+            }
+            bis.close();
+            String s = baos.toString();
+            String[] split = s.split("\\s+");
+
+            for (int i = 0; i < max; i++) {
+                waveArray[i] = Integer.valueOf(split[i], 16);
+            }
+            myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
+                    false, 0, false, max);  //GC20181227
+            myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
+                    false, 0, false, max);  //GC20181227
+            mainWave.setAdapter(myChartAdapterMainWave);
+            fullWave.setAdapter(myChartAdapterFullWave);
+            //GC
+            positionReal = 0;
+            //positionReal = Integer.valueOf(split[6], 16);
+            mainWave.setScrubLineReal(positionReal);
+            positionVirtual = 250;
+            mainWave.setScrubLineVirtual(positionVirtual);
+            tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+            btnCursor.setTextColor(getResources().getColor(R.color.colorPurple)); //初始化光标按钮颜色
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

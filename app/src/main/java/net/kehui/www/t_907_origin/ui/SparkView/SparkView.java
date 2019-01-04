@@ -169,7 +169,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         scrubLinePaint2.setStyle(Paint.Style.STROKE);
         scrubLinePaint2.setStrokeWidth(scrubLineWidth);
 //        scrubLinePaint.setColor(scrubLineColor);
-        scrubLinePaint2.setColor(Color.parseColor("#9533b2"));
+        scrubLinePaint2.setColor(Color.parseColor("#ff00ff"));
         scrubLinePaint2.setStrokeCap(Paint.Cap.ROUND);
 
         /*arrowLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);

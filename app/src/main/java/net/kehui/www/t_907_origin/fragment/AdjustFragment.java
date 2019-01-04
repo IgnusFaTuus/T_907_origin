@@ -24,10 +24,10 @@ public class AdjustFragment extends Fragment {
     Button btnGainPlus;
     @BindView(R.id.btn_gain_minus)
     Button btnGainMinus;
-    @BindView(R.id.btn_banlance_plus)
-    Button btnBanlancePlus;
-    @BindView(R.id.btn_banlance_minus)
-    Button btnBanlanceMinus;
+    @BindView(R.id.btn_balance_plus)
+    Button btnBalancePlus;
+    @BindView(R.id.btn_balance_minus)
+    Button btnBalanceMinus;
     @BindView(R.id.btn_vel_plus)
     Button btnVelPlus;
     @BindView(R.id.btn_vel_minus)
@@ -36,6 +36,7 @@ public class AdjustFragment extends Fragment {
 
     private int gain;
     private int velocity;
+    private int balance;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class AdjustFragment extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_banlance_plus, R.id.btn_banlance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
+    @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus, R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_gain_plus:
@@ -58,22 +59,36 @@ public class AdjustFragment extends Fragment {
                 if(gain < 32){
                     gain++;
                     ((MainActivity)getActivity()).setGainState(gain);
-                    ((MainActivity)getActivity()).setGain(0x11);
-                    ((MainActivity)getActivity()).sendCommand();
                 }
+                ((MainActivity)getActivity()).setGain(0x11);
+                ((MainActivity)getActivity()).sendCommand();
                 break;
             case R.id.btn_gain_minus:
                 gain = ((MainActivity)getActivity()).getGainState();
                 if(gain > 0){
                     gain--;
                     ((MainActivity)getActivity()).setGainState(gain);
-                    ((MainActivity)getActivity()).setGain(0x22);
+                }
+                ((MainActivity)getActivity()).setGain(0x22);
+                ((MainActivity)getActivity()).sendCommand();
+                break;
+            case R.id.btn_balance_plus:
+                balance = ((MainActivity)getActivity()).getBalanceState();
+                if(balance < 16){
+                    balance++;
+                    ((MainActivity)getActivity()).setBalanceState(balance);
+                    ((MainActivity)getActivity()).setBalance(0x11);
                     ((MainActivity)getActivity()).sendCommand();
                 }
                 break;
-            case R.id.btn_banlance_plus:
-                break;
-            case R.id.btn_banlance_minus:
+            case R.id.btn_balance_minus:
+                balance = ((MainActivity)getActivity()).getBalanceState();
+                if(balance > 0){
+                    balance--;
+                    ((MainActivity)getActivity()).setBalanceState(balance);
+                    ((MainActivity)getActivity()).setBalance(0x22);
+                    ((MainActivity)getActivity()).sendCommand();
+                }
                 break;
             case R.id.btn_vel_plus:
                 velocity = ((MainActivity)getActivity()).getVelocityState();

@@ -21,8 +21,8 @@
     <string name="btn_64km" translatable="true">64km</string>
     <string name="btn_gain_plus" translatable="true">增益+</string>
     <string name="btn_gain_minus" translatable="true">增益-</string>
-    <string name="btn_banlance_plus" translatable="true">平衡+</string>
-    <string name="btn_banlance_minus" translatable="true">平衡-</string>
+    <string name="btn_balance_plus" translatable="true">平衡+</string>
+    <string name="btn_balance_minus" translatable="true">平衡-</string>
     <string name="btn_vel_plus" translatable="true">波速+</string>
     <string name="btn_vel_minus" translatable="true">波速-</string>
     <string name="btn_zoom_in" translatable="true">放大</string>
@@ -47,5 +47,6 @@
     <string name="tv_range" translatable="true">范围: </string>
     <string name="btn_cancel" translatable="true">取消</string>
     <string name="wait_trigger">等待触发...</string>
+    <string name="tv_balance">平衡:</string>
 
 </resources>
