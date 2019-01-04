@@ -164,9 +164,9 @@ public class MainActivity extends BaseActivity {
         btnSetting.setEnabled(true);
         vlMethod.setText(getResources().getString(R.string.btn_tdr));
         vlRange.setText(getResources().getString(R.string.btn_500m));
-        vlGain.setText("16");
+        vlGain.setText( String.valueOf(getGainState()) );
         vlGain.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
-        vlVel.setText("172m/μs");
+        vlVel.setText( String.valueOf(getVelocityState()) + "m/μs");
         vlVel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
         initWaveData();
         setChartListener(); //GC20181224 监听光标位置
@@ -723,43 +723,6 @@ public class MainActivity extends BaseActivity {
         this.method = method;
         command_1 = 0x02;
         command_2 = method;
-    }
-
-    public int getRange() {
-        return range;
-    }
-    public void setRange(int range) {
-        this.range = range;
-        command_1 = 0x03;
-        command_2 = range;
-    }
-
-    public int getGain() {
-        return gain;
-    }
-    public void setGain(int range) {
-        this.gain = gain;
-    }
-
-    public int getVelocity() {
-        return velocity;
-    }
-    public void setVelocity(int range) {
-        this.velocity = velocity;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-    public void setDelay(int range) {
-        this.delay = delay;
-    }
-
-    //设置测试状态信息
-    public int getState() {
-        return state;
-    }
-    public void setState() {
         switch (method) {
             case 17:
                 vlMethod.setText(getResources().getString(R.string.btn_tdr));
@@ -776,35 +739,98 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
+    }
+
+    public int getRange() {
+        return range;
+    }
+    public void setRange(int range) {
+        this.range = range;
+        command_1 = 0x03;
+        command_2 = range;
         switch (range) {
             case 0x11:
                 vlRange.setText(getResources().getString(R.string.btn_500m));
+                gainState = 12;
+                vlGain.setText("12");
                 break;
             case 0x22:
                 vlRange.setText(getResources().getString(R.string.btn_1km));
+                gainState = 10;
+                vlGain.setText("10");
                 break;
             case 0x33:
                 vlRange.setText(getResources().getString(R.string.btn_2km));
+                gainState = 10;
+                vlGain.setText("10");
                 break;
             case 0x44:
                 vlRange.setText(getResources().getString(R.string.btn_4km));
+                gainState = 10;
+                vlGain.setText("10");
                 break;
             case 0x55:
                 vlRange.setText(getResources().getString(R.string.btn_8km));
+                gainState = 10;
+                vlGain.setText("10");
                 break;
             case 0x66:
                 vlRange.setText(getResources().getString(R.string.btn_16km));
+                gainState = 9;
+                vlGain.setText("9");
                 break;
             case 0x77:
                 vlRange.setText(getResources().getString(R.string.btn_32km));
+                gainState = 9;
+                vlGain.setText("9");
                 break;
             case 0x88:
                 vlRange.setText(getResources().getString(R.string.btn_64km));
+                gainState = 9;
+                vlGain.setText("9");
                 break;
             default:
                 break;
         }
+    }
 
+    public int getGain() {
+        return gain;
+    }
+    public void setGain(int gain) {
+        this.gain = gain;
+        command_1 = 0x04;
+        command_2 = gain;
+    }
+
+    public int getVelocity() {
+        return velocity;
+    }
+    public void setVelocity(int velocity) {
+        this.velocity = velocity;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+    public void setDelay(int range) {
+        this.delay = delay;
+    }
+    //设置增益变化
+    public int getGainState() {
+        return gainState;
+    }
+    public void setGainState(int gainState) {
+        this.gainState = gainState;
+        vlGain.setText(String.valueOf(gainState));
+    }
+    //设置波速度变化
+    public int getVelocityState() {
+        return velocityState;
+    }
+    public void setVelocityState(int velocityState) {
+        this.velocityState = velocityState;
+        vlVel.setText( String.valueOf(velocityState) + "m/μs");
     }
 
     @Override

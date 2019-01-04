@@ -24,7 +24,8 @@ public class BaseActivity extends AppCompatActivity {
     public int gain;
     public int velocity;
     public int delay;     //GC20181225
-    public int state;
+    public int gainState;       //GC20190104
+    public int velocityState;   //GC20190104
     public int max;     //GC20181227
     public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
     public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //GC20181227 不同范围点数选择
@@ -65,6 +66,8 @@ public class BaseActivity extends AppCompatActivity {
         positionVirtual = 0;
         method = 0x11;
         range = 0x11;
+        gainState = 12;
+        velocityState = 172;
         max = 540;
         waveArray = new int[max];
     }

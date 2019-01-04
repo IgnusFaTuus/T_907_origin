@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.view.MainActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +34,9 @@ public class AdjustFragment extends Fragment {
     Button btnVelMinus;
     Unbinder unbinder;
 
+    private int gain;
+    private int velocity;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View adjustLayout = inflater.inflate(R.layout.adj_layout, container, false);
@@ -50,16 +54,40 @@ public class AdjustFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_gain_plus:
+                gain = ((MainActivity)getActivity()).getGainState();
+                if(gain < 32){
+                    gain++;
+                    ((MainActivity)getActivity()).setGainState(gain);
+                    ((MainActivity)getActivity()).setGain(0x11);
+                    ((MainActivity)getActivity()).sendCommand();
+                }
                 break;
             case R.id.btn_gain_minus:
+                gain = ((MainActivity)getActivity()).getGainState();
+                if(gain > 0){
+                    gain--;
+                    ((MainActivity)getActivity()).setGainState(gain);
+                    ((MainActivity)getActivity()).setGain(0x22);
+                    ((MainActivity)getActivity()).sendCommand();
+                }
                 break;
             case R.id.btn_banlance_plus:
                 break;
             case R.id.btn_banlance_minus:
                 break;
             case R.id.btn_vel_plus:
+                velocity = ((MainActivity)getActivity()).getVelocityState();
+                if(velocity < 250){
+                    velocity++;
+                    ((MainActivity)getActivity()).setVelocityState(velocity);
+                }
                 break;
             case R.id.btn_vel_minus:
+                velocity = ((MainActivity)getActivity()).getVelocityState();
+                if(velocity > 0){
+                    velocity--;
+                    ((MainActivity)getActivity()).setVelocityState(velocity);
+                }
                 break;
         }
     }
