@@ -15,6 +15,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_500m"
             android:textColor="@android:color/black"/>
 
@@ -23,6 +24,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_1km"
             android:textColor="@android:color/black"/>
 
@@ -31,6 +33,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_2km"
             android:textColor="@android:color/black"/>
 
@@ -39,6 +42,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_4km"
             android:textColor="@android:color/black"/>
 
@@ -47,6 +51,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_8km"
             android:textColor="@android:color/black"/>
 
@@ -55,6 +60,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_16km"
             android:textColor="@android:color/black"/>
 
@@ -63,6 +69,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_32km"
             android:textColor="@android:color/black"/>
 
@@ -71,6 +78,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textAllCaps="false"
             android:text="@string/btn_64km"
             android:textColor="@android:color/black"/>
     </LinearLayout>

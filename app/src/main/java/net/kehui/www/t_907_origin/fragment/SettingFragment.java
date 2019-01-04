@@ -20,12 +20,7 @@ import butterknife.Unbinder;
  */
 
 public class SettingFragment extends Fragment {
-    @BindView(R.id.btn_select)
-    Button       btnSelect;
-    @BindView(R.id.btn_time_plus)
-    Button       btnTimePlus;
-    @BindView(R.id.btn_time_minus)
-    Button       btnTimeMinus;
+
     @BindView(R.id.btn_zero)
     Button       btnZero;
     @BindView(R.id.btn_lang)
@@ -46,16 +41,11 @@ public class SettingFragment extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick({R.id.btn_select, R.id.btn_time_plus, R.id.btn_time_minus, R.id.btn_zero, R.id
-            .btn_lang})
+    @OnClick({ R.id.btn_zero, R.id.btn_lang})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.btn_select:
-                break;
-            case R.id.btn_time_plus:
-                break;
-            case R.id.btn_time_minus:
-                break;
+
+
             case R.id.btn_zero:
                 break;
             case R.id.btn_lang:

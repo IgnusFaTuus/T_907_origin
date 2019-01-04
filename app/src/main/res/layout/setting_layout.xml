@@ -10,29 +10,7 @@
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_select"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/btn_select"
-            android:textColor="@android:color/black"/>
 
-        <Button
-            android:id="@+id/btn_time_plus"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/btn_time_plus"
-            android:textColor="@android:color/black"/>
-
-        <Button
-            android:id="@+id/btn_time_minus"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/btn_time_minus"
-            android:textColor="@android:color/black"/>
 
         <Button
             android:id="@+id/btn_zero"

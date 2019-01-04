@@ -19,20 +19,14 @@
             android:textColor="@android:color/black"/>
 
         <Button
-            android:id="@+id/btn_browse_up"
+            android:id="@+id/btn_browse"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="@string/btn_browse_up"
+            android:text="@string/btn_browse"
             android:textColor="@android:color/black"/>
 
-        <Button
-            android:id="@+id/btn_browse_down"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/btn_borwse_down"
-            android:textColor="@android:color/black"/>
+
 
         <Button
             android:id="@+id/btn_display"
