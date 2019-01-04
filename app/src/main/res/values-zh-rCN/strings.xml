@@ -45,5 +45,7 @@
     <string name="tv_gain" translatable="true">增益: </string>
     <string name="tv_vel" translatable="true">波速: </string>
     <string name="tv_range" translatable="true">范围: </string>
+    <string name="btn_cancel" translatable="true">取消</string>
+    <string name="wait_trigger">等待触发...</string>
 
 </resources>

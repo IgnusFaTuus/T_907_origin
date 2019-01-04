@@ -44,72 +44,74 @@ import butterknife.OnClick;
 public class MainActivity extends BaseActivity {
 
     @BindView(R.id.content)
-    FrameLayout content;
+    FrameLayout  content;
     @BindView(R.id.mainWave)
-    SparkView mainWave;
+    SparkView    mainWave;
     @BindView(R.id.textView)
-    TextView textView;
+    TextView     textView;
     @BindView(R.id.tv_distance)
-    TextView tvDistance;
+    TextView     tvDistance;
     @BindView(R.id.fullWave)
-    SparkView fullWave;
+    SparkView    fullWave;
     @BindView(R.id.btn_mtd)
-    Button btnMtd;
+    Button       btnMtd;
     @BindView(R.id.btn_range)
-    Button btnRange;
+    Button       btnRange;
     @BindView(R.id.btn_adj)
-    Button btnAdj;
+    Button       btnAdj;
     @BindView(R.id.btn_opt)
-    Button btnOpt;
+    Button       btnOpt;
     @BindView(R.id.btn_file)
-    Button btnFile;
+    Button       btnFile;
     @BindView(R.id.btn_setting)
-    Button btnSetting;
+    Button       btnSetting;
     @BindView(R.id.btn_test)
-    Button btnTest;
+    Button       btnTest;
     @BindView(R.id.btn_cursor)
-    Button btnCursor;
+    Button       btnCursor;
     @BindView(R.id.tv_method)
-    TextView tvMethod;
+    TextView     tvMethod;
     @BindView(R.id.tv_gain)
-    TextView tvGain;
+    TextView     tvGain;
     @BindView(R.id.tv_vel)
-    TextView tvVel;
+    TextView     tvVel;
     @BindView(R.id.tv_range)
-    TextView tvRange;
+    TextView     tvRange;
     @BindView(R.id.vl_method)
-    TextView vlMethod;
+    TextView     vlMethod;
     @BindView(R.id.vl_gain)
-    TextView vlGain;
+    TextView     vlGain;
     @BindView(R.id.vl_vel)
-    TextView vlVel;
+    TextView     vlVel;
     @BindView(R.id.vl_range)
-    TextView vlRange;
+    TextView     vlRange;
     @BindView(R.id.value_list)
     LinearLayout valueList;
     @BindView(R.id.stateList)
     LinearLayout stateList;
     @BindView(R.id.wave_display)
     LinearLayout waveDisplay;
+    @BindView(R.id.wait_trigger)
+    TextView     waitTrigger;
     //用于展示Fragment
-    private MethodFragment methodFragment;
-    private RangeFragment rangeFragment;
-    private AdjustFragment adjustFragment;
-    private OptionFragment optionFragment;
-    private FileFragment fileFragment;
-    private SettingFragment settingFragment;
-    private FragmentManager fragmentManager;
+    private             MethodFragment  methodFragment;
+    private             RangeFragment   rangeFragment;
+    private             AdjustFragment  adjustFragment;
+    private             OptionFragment  optionFragment;
+    private             FileFragment    fileFragment;
+    private             SettingFragment settingFragment;
+    private             FragmentManager fragmentManager;
     /*发送command的内容*/
-    private int command_1;
-    private int command_2;
+    private             int             command_1;
+    private             int             command_2;
     /*全局的handler对象用来执行UI更新*/
-    public static final int DEVICE_CONNECTING = 1;  //设备连接
-    public static final int DEVICE_CONNECTED = 2;   //设备连接成功
-    public static final int SEND_SUCCESS = 3;       //发送command成功
-    public static final int SEND_ERROR = 4;         //发送command失败
-    public static final int GET_STREAM = 5;         //GC20190103 接收WIFI数据流
-    public static final int RECEIVE_SUCCESS = 6;   //设备接收command成功
-    public static final int RECEIVE_ERROR = 7;     //设备接收command失败
+    public static final int             DEVICE_CONNECTING = 1;  //设备连接
+    public static final int             DEVICE_CONNECTED  = 2;   //设备连接成功
+    public static final int             SEND_SUCCESS      = 3;       //发送command成功
+    public static final int             SEND_ERROR        = 4;         //发送command失败
+    public static final int             GET_STREAM        = 5;         //GC20190103 接收WIFI数据流
+    public static final int             RECEIVE_SUCCESS   = 6;   //设备接收command成功
+    public static final int             RECEIVE_ERROR     = 7;     //设备接收command失败
 
     private Handler handler = new Handler() {
         @Override
@@ -129,7 +131,8 @@ public class MainActivity extends BaseActivity {
                     //hasSentCommand = true;
                     break;
                 case SEND_ERROR:
-                    Toast.makeText(MainActivity.this, "T-907已断开，请检查设备情况！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "T-907已断开，请检查设备情况！", Toast.LENGTH_LONG)
+                            .show();
                     break;
                 case GET_STREAM:
                     WIFIStream = msg.getData().getIntArray("STM");
@@ -164,14 +167,15 @@ public class MainActivity extends BaseActivity {
         btnSetting.setEnabled(true);
         vlMethod.setText(getResources().getString(R.string.btn_tdr));
         vlRange.setText(getResources().getString(R.string.btn_500m));
-        vlGain.setText( String.valueOf(getGainState()) );
+        vlGain.setText(String.valueOf(getGainState()));
         vlGain.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
-        vlVel.setText( String.valueOf(getVelocityState()) + "m/μs");
+        vlVel.setText(String.valueOf(getVelocityState()) + "m/μs");
         vlVel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
         initWaveData();
         setChartListener(); //GC20181224 监听光标位置
         startThread();
     }
+
     //GC20190103 启动接收WIFI数据流的线程
     private void startThread() {
         //开启连接线程
@@ -281,6 +285,7 @@ public class MainActivity extends BaseActivity {
             transaction.hide(settingFragment);
         }
     }
+
     //GC 初始化sparkView
     private void initWaveData() {
         for (int i = 0; i < max; i++) {
@@ -294,6 +299,7 @@ public class MainActivity extends BaseActivity {
         fullWave.setAdapter(myChartAdapterFullWave);
 
     }
+
     //监听光标位置    //?1
     private void setChartListener() {
         mainWave.setScrubListener(new SparkView.OnScrubListener() {
@@ -413,6 +419,7 @@ public class MainActivity extends BaseActivity {
         btnFile.setEnabled(true);
         btnSetting.setEnabled(false);
     }
+
     //测试按钮
     private void clickTest() {
         switch (range) {
@@ -483,8 +490,6 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
-        //getTestWaveData();
-        //Log.e("clickCursor","" + clickCursor);
         //GC20190102 命令发送
         command_1 = 0x01;
         command_2 = 0x11;   //测试命令
@@ -497,14 +502,26 @@ public class MainActivity extends BaseActivity {
                 sendCommand();
             }
         }, 1000);
+        clickTest = !clickTest;
+        if (clickTest) {
+            btnTest.setText(getResources().getString(R.string.btn_cancel));
+            waitTrigger.setVisibility(View.VISIBLE);
+
+        } else {
+            btnTest.setText(getResources().getString(R.string.btn_test));
+            waitTrigger.setVisibility(View.INVISIBLE);
+
+        }
 
     }
+
     //GC20181223 光标按钮
     private void clickCursor() {
         clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
         myChartAdapterMainWave.setCursorState(clickCursor);
     }
+
     /* 数据头   数据长度  指令  传输数据  校验和
     eb90aa55     03      01      11       15
     eb90aa55 03 01 11 15	    测试0x11
@@ -550,7 +567,7 @@ public class MainActivity extends BaseActivity {
         int doLength;   //待处理的数组数据个数
         int[] tempCommand = new int[8]; //command临时数组
 
-        if(length == 8){
+        if (length == 8) {
             if (WIFIArray[0] == 235) {
                 System.arraycopy(WIFIArray, 0, tempCommand, 0, 8);  //取command长度的数组
                 boolean isCrc2 = doTempCrc2(tempCommand);
@@ -561,36 +578,35 @@ public class MainActivity extends BaseActivity {
                     } else if (tempCommand[1] == 0x44) {
                         handler.sendEmptyMessage(RECEIVE_ERROR);
                     }
-                }else{
+                } else {
                     leftLen = length;
                     hasLeft = true;
                 }
             }
 
-        }else if(length > 8){
+        } else if (length > 8) {
 
-            if(hasLeft){
+            if (hasLeft) {
                 //有剩余数据，拼接数组
-                for(int i = 0, j = leftLen; i < length; i++, j++){
+                for (int i = 0, j = leftLen; i < length; i++, j++) {
                     leftArray[j] = WIFIArray[i];
                 }
                 doLength = leftLen + length;
-                if(doLength == (max + 9)){
-                    for (int i = 8,j = 0; i < doLength - 1; i++, j++) {
+                if (doLength == (max + 9)) {
+                    for (int i = 8, j = 0; i < doLength - 1; i++, j++) {
                         waveArray[j] = leftArray[i];    //取wave长度的数组
                     }
                     drawWIFIData();
                     hasReceivedWave = false;
-                }else if(doLength >= (max + 9)){
-                    for (int i = 8,j = 0; i < max + 9 - 1; i++, j++) {
+                } else if (doLength >= (max + 9)) {
+                    for (int i = 8, j = 0; i < max + 9 - 1; i++, j++) {
                         waveArray[j] = leftArray[i];    //取wave长度的数组
                     }
                     drawWIFIData();
                     leftLen = doLength - max - 9;
                     hasLeft = true;
 
-                }
-                else {
+                } else {
                     leftLen = doLength;
                     hasLeft = true;
                 }
@@ -606,18 +622,18 @@ public class MainActivity extends BaseActivity {
                     if (isCrc2) {    //sum校验成功，判断为command
                         if (tempCommand[6] == 0x33) {
                             handler.sendEmptyMessage(RECEIVE_SUCCESS);
-                            Log.e("hasReceivedCommand","" + hasReceivedCommand);
-                            if(tempCommand[6] == 0x09){     //判断为接收数据命令，准备接收数据
-                                if((length - l - 8) == (max + 9)){  //剩余数组为wave
+                            Log.e("hasReceivedCommand", "" + hasReceivedCommand);
+                            if (tempCommand[6] == 0x09) {     //判断为接收数据命令，准备接收数据
+                                if ((length - l - 8) == (max + 9)) {  //剩余数组为wave
                                     for (int i = l + 8 + 8, j = 0; i < length - 1; i++, j++) {
                                         waveArray[j] = WIFIArray[i];    //取wave长度的数组
                                     }
                                     drawWIFIData();
 
-                                }else{
+                                } else {
                                     hasReceivedWave = true;
                                     leftLen = length - 8 - l;
-                                    for(int i = l + 8, j = 0; i < length; i++, j++){
+                                    for (int i = l + 8, j = 0; i < length; i++, j++) {
                                         leftArray[j] = WIFIArray[i];    //给剩余数组赋值
                                     }
                                     hasLeft = true;
@@ -629,14 +645,14 @@ public class MainActivity extends BaseActivity {
                         l += 7;
 
                     } else {    //sum校验失败，判断为wave
-                        if((length - l) == (max + 9)){  //剩余数组为wave
+                        if ((length - l) == (max + 9)) {  //剩余数组为wave
                             for (int i = l + 8, j = 0; i < length - 1; i++, j++) {
                                 waveArray[j] = WIFIArray[i];    //取wave长度的数组
                             }
                             drawWIFIData();
-                        }else{  //数组长度不够wave,准备拼接处理
+                        } else {  //数组长度不够wave,准备拼接处理
                             leftLen = length - l;
-                            for(int i = l, j = 0; i < length; i++, j++){
+                            for (int i = l, j = 0; i < length; i++, j++) {
                                 leftArray[j] = WIFIArray[i];    //给剩余数组赋值
                             }
                             hasLeft = true;
@@ -648,18 +664,20 @@ public class MainActivity extends BaseActivity {
 
 
     }
+
     //波形数据sum校验
     private boolean doTempCrc(int[] tempWave) {
         int dataLen = tempWave.length;
         int a;
         int sum = 0;
-        for(int i = 4; i < dataLen; i++){
+        for (int i = 4; i < dataLen; i++) {
             a = tempWave[i];
             sum = sum + a;
         }
         return tempWave[max + 8] == sum;
 
     }
+
     //控制命令sum校验
     private boolean doTempCrc2(int[] tempCommand) {
         int sum = tempCommand[4] + tempCommand[5] + tempCommand[6];
@@ -719,6 +737,7 @@ public class MainActivity extends BaseActivity {
     public int getMethod() {
         return method;
     }
+
     public void setMethod(int method) {
         this.method = method;
         command_1 = 0x02;
@@ -744,6 +763,7 @@ public class MainActivity extends BaseActivity {
     public int getRange() {
         return range;
     }
+
     public void setRange(int range) {
         this.range = range;
         command_1 = 0x03;
@@ -797,6 +817,7 @@ public class MainActivity extends BaseActivity {
     public int getGain() {
         return gain;
     }
+
     public void setGain(int gain) {
         this.gain = gain;
         command_1 = 0x04;
@@ -806,6 +827,7 @@ public class MainActivity extends BaseActivity {
     public int getVelocity() {
         return velocity;
     }
+
     public void setVelocity(int velocity) {
         this.velocity = velocity;
     }
@@ -813,24 +835,29 @@ public class MainActivity extends BaseActivity {
     public int getDelay() {
         return delay;
     }
+
     public void setDelay(int range) {
         this.delay = delay;
     }
+
     //设置增益变化
     public int getGainState() {
         return gainState;
     }
+
     public void setGainState(int gainState) {
         this.gainState = gainState;
         vlGain.setText(String.valueOf(gainState));
     }
+
     //设置波速度变化
     public int getVelocityState() {
         return velocityState;
     }
+
     public void setVelocityState(int velocityState) {
         this.velocityState = velocityState;
-        vlVel.setText( String.valueOf(velocityState) + "m/μs");
+        vlVel.setText(String.valueOf(velocityState) + "m/μs");
     }
 
     @Override
