@@ -22,10 +22,6 @@ public class ConnectThread extends Thread{
     private       Handler      handler;
     private       InputStream  inputStream;
     private       OutputStream outputStream;
-    private byte[] buffer = new byte[1024];
-    private byte[] data;
-    private int [] data1;
-    private int bytes;
 
     public ConnectThread(Socket socket, Handler handler){
         setName("ConnectThread");
@@ -42,48 +38,64 @@ public class ConnectThread extends Thread{
         if(socket==null){
             return;
         }
-        handler.sendEmptyMessage(1);
+        handler.sendEmptyMessage(MainActivity.DEVICE_CONNECTED);
         try {
             //获取数据流
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
+            byte[] buffer = new byte[102400];
+            int bytes;
+
             while (true){
+                /*if(inputStream.available() <= 0){
+                    continue;
+                }else{
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }*/
                 //读取数据
                 bytes = inputStream.read(buffer);
                 if (bytes > 0) {
-                    data = new byte[bytes];
+                    byte[] data = new byte[bytes];
                     System.arraycopy(buffer, 0, data, 0, bytes);
-                    /*Message message = Message.obtain();
-                    message.what = 2;
+                    //GC20190103 WIFI数据流接收处理
+                    int[] WIFIStream = new int[bytes];
+                    for (int i = 0; i < bytes; i++) {
+                        WIFIStream[i] = data[i] & 0xff;   //将传过来的字节数组转变为int数组
+                    }
+                    Message message = Message.obtain();
+                    message.what = MainActivity.GET_STREAM;
                     Bundle bundle = new Bundle();
-                    bundle.putString("MSG",new String(data));
+                    bundle.putIntArray("STM", WIFIStream);
                     message.setData(bundle);
-                    handler.sendMessage(message);*/
-
-                    Log.w("AAA","读取到数据:"+new String(data));
+                    handler.sendMessage(message);
+                    //Log.w("AAA","读取到数据:"+new String(data));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    public int[] getWIFIStream(){
-        int[] receiveData = new int[bytes];
-        for(int i = 0; i < bytes ;i++){
-            receiveData[i] = data[i] & 0xff;
+    //发送command
+    public void sendCommand(byte[] request){
+        if(outputStream != null){
+            try {
+                outputStream.write(request);
+                Message message = Message.obtain();
+                message.what = MainActivity.SEND_SUCCESS;
+                handler.sendMessage(message);   //GC20190102 命令发送处理
+            } catch (IOException e) {
+                e.printStackTrace();
+                Message message = Message.obtain();
+                message.what = MainActivity.SEND_ERROR;
+                handler.sendMessage(message);
+            }
         }
-        Log.w("GGG","读取到数据:"+ Arrays.toString(receiveData));
-        return receiveData;
     }
-
-    public byte[] getWIFIData(){
-        byte[] receiveData = data;
-        Log.w("AAA","读取到数据:"+ String.valueOf(receiveData));
-        return receiveData;
-    }
-
     /**
      * 发送数据
      */
@@ -94,7 +106,7 @@ public class ConnectThread extends Thread{
                 outputStream.write(msg.getBytes());
                 Log.w("AAA","发送消息："+msg);
                 Message message = Message.obtain();
-                message.what = MainActivity.SEND_DATA;
+                message.what = MainActivity.SEND_SUCCESS;
                 Bundle bundle = new Bundle();
                 bundle.putString("MSG",new String(msg));
                 message.setData(bundle);
@@ -102,22 +114,11 @@ public class ConnectThread extends Thread{
             } catch (IOException e) {
                 e.printStackTrace();
                 Message message = Message.obtain();
-                message.what = 3;
+                message.what = MainActivity.SEND_ERROR;
                 Bundle bundle = new Bundle();
                 bundle.putString("MSG",new String(msg));
                 message.setData(bundle);
                 handler.sendMessage(message);
-            }
-        }
-    }
-
-    public void sendCommand(byte[] request){
-        if(outputStream != null){
-            try {
-                outputStream.write(request);
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }

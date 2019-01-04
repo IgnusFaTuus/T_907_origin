@@ -58,8 +58,8 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod((byte) 0x11); //GC20181225
                 ((MainActivity)getActivity()).setState();
+                ((MainActivity)getActivity()).setMethod((byte) 0x11); //GC20181225
                 ((MainActivity)getActivity()).sendCommand();
 
                 break;
@@ -68,17 +68,17 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(false);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
+                ((MainActivity)getActivity()).setState();
                 ((MainActivity)getActivity()).setMethod(0x22);
                 ((MainActivity)getActivity()).sendCommand();
-                ((MainActivity)getActivity()).setState();
                 break;
             case R.id.btn_sim:
                 btn_tdr.setEnabled(true);
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(false);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(0x33);
                 ((MainActivity)getActivity()).setState();
+                ((MainActivity)getActivity()).setMethod(0x33);
                 ((MainActivity)getActivity()).sendCommand();
                 break;
             case R.id.btn_decay:
@@ -86,8 +86,8 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(false);
-                ((MainActivity)getActivity()).setMethod(0x44);
                 ((MainActivity)getActivity()).setState();
+                ((MainActivity)getActivity()).setMethod(0x44);
                 ((MainActivity)getActivity()).sendCommand();
                 break;
             default:
