@@ -9,39 +9,23 @@ public class MyChartAdapter extends SparkAdapter {
     private int[] mTempArray;
     private int[] mCompareArray;
     private boolean isShowCompareLine;
-    private boolean isCursorState;  //GC20181223
-    private int isMax;  //GC20181227
     private int splitNum;
     private boolean isShowSplitLine;
-
-    public void setmTempArray(int[] mTempArray) {
-        this.mTempArray = mTempArray;
-    }
+    private boolean isCursorState;  //GC20181223
+    private int isMax;  //GC20181227
 
     public void setmCompareArray(int[] mCompareArray) {
         this.mCompareArray = mCompareArray;
     }
 
+    public void setmTempArray(int[] mTempArray) {
+        this.mTempArray = mTempArray;
+    }
+
     public void setShowCompareLine(boolean showCompareLine) {
         isShowCompareLine = showCompareLine;
     }
-    //GC20181223
-    public void setCursorState(boolean cursorState) {
-        isCursorState = cursorState;
-    }
-    @Override
-    public boolean getCursorState(){
-        return isCursorState;
-    }
-    //GC20181225
-    public void setMax(int max) {
-        this.isMax = max;   //GC20181227
-        //Log.e("isMax","" + isMax);
-    }
-    @Override
-    public int getMax() {
-        return isMax;
-    }
+
     public MyChartAdapter(int[] mTempArray, int[] mCompareArray, boolean isShowCompareLine, int
             splitNum, boolean isShowSplitLine, int isMax) {
         this.mTempArray = mTempArray;
@@ -50,6 +34,11 @@ public class MyChartAdapter extends SparkAdapter {
         this.splitNum = splitNum;
         this.isShowSplitLine = isShowSplitLine;
         this.isMax = isMax; //GC20181227
+    }
+
+    //GC20181223
+    public void setCursorState(boolean cursorState) {
+        isCursorState = cursorState;
     }
 
     @Override
@@ -82,7 +71,14 @@ public class MyChartAdapter extends SparkAdapter {
         return isShowCompareLine;
     }
 
-    public boolean isShowCompareLine() {
-        return isShowCompareLine;
+    @Override
+    public boolean getCursorState(){
+        return isCursorState;
     }
+
+    @Override
+    public int getMax() {
+        return isMax;
+    }
+
 }

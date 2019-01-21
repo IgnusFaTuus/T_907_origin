@@ -43,10 +43,11 @@
     <string name="tv_gain" translatable="true">GAIN: </string>
     <string name="tv_vel" translatable="true">VOP: </string>
     <string name="tv_range" translatable="true">RANGE: </string>
-    <string name="btn_cancel" translatable="true">CANCLE</string>
+    <string name="btn_cancel" translatable="true">CANCEL</string>
     <string name="btn_adj" translatable="true">ADJ</string>
     <string name="btn_test" translatable="true">TEST</string>
     <string name="wait_trigger">Wait For Trigger...</string>
     <string name="tv_balance">BAL:</string>
+    <string name="receive_data">RECEIVING DATA...</string>
 
 </resources>

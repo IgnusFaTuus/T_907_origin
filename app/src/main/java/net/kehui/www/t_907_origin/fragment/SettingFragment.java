@@ -21,13 +21,11 @@ import butterknife.Unbinder;
  */
 
 public class SettingFragment extends Fragment {
-
     @BindView(R.id.btn_zero)
     Button       btnZero;
     @BindView(R.id.btn_lang)
     Button       btnLang;
     Unbinder unbinder;
-
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,12 +44,9 @@ public class SettingFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_zero:
-                ((MainActivity)getActivity()).initWaveData();       //GT
                 break;
             case R.id.btn_lang:
-                ((MainActivity)getActivity()).getTestWaveData();    //GT
                 break;
-
         }
     }
 }

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#303f9f"
+    android:splitMotionEvents="false"
     tools:context="net.kehui.www.t_907_origin.view.MainActivity">
 
     <FrameLayout
@@ -123,6 +124,16 @@
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
+                        android:id="@+id/tv_range"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:textSize="12dp"
+                        android:text="@string/tv_range"
+                        android:textColor="@color/colorPrimary" />
+
+                    <TextView
                         android:id="@+id/tv_gain"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
@@ -143,16 +154,6 @@
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
-                        android:id="@+id/tv_range"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:textSize="12dp"
-                        android:text="@string/tv_range"
-                        android:textColor="@color/colorPrimary" />
-
-                    <TextView
                         android:id="@+id/tv_balance"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
@@ -161,6 +162,7 @@
                         android:text="@string/tv_balance"
                         android:textColor="@color/colorPrimary"
                         android:textSize="12dp" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -169,8 +171,9 @@
                     android:layout_height="wrap_content"
                     android:padding="4dp"
                     android:layout_marginTop="10dp"
-                    android:layout_weight="0.8"
+                    android:layout_weight="0.6"
                     android:orientation="vertical">
+
                     <TextView
                         android:id="@+id/vl_method"
                         android:layout_width="match_parent"
@@ -178,6 +181,15 @@
                         android:layout_weight="1"
                         android:textSize="12dp"
                         android:gravity="start"
+                        android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/vl_range"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:textSize="12dp"
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
@@ -191,15 +203,6 @@
 
                     <TextView
                         android:id="@+id/vl_vel"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:gravity="start"
-                        android:textSize="12dp"
-                        android:textColor="@color/colorPrimary" />
-
-                    <TextView
-                        android:id="@+id/vl_range"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
@@ -318,7 +321,7 @@
                 android:layout_width="60dp"
                 android:layout_height="45dp"
                 android:text="@string/btn_cursor"
-                android:textColor="@color/colorPurple" />
+                android:textColor="@color/T_purple" />
         </LinearLayout>
     </RelativeLayout>
 

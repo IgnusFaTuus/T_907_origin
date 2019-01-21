@@ -2,17 +2,24 @@ package net.kehui.www.t_907_origin.view;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.Formatter;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.timmy.tdialog.TDialog;
+import com.timmy.tdialog.base.BindViewHolder;
+import com.timmy.tdialog.listener.OnViewClickListener;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
@@ -42,7 +49,6 @@ import butterknife.OnClick;
  */
 
 public class MainActivity extends BaseActivity {
-
     @BindView(R.id.content)
     FrameLayout content;
     @BindView(R.id.mainWave)
@@ -105,54 +111,79 @@ public class MainActivity extends BaseActivity {
     private FileFragment fileFragment;
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
-    /*发送command的内容*/
-    private int command_1;
-    private int command_2;
+    /*下发command*/
+    private int command;
+    private int data;
+    private TDialog tDialog;
     /*全局的handler对象用来执行UI更新*/
-    public static final int DEVICE_CONNECTING = 1;  //设备连接
+    public static final int DEVICE_CONNECTING = 1;  //设备连接中
     public static final int DEVICE_CONNECTED = 2;   //设备连接成功
     public static final int SEND_SUCCESS = 3;       //发送command成功
     public static final int SEND_ERROR = 4;         //发送command失败
-    public static final int GET_STREAM = 5;         //GC20190103 接收WIFI数据流
-    public static final int RECEIVE_SUCCESS = 6;   //设备接收command成功
-    public static final int RECEIVE_ERROR = 7;     //设备接收command失败
+    public static final int GET_STREAM = 5;         //接收WIFI数据流
+    public static final int RECEIVE_SUCCESS = 6;   //T-907接收command成功
+    public static final int RECEIVE_ERROR = 7;     //T-907接收command失败
+    public static final int RESPOND_TIME = 9;      //GC20190110 命令响应结束
+    public static final int CLICK_TEST = 10;       //GC20190110 点击测试按钮事件
 
-    private Handler handler = new Handler() {
+    public Handler handler = new Handler(new Handler.Callback()  {
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case DEVICE_CONNECTING:
-                    connectThread = new ConnectThread(listenerThread.getSocket(), handler);
-                    connectThread.start();
-                    break;
-                case DEVICE_CONNECTED:
-                    Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
-                    command_1 = 0x02;
-                    command_2 = 0x11;
-                    sendCommand();  //GC20190102 发送初始化命令：连接成功后发送测试方式
-                    break;
-                case SEND_SUCCESS:
-                    //hasSentCommand = true;
-                    break;
-                case SEND_ERROR:
-                    Toast.makeText(MainActivity.this, "T-907已断开，请检查设备情况！", Toast.LENGTH_LONG)
-                            .show();
-                    break;
-                case GET_STREAM:
-                    WIFIStream = msg.getData().getIntArray("STM");
-                    streamLen = WIFIStream.length;
-                    Log.e("len", "" + streamLen);
-                    doWIFIArray(WIFIStream, streamLen);
-                    /*max = len;
-                    for (int i = 0; i < len; i++) {
-                        waveArray[i] = WIFIStream[i];
-                    }
-                    drawWIFIData();*/
+        public boolean handleMessage(Message msg) {
+            if(msg.what == DEVICE_CONNECTING){
+                connectThread = new ConnectThread(listenerThread.getSocket(), handler);
+                connectThread.start();
 
-                    break;
+            }else if(msg.what == DEVICE_CONNECTED){
+                Toast.makeText(MainActivity.this, "正在连接T-907......", Toast.LENGTH_LONG).show();
+                command = 0x02;
+                data = 0x11;
+                sendCommand();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        command = 0x03;
+                        data = 0x11;
+                        sendCommand();
+                    }
+                }, 50);    //发送初始化命令：方式、范围
+                handler.postDelayed(new Runnable() {    //GC20190110
+                    @Override
+                    public void run() {
+                        handler.sendEmptyMessage(CLICK_TEST);
+                    }
+                }, 1200);
+
+            }else if(msg.what == GET_STREAM){
+                if(!hasReceivedData){
+                    Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
+                    hasReceivedData = true;
+                }
+                WIFIStream = msg.getData().getIntArray("STM");  //GC20190103 接收WIFI数据流
+                assert WIFIStream != null;
+                streamLen = WIFIStream.length;
+                Log.e("AAA", "streamLen：" + streamLen); //GT
+                Log.e("hasLeft", "" + hasLeft);     //GT
+                Log.e("max", "" + max); //GT
+                doWIFIArray(WIFIStream, streamLen);
+                /*max = streamLen;
+                System.arraycopy(WIFIStream, 0, waveArray, 0, streamLen);
+                drawWIFIData();*/
+
+            }else if(msg.what == RESPOND_TIME){ //GC20190110
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnTest.setClickable(true);
+                    }
+                }, 1200);
+
+            }else if(msg.what == CLICK_TEST){
+                clickTest();
+
             }
+            return false;
         }
-    };
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +191,14 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        initFrame();
+        initSparkView();
+        setChartListener();
+        startThread();
+    }
+
+    //初始化界面框架
+    public void initFrame(){
         fragmentManager = getFragmentManager();
         //第一次启动时选中第0个tab
         setTabSelection(0);
@@ -174,37 +213,6 @@ public class MainActivity extends BaseActivity {
         vlGain.setText(String.valueOf(getGainState()));
         vlVel.setText(String.valueOf(getVelocityState()) + "m/μs");
         vlBalance.setText(String.valueOf(getBalanceState()));
-        initWaveData();
-        setChartListener(); //GC20181224 监听光标位置
-        startThread();
-    }
-
-    //GC20190103 启动接收WIFI数据流的线程
-    private void startThread() {
-        //开启连接线程
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Socket socket = new Socket(getWifiRouteIPAddress(MainActivity.this), PORT);
-                    connectThread = new ConnectThread(socket, handler);
-                    connectThread.start();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "通信连接失败", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                }
-            }
-        }).start();
-        //开启监听线程
-        listenerThread = new ListenerThread(PORT, handler);
-        listenerThread.start();
     }
 
     public void setTabSelection(int index) {
@@ -289,36 +297,75 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    //GC 初始化sparkView
-    public void initWaveData() {
+    //初始化sparkView
+    public void initSparkView() {
         for (int i = 0; i < max; i++) {
             waveArray[i] = 128;
         }
         myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);  //GC20181227
+                false, 0, false, max);
         myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);  //GC20181227
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
-        btnCursor.setTextColor(getResources().getColor(R.color.colorPurple)); //GT 初始化光标按钮颜色
+        Log.e("isDraw", "结束");  //GT
+        btnCursor.setTextColor(getResources().getColor(R.color.T_purple ));   //GT 初始化光标按钮颜色
+
     }
 
-    //监听光标位置    //?1
+    //监听光标位置    //BUG1
     private void setChartListener() {
         mainWave.setScrubListener(new SparkView.OnScrubListener() {
             @Override
-            public void onScrubbed(Object value) {
+            public void onScrubbed(Object value) {  //GC20181224
                 if (clickCursor) {
                     positionReal = (int) value;
-                    //Log.e("positionReal","" + positionReal);
                 } else {
                     positionVirtual = (int) value;
-                    //Log.e("positionVirtual","" + positionVirtual);
                 }
                 tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
-                Log.e("VALUE", "" + value); //GN 数值从0开始计数
+                //Log.e("VALUE", "" + value); //GN 数值从0开始计数
             }
         });
+    }
+
+    //GC20190103 启动接收WIFI数据流的线程
+    private void startThread() {
+        //开启连接线程
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Socket socket = new Socket(getWifiRouteIPAddress(MainActivity.this), PORT);
+                    connectThread = new ConnectThread(socket, handler);
+                    connectThread.start();
+                    wifiOutputStream = socket.getOutputStream();   //GC20190105 获取WIFI输出流
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "通信失败，请检查网络后重试", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        }).start();
+        //开启监听线程
+        listenerThread = new ListenerThread(PORT, handler);
+        listenerThread.start();
+    }
+
+    //wifi获取 已连接网络路由  路由ip地址
+    public static String getWifiRouteIPAddress(Context context) {
+        WifiManager wifi_service = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        DhcpInfo dhcpInfo = wifi_service.getDhcpInfo();
+        String routeIp = Formatter.formatIpAddress(dhcpInfo.gateway);
+        Log.i("route ip", "wifi route ip：" + routeIp);
+
+        return routeIp;
+
     }
 
     @OnClick({R.id.btn_mtd, R.id.btn_range, R.id.btn_adj, R.id.btn_opt, R.id.btn_file, R.id
@@ -368,7 +415,6 @@ public class MainActivity extends BaseActivity {
         btnOpt.setEnabled(true);
         btnFile.setEnabled(true);
         btnSetting.setEnabled(true);
-
     }
 
     private void clickRange() {
@@ -423,116 +469,58 @@ public class MainActivity extends BaseActivity {
 
     //测试按钮
     private void clickTest() {
-        switch (range) {
-            case 0x11:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[0];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[0];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x22:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[1];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[1];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x33:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[2];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[2];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x44:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[3];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[3];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x55:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[4];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[4];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x66:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[5];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[5];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x77:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[6];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[6];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case (byte) 0x88:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[7];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[7];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            default:
-                break;
-        }
-
-        if (method == 17) {
-            command_1 = 0x01;
-            command_2 = 0x11;   //GC20190102 测试命令
-            sendCommand();
+        Log.e("isDraw", "开始");  //GT
+        if (method == 0x11) {
+            isDraw = false;
+            command = 0x01;
+            data = 0x11;
+            sendCommand();  //测试
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    command_1 = 0x09;
-                    command_2 = 0x11;   //GC20190102 接收数据命令
-                    sendCommand();
+                    command = 0x09;
+                    data = 0x11;
+                    sendCommand(); //接收数据
                 }
-            }, 1000);
+            }, 50);
+            tDialog = new TDialog.Builder(getSupportFragmentManager())
+                    .setLayoutRes(R.layout.receiving_data)
+                    .setScreenWidthAspect(this,0.25f)
+                    .setCancelableOutside(false)
+                    .create()
+                    .show();  //GX
 
-        } else if ((method == 34) || (method == 68) || (method == 51)) {
-            clickTest = !clickTest;
-            if (clickTest) {
-                command_1 = 0x01;
-                command_2 = 0x22;   //取消测试命令
-                sendCommand();
-                btnTest.setText(getResources().getString(R.string.btn_cancel));
-                waitTrigger.setVisibility(View.VISIBLE);
-            } else {
-                command_1 = 0x01;
-                command_2 = 0x11;   //GC20190102 测试命令
-                sendCommand();
-                btnTest.setText(getResources().getString(R.string.btn_test));
-                waitTrigger.setVisibility(View.INVISIBLE);
-            }
-
+        } else if ( (method == 0x22) || (method == 0x33) || (method == 0x44) ) {
+            command = 0x01;
+            data = 0x11;   //测试
+            sendCommand();
+            tDialog = new TDialog.Builder(getSupportFragmentManager())
+                    .setLayoutRes(R.layout.wait_trigger)
+                    .setScreenWidthAspect(this,0.3f)
+                    .setCancelableOutside(false)
+                    .addOnClickListener(R.id.tv_cancel)
+                    .setOnViewClickListener(new OnViewClickListener() {
+                        @Override
+                        public void onViewClick(BindViewHolder viewHolder, View view, TDialog tDialog) {
+                            tDialog.dismiss();
+                            command = 0x01;
+                            data = 0x22;   //取消测试
+                            sendCommand();
+                        }
+                    })
+                    .create()
+                    .show();
         }
-
     }
 
-    //GC20181223 光标按钮
+    //点击光标按钮事件
     private void clickCursor() {
         clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
         if(clickCursor){
-            btnCursor.setTextColor(getResources().getColor(R.color.colorRed));
+            btnCursor.setTextColor(getResources().getColor(R.color.T_red));
         }else{
-            btnCursor.setTextColor(getResources().getColor(R.color.colorPurple));
+            btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
         }
         myChartAdapterMainWave.setCursorState(clickCursor);
     }
@@ -563,121 +551,100 @@ public class MainActivity extends BaseActivity {
     eb90aa55 03 0a 11 1e		//G后续添加 关机重连*/
     public void sendCommand() {
         byte[] request = new byte[8];
-        request[0] = (byte) 0xEB;
+        request[0] = (byte) 0xeb;
         request[1] = (byte) 0x90;
-        request[2] = (byte) 0xAA;
+        request[2] = (byte) 0xaa;
         request[3] = (byte) 0x55;
         request[4] = (byte) 0x03;
-        request[5] = (byte) command_1;
-        request[6] = (byte) command_2;
+        request[5] = (byte) command;
+        request[6] = (byte) data;
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
-        connectThread.sendCommand(request);
-
+        //GC20190105 connectThread.sendCommand(request);
+        sendCommand(request);
     }
 
-    //GN 处理接收到的WIFI数据
+    //GC20190105 下发命令
+    public void sendCommand(byte[] request) {
+        if (!hasSentCommand) {
+            /*for (int i = 0; i < request.length; i++) {
+                tempRequest[i] = request[i];
+            }
+            if (mOutputStream == null) {
+                Toast.makeText(this, getResources().getString(R.string.Bluetooth_is_not_connected),
+                        Toast.LENGTH_SHORT).show();
+            }*/
+            try {
+                wifiOutputStream.write(request);
+                //GX hasSentCommand = true;
+                Log.e("AAA", "指令：" + command + "数据：" + data);    //GT
+            } catch (IOException e) {
+                Toast.makeText(this, "命令下发失败" + e.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    //GC20190103 处理接收到的WIFI数据
     private void doWIFIArray(int[] WIFIArray, int length) {
-        int l = 0;
-        int doLength;   //待处理的数组数据个数
-        int[] tempCommand = new int[8]; //command临时数组
-
         if (length == 8) {
-            if (WIFIArray[0] == 235) {
-                System.arraycopy(WIFIArray, 0, tempCommand, 0, 8);  //取command长度的数组
-                boolean isCrc2 = doTempCrc2(tempCommand);
-                if (isCrc2) {    //sum校验成功，判断为command
-                    if (tempCommand[6] == 0x33) {
-                        handler.sendEmptyMessage(RECEIVE_SUCCESS);
-                        Log.e("hasReceivedCommand", "" + hasReceivedCommand);
-                    } else if (tempCommand[1] == 0x44) {
-                        handler.sendEmptyMessage(RECEIVE_ERROR);
+            if (WIFIArray[0] == 0xeb) {
+                boolean isCrc2 = doTempCrc2(WIFIArray);
+                if (isCrc2) {    //命令sum校验成功
+                    hasSentCommand = false;
+//                    handler.sendEmptyMessage(RESPOND_TIME); //GC20190110
+                    if (WIFIArray[6] == 0x33) {
+                        //handler.sendEmptyMessage(RECEIVE_SUCCESS);  //下发command成功
+                        /*if(method == 0x11){
+                            if ( (WIFIArray[5] == 0x04) || (WIFIArray[5] == 0x55) ){
+                                handler.sendEmptyMessage(CLICK_TEST);   //GC20190110
+                            }
+
+                        }else {
+                            if (WIFIArray[5] == 0x08){
+
+                            }
+                        }*/
+
+                    }else if (WIFIArray[6] == 0x44) {
+                        //handler.sendEmptyMessage(RECEIVE_ERROR);    //下发command失败
                     }
-                } else {
-                    leftLen = length;
-                    hasLeft = true;
                 }
             }
-
-        } else if (length > 8) {
-
-            if (hasLeft) {
-                //有剩余数据，拼接数组
-                for (int i = 0, j = leftLen; i < length; i++, j++) {
-                    leftArray[j] = WIFIArray[i];
+        }else {
+            if(hasLeft){
+                for (int i = leftLen, j = 0; j < length; i++, j++) {
+                    leftArray[i] = WIFIArray[j];    //与剩余数据进行拼接
                 }
-                doLength = leftLen + length;
-                if (doLength == (max + 9)) {
-                    for (int i = 8, j = 0; i < doLength - 1; i++, j++) {
+                leftLen = leftLen + length;
+                if(leftLen == (max + 9 + 10)){
+                    for (int i = 8, j = 0; i < leftLen - 1 - 10; i++, j++) {
                         waveArray[j] = leftArray[i];    //取wave长度的数组
                     }
+                    hasLeft = false;
+                    leftLen = 0;
                     drawWIFIData();
-                    hasReceivedWave = false;
-                } else if (doLength >= (max + 9)) {
-                    for (int i = 8, j = 0; i < max + 9 - 1; i++, j++) {
-                        waveArray[j] = leftArray[i];    //取wave长度的数组
-                    }
-                    drawWIFIData();
-                    leftLen = doLength - max - 9;
-                    hasLeft = true;
 
-                } else {
-                    leftLen = doLength;
+                }else{  //数组长度不够wave,继续拼接处理
                     hasLeft = true;
                 }
 
-            }
-            //开始遍历
-            for (; l < length - 8; l++) {
-                if (WIFIArray[l] == 235) {
-                    for (int j = l, k = 0; j < (l + 8); j++, k++) {
-                        tempCommand[k] = WIFIArray[j];  //取command长度的数组
+            }else{
+                if (length == (max + 9 + 10)) {  //GC20190104 波形数据去掉末尾10个点
+                    for (int i = 8, j = 0; i < length - 1 - 10; i++, j++) {
+                        waveArray[j] = WIFIArray[i];    //取wave长度的数组
                     }
-                    boolean isCrc2 = doTempCrc2(tempCommand);
-                    if (isCrc2) {    //sum校验成功，判断为command
-                        if (tempCommand[6] == 0x33) {
-                            handler.sendEmptyMessage(RECEIVE_SUCCESS);
-                            Log.e("hasReceivedCommand", "" + hasReceivedCommand);
-                            if (tempCommand[6] == 0x09) {     //判断为接收数据命令，准备接收数据
-                                if ((length - l - 8) == (max + 9)) {  //剩余数组为wave
-                                    for (int i = l + 8 + 8, j = 0; i < length - 1; i++, j++) {
-                                        waveArray[j] = WIFIArray[i];    //取wave长度的数组
-                                    }
-                                    drawWIFIData();
+                    hasLeft = false;
+                    drawWIFIData();
 
-                                } else {
-                                    hasReceivedWave = true;
-                                    leftLen = length - 8 - l;
-                                    for (int i = l + 8, j = 0; i < length; i++, j++) {
-                                        leftArray[j] = WIFIArray[i];    //给剩余数组赋值
-                                    }
-                                    hasLeft = true;
-                                }
-                            }
-                        } else if (tempCommand[1] == 0x44) {
-                            handler.sendEmptyMessage(RECEIVE_ERROR);
-                        }
-                        l += 7;
-
-                    } else {    //sum校验失败，判断为wave
-                        if ((length - l) == (max + 9)) {  //剩余数组为wave
-                            for (int i = l + 8, j = 0; i < length - 1; i++, j++) {
-                                waveArray[j] = WIFIArray[i];    //取wave长度的数组
-                            }
-                            drawWIFIData();
-                        } else {  //数组长度不够wave,准备拼接处理
-                            leftLen = length - l;
-                            for (int i = l, j = 0; i < length; i++, j++) {
-                                leftArray[j] = WIFIArray[i];    //给剩余数组赋值
-                            }
-                            hasLeft = true;
-                        }
+                } else {  //数组长度不够wave,准备拼接处理
+                    for (int i = leftLen, j = 0; j < length; i++, j++) {
+                        leftArray[i] = WIFIArray[j];
                     }
+                    hasLeft = true;
+                    leftLen = leftLen + length;
                 }
             }
         }
-
-
     }
 
     //波形数据sum校验
@@ -690,30 +657,32 @@ public class MainActivity extends BaseActivity {
             sum = sum + a;
         }
         return tempWave[max + 8] == sum;
-
     }
 
     //控制命令sum校验
     private boolean doTempCrc2(int[] tempCommand) {
         int sum = tempCommand[4] + tempCommand[5] + tempCommand[6];
         return tempCommand[7] == sum;
-
     }
 
     private void drawWIFIData() {
         myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);  //GC20181227
         myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);  //GC20181227
+                false, 0, false, max);
         mainWave.setAdapter(myChartAdapterMainWave);
-        fullWave.setAdapter(myChartAdapterFullWave);positionReal = 0;
+        fullWave.setAdapter(myChartAdapterFullWave);
+        Log.e("isDraw", "结束");  //GT
+        if (tDialog != null){
+            tDialog.dismiss();
+        }
         //画光标
         positionReal = 0;
         mainWave.setScrubLineReal(positionReal);
-        positionVirtual = 250;
+        positionVirtual = max / 2;
         mainWave.setScrubLineVirtual(positionVirtual);
         tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
-        btnCursor.setTextColor(getResources().getColor(R.color.colorPurple)); //20190104 初始化光标按钮颜色
+        btnCursor.setTextColor(getResources().getColor(R.color.T_purple)); //20190104 初始化光标按钮颜色
     }
 
     public int getMethod() {
@@ -722,8 +691,8 @@ public class MainActivity extends BaseActivity {
 
     public void setMethod(int method) {
         this.method = method;
-        command_1 = 0x02;
-        command_2 = method;
+        command = 0x02;
+        data = method;
         switch (method) {
             case 17:
                 vlMethod.setText(getResources().getString(R.string.btn_tdr));
@@ -756,45 +725,94 @@ public class MainActivity extends BaseActivity {
 
     public void setRange(int range) {
         this.range = range;
-        command_1 = 0x03;
-        command_2 = range;
+        command = 0x03;
+        data = range;
+//        btnTest.setClickable(false);    //GC20190110
         switch (range) {
             case 0x11:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[0];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[0];
+                }
+                waveArray = new int[max];  //GC20181227
                 vlRange.setText(getResources().getString(R.string.btn_500m));
                 gainState = 12;
                 vlGain.setText("12");
                 break;
             case 0x22:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[1];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[1];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_1km));
                 gainState = 10;
                 vlGain.setText("10");
                 break;
             case 0x33:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[2];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[2];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_2km));
                 gainState = 10;
                 vlGain.setText("10");
                 break;
             case 0x44:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[3];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[3];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_4km));
                 gainState = 10;
                 vlGain.setText("10");
                 break;
             case 0x55:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[4];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[4];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_8km));
                 gainState = 10;
                 vlGain.setText("10");
                 break;
             case 0x66:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[5];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[5];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_16km));
                 gainState = 9;
                 vlGain.setText("9");
                 break;
             case 0x77:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[6];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[6];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_32km));
                 gainState = 9;
                 vlGain.setText("9");
                 break;
             case 0x88:
+                if ((method == 0x11) || (method == 0x33)) {
+                    max = readTdrSim[7];
+                } else if ((method == 0x22) || (method == 0x44)) {
+                    max = readIcmDecay[7];
+                }
+                waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_64km));
                 gainState = 9;
                 vlGain.setText("9");
@@ -810,8 +828,8 @@ public class MainActivity extends BaseActivity {
 
     public void setGain(int gain) {
         this.gain = gain;
-        command_1 = 0x04;
-        command_2 = gain;
+        command = 0x04;
+        data = gain;
     }
 
     public int getBalance() {
@@ -820,8 +838,8 @@ public class MainActivity extends BaseActivity {
 
     public void setBalance(int balance) {
         this.balance = balance;
-        command_1 = 0x07;
-        command_2 = balance;
+        command = 0x07;
+        data = balance;
     }
 
     public int getVelocity() {
@@ -836,7 +854,7 @@ public class MainActivity extends BaseActivity {
         return delay;
     }
 
-    public void setDelay(int range) {
+    public void setDelay(int delay) {
         this.delay = delay;
     }
 
@@ -870,82 +888,40 @@ public class MainActivity extends BaseActivity {
         vlVel.setText(String.valueOf(velocityState) + "m/μs");
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
     //GT 测试绘制效果
-    public void getTestWaveData() {
-        switch (range) {
-            case 0x11:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[0];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[0];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x22:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[1];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[1];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x33:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[2];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[2];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x44:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[3];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[3];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x55:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[4];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[4];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x66:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[5];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[5];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case 0x77:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[6];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[6];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            case (byte) 0x88:
-                if ((method == 17) || (method == 51)) {
-                    max = readTdrSim[7];
-                } else if ((method == 34) || (method == 68)) {
-                    max = readIcmDecay[7];
-                }
-                waveArray = new int[max];  //GC20181227
-                break;
-            default:
-                break;
+    public void testWaveData() {
+        for (int i = 0; i < max; i++) {
+            waveArray[i] = 12;
         }
+        myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
+                false, 0, false, max);  //GC20181227
+        myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
+                false, 0, false, max);
+        mainWave.setAdapter(myChartAdapterMainWave);
+        fullWave.setAdapter(myChartAdapterFullWave);
+        Log.e("isDraw", "结束");  //GT
+        positionReal = 0;
+        //positionReal = Integer.valueOf(split[6], 16);
+        mainWave.setScrubLineReal(positionReal);
+        positionVirtual = max / 2;
+        mainWave.setScrubLineVirtual(positionVirtual);
+        tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+        btnCursor.setTextColor(getResources().getColor(R.color.T_purple)); //初始化光标按钮颜色
+    }
+
+    //GT 测试读文本绘制效果
+    public void getTxtWaveData() {
         InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
                 "wave.txt");
         BufferedInputStream bis = new BufferedInputStream(mResourceAsStream);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        int c = 0;
+        int c;
         try {
             c = bis.read();
             while (c != -1) {
@@ -962,17 +938,17 @@ public class MainActivity extends BaseActivity {
             myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
                     false, 0, false, max);  //GC20181227
             myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                    false, 0, false, max);  //GC20181227
+                    false, 0, false, max);
             mainWave.setAdapter(myChartAdapterMainWave);
             fullWave.setAdapter(myChartAdapterFullWave);
-            //GC
+            Log.e("isDraw", "结束");  //GT
             positionReal = 0;
             //positionReal = Integer.valueOf(split[6], 16);
             mainWave.setScrubLineReal(positionReal);
-            positionVirtual = 250;
+            positionVirtual = max / 2;
             mainWave.setScrubLineVirtual(positionVirtual);
             tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
-            btnCursor.setTextColor(getResources().getColor(R.color.colorPurple)); //初始化光标按钮颜色
+            btnCursor.setTextColor(getResources().getColor(R.color.T_purple)); //初始化光标按钮颜色
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -980,18 +956,4 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
 }
-
-
-/*更改记录*/
-//GC20181223 光标切换
-//GC20181224 监听并绘制光标位置
-//GC20181225 传递方式范围状态
-//GC20181227 不同方式范围点数选择
-//GC20190102 命令发送处理
-//GC20190103 WIFI数据流接收处理

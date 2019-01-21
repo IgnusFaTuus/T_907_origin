@@ -37,7 +37,7 @@ public class ListenerThread extends Thread {
     public void run() {
         while (true) {
             try {
-                Log.i("ListennerThread", "阻塞");
+                Log.i("ListenerThread", "阻塞");
                 //阻塞，等待设备连接
                 if (serverSocket != null)
                     socket = serverSocket.accept();
@@ -45,7 +45,7 @@ public class ListenerThread extends Thread {
                 message.what = MainActivity.DEVICE_CONNECTING;
                 handler.sendMessage(message);
             } catch (IOException e) {
-                Log.i("ListennerThread", "error:" + e.getMessage());
+                Log.i("ListenerThread", "error:" + e.getMessage());
                 e.printStackTrace();
                 interrupt();
             }

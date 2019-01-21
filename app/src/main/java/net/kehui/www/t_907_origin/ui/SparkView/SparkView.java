@@ -38,6 +38,7 @@ import android.view.ViewConfiguration;
 import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.application.MyApplication;
+import net.kehui.www.t_907_origin.view.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,6 +98,8 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     private int scY;
     public int startPoint;
 
+    private Handler handler;
+
 
     public SparkView(Context context) {
         super(context);
@@ -116,8 +119,9 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SparkView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SparkView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, Handler handler) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        this.handler = handler;
         init(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -302,8 +306,9 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         renderPath.reset();
         renderPath.addPath(sparkPath);
 
-
         invalidate();
+        //handler.sendEmptyMessage(MainActivity.DRAW_WAVE);
+
     }
 
     /**
@@ -344,28 +349,28 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     public Path getSparkLinePath() {
         return new Path(sparkPath);
     }
-    //GC 绘制移动的红色光标
+    //GC20181224 绘制移动的红色光标
     public void setScrubLineRealMove(float x) {
         scrubLinePath.reset();
         scrubLinePath.moveTo(x, getPaddingTop());
         scrubLinePath.lineTo(x, getHeight() - getPaddingBottom());
         invalidate();
     }
-    //GC 绘制移动的紫色光标
+    //绘制移动的紫色光标
     public void setScrubLineVirtualMove(float x) {
         scrubLinePath2.reset();
         scrubLinePath2.moveTo(x, getPaddingTop());
         scrubLinePath2.lineTo(x, getHeight() - getPaddingBottom());
         invalidate();
     }
-    //GC20181224 设置光标位置
+    //GC20181224 设置红色光标位置
     public void setScrubLineReal(int position) {
         scrubLinePath.reset();
         scrubLinePath.moveTo(xPoints.get(position), getPaddingTop());
         scrubLinePath.lineTo(xPoints.get(position), getHeight() - getPaddingBottom());
         invalidate();
     }
-    //GC20181224 设置光标位置
+    //设置光标位置
     public void setScrubLineVirtual(int position) {
         scrubLinePath2.reset();
         scrubLinePath2.moveTo(xPoints.get(position), getPaddingTop());

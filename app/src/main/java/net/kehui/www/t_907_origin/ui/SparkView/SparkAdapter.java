@@ -31,10 +31,6 @@ import java.util.List;
 public abstract class SparkAdapter {
     private final DataSetObservable observable = new DataSetObservable();
 
-    public abstract boolean getCursorState();   //GC20181223
-
-    public abstract int getMax();   //GC20181227
-
     /**
      * @return the number of points to be drawn
      */
@@ -73,7 +69,6 @@ public abstract class SparkAdapter {
      */
     public RectF getDataBounds() {
         final int count = getMax(); //GC20181227
-        //Log.e("count","" + count);
         final boolean hasBaseLine = hasBaseLine();
         float minY = hasBaseLine ? getBaseLine() : 0;
         float maxY = hasBaseLine ? minY : 255;
@@ -167,5 +162,9 @@ public abstract class SparkAdapter {
     public abstract float getY1(int index);
 
     public abstract boolean getCompare();
+
+    public abstract boolean getCursorState();   //GC20181223
+
+    public abstract int getMax();   //GC20181227
 
 }

@@ -16,11 +16,11 @@ import net.kehui.www.t_907_origin.view.MainActivity;
  */
 
 public class MethodFragment extends Fragment implements OnClickListener {
-
     private Button btn_tdr;
     private Button btn_icm;
     private Button btn_sim;
     private Button btn_decay;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View methodLayout = inflater.inflate(R.layout.mtd_layout, container, false);
@@ -43,7 +43,6 @@ public class MethodFragment extends Fragment implements OnClickListener {
         btn_icm = getActivity().findViewById(R.id.btn_icm);
         btn_sim = getActivity().findViewById(R.id.btn_sim);
         btn_decay = getActivity().findViewById(R.id.btn_decay);
-
         btn_tdr.setOnClickListener(this);
         btn_icm.setOnClickListener(this);
         btn_sim.setOnClickListener(this);
@@ -58,7 +57,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
                 btn_icm.setEnabled(true);
                 btn_sim.setEnabled(true);
                 btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod((byte) 0x11); //GC20181225
+                ((MainActivity)getActivity()).setMethod(0x11); //GC20181225
                 ((MainActivity)getActivity()).sendCommand();
                 break;
             case R.id.btn_icm:
@@ -88,6 +87,5 @@ public class MethodFragment extends Fragment implements OnClickListener {
             default:
                 break;
         }
-
     }
 }
