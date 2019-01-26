@@ -3,7 +3,7 @@ package net.kehui.www.t_907_origin.base;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -25,7 +25,8 @@ public class BaseActivity extends AppCompatActivity {
     public int[] waveArray;     //要画的波形数组
     //public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
     public int[] readTdrSim = { 530, 1042, 2066, 4114, 8210, 16402, 32786, 65546 };         //GC20190104去掉末尾错误的数据
-    public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //不同范围点数选择
+    //public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //不同范围点数选择
+    public int[] readIcmDecay = { 2058, 4106, 8202, 16394, 32778, 65546, 32778, 65546 };    //GC20190126去掉末尾错误的数据
     public int positionReal;
     public int positionVirtual; //光标位置
     public boolean clickCursor; //光标按钮点击状态
@@ -104,3 +105,4 @@ public class BaseActivity extends AppCompatActivity {
 //GC20190105 下发命令方式修改
 //GC20190110 命令响应时间调试
 //GC20190122 添加脉冲电流
+//GC20190126 ICM收数据校正

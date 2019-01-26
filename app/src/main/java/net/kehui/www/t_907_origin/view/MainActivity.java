@@ -586,6 +586,8 @@ public class MainActivity extends BaseActivity {
 
     //GC20190103 处理接收到的WIFI数据
     private void doWIFIArray(int[] WIFIArray, int length) {
+        int[] tempCommand = new int[8]; //command临时数组
+        //GN收到设备返回命令
         if (length == 8) {
             if (WIFIArray[0] == 0xeb) {
                 boolean isCrc2 = doTempCrc2(WIFIArray);
@@ -611,11 +613,6 @@ public class MainActivity extends BaseActivity {
                             if ( (WIFIArray[5] == 0x04) || (WIFIArray[5] == 0x55) ){
                                 handler.sendEmptyMessage(CLICK_TEST);   //GC20190110
                             }
-
-                        }else {
-                            if (WIFIArray[5] == 0x08){
-
-                            }
                         }*/
 
                     }else if (WIFIArray[6] == 0x44) {
@@ -623,7 +620,7 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             }
-        }else {
+        }else {     //GN收到设备返回的波形数据（脉冲电流会夹杂命令）
             if(hasLeft){    //数组长度不够wave,拼接处理
                 for (int i = leftLen, j = 0; j < length; i++, j++) {
                     leftArray[i] = WIFIArray[j];    //与剩余数据进行拼接
@@ -639,19 +636,39 @@ public class MainActivity extends BaseActivity {
                 }
 
             }else{
-                if (length == (max + 9 + 10)) {  //GC20190104 波形数据去掉末尾10个点
-                    for (int i = 8, j = 0; i < length - 1 - 10; i++, j++) {
-                        waveArray[j] = WIFIArray[i];    //取wave长度的数组
-                    }
-                    drawWIFIData();
+                //GC20190126
+                System.arraycopy(WIFIArray, 0, tempCommand, 0, 8);  //取command长度的数组
+                boolean isCrc2 = doTempCrc2(tempCommand);
+                if (isCrc2) {    //sum校验成功，包含command
+                    if (length == (max + 9 + 10 + 8)) {
+                        for (int i = 16, j = 0; i < length - 1 - 10; i++, j++) {    //GC20190126 去掉command
+                            waveArray[j] = WIFIArray[i];    //取wave长度的数组
+                        }
+                        drawWIFIData();
 
-                } else {  //数组长度不够wave,准备拼接处理
-                    for (int i = leftLen, j = 0; j < length; i++, j++) {
-                        leftArray[i] = WIFIArray[j];
+                    } else {  //数组长度不够wave,准备拼接处理
+                        for (int i = leftLen, j = 8; j < length; i++, j++) {    //GC20190126 去掉command
+                            leftArray[i] = WIFIArray[j];
+                        }
+                        hasLeft = true;
+                        leftLen = leftLen + length - 8;
                     }
-                    hasLeft = true;
-                    leftLen = leftLen + length;
+                }else{
+                    if (length == (max + 9 + 10)) {  //GC20190104 波形数据去掉末尾10个点
+                        for (int i = 8, j = 0; i < length - 1 - 10; i++, j++) {
+                            waveArray[j] = WIFIArray[i];    //取wave长度的数组
+                        }
+                        drawWIFIData();
+
+                    } else {  //数组长度不够wave,准备拼接处理
+                        for (int i = leftLen, j = 0; j < length; i++, j++) {
+                            leftArray[i] = WIFIArray[j];
+                        }
+                        hasLeft = true;
+                        leftLen = leftLen + length;
+                    }
                 }
+
             }
         }
     }
