@@ -592,7 +592,20 @@ public class MainActivity extends BaseActivity {
                 if (isCrc2) {    //命令sum校验成功
                     hasSentCommand = false;
 //                    handler.sendEmptyMessage(RESPOND_TIME); //GC20190110
-                    if (WIFIArray[6] == 0x33) {
+                    if (WIFIArray[5] == 0x08){  //GC20190122 接收到触发信号
+                        command = 0x09;
+                        data = 0x11;
+                        sendCommand(); //接收数据
+                        if (tDialog != null){
+                            tDialog.dismiss();
+                        }
+                        tDialog = new TDialog.Builder(getSupportFragmentManager())
+                                .setLayoutRes(R.layout.receiving_data)
+                                .setScreenWidthAspect(this,0.25f)
+                                .setCancelableOutside(false)
+                                .create()
+                                .show();
+                    }else if (WIFIArray[6] == 0x33) {
                         //handler.sendEmptyMessage(RECEIVE_SUCCESS);  //下发command成功
                         /*if(method == 0x11){
                             if ( (WIFIArray[5] == 0x04) || (WIFIArray[5] == 0x55) ){
@@ -611,7 +624,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         }else {
-            if(hasLeft){
+            if(hasLeft){    //数组长度不够wave,拼接处理
                 for (int i = leftLen, j = 0; j < length; i++, j++) {
                     leftArray[i] = WIFIArray[j];    //与剩余数据进行拼接
                 }
@@ -623,9 +636,6 @@ public class MainActivity extends BaseActivity {
                     hasLeft = false;
                     leftLen = 0;
                     drawWIFIData();
-
-                }else{  //数组长度不够wave,继续拼接处理
-                    hasLeft = true;
                 }
 
             }else{
@@ -633,7 +643,6 @@ public class MainActivity extends BaseActivity {
                     for (int i = 8, j = 0; i < length - 1 - 10; i++, j++) {
                         waveArray[j] = WIFIArray[i];    //取wave长度的数组
                     }
-                    hasLeft = false;
                     drawWIFIData();
 
                 } else {  //数组长度不够wave,准备拼接处理
@@ -698,21 +707,29 @@ public class MainActivity extends BaseActivity {
                 vlMethod.setText(getResources().getString(R.string.btn_tdr));
                 tvBalance.setVisibility(View.VISIBLE);
                 vlBalance.setVisibility(View.VISIBLE);
+                max = readTdrSim[rangeMethod];
+                waveArray = new int[max];   //GC20190122
                 break;
-            case 34:
+            case 0x22:
                 vlMethod.setText(getResources().getString(R.string.btn_icm));
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
+                max = readIcmDecay[rangeMethod];
+                waveArray = new int[max];
                 break;
-            case 51:
+            case 0x33:
                 vlMethod.setText(getResources().getString(R.string.btn_sim));
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
+                max = readTdrSim[rangeMethod];
+                waveArray = new int[max];
                 break;
-            case 68:
+            case 0x44:
                 vlMethod.setText(getResources().getString(R.string.btn_decay));
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
+                max = readIcmDecay[rangeMethod];
+                waveArray = new int[max];
                 break;
             default:
                 break;

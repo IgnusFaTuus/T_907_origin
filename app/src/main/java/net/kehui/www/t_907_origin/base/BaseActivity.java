@@ -51,6 +51,7 @@ public class BaseActivity extends AppCompatActivity {
     /*fragment状态值传递给mainActivity*/
     public int method;
     public int range;
+    public int rangeMethod;     //GC20190122
     public int gain;
     public int balance;
     public int velocity;
@@ -82,6 +83,7 @@ public class BaseActivity extends AppCompatActivity {
         leftArray = new int[65565];
         method = 0x11;
         range = 0x11;
+        rangeMethod = 0;    //GC20190122
         gainState = 12;
         balanceState = 5;
         velocityState = 172;
@@ -101,3 +103,4 @@ public class BaseActivity extends AppCompatActivity {
 //GC20190104 实测波形绘制修改
 //GC20190105 下发命令方式修改
 //GC20190110 命令响应时间调试
+//GC20190122 添加脉冲电流

@@ -60,7 +60,7 @@ public class AdjustFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_gain_plus:
-                adjSidebar.setClickable(false);
+                //adjSidebar.setClickable(false);
                 gain = ((MainActivity) getActivity()).getGainState();
                 if (gain < 32) {
                     gain++;
@@ -68,12 +68,12 @@ public class AdjustFragment extends Fragment {
                 }
                 ((MainActivity) getActivity()).setGain(0x11);
                 ((MainActivity) getActivity()).sendCommand();
-                handler.postDelayed(new Runnable() {    //GC20190110
+                /*handler.postDelayed(new Runnable() {    //GC20190110
                     @Override
                     public void run() {
                         adjSidebar.setClickable(true);
                     }
-                }, 1000);
+                }, 1000);*/
                 break;
             case R.id.btn_gain_minus:
                 gain = ((MainActivity) getActivity()).getGainState();
