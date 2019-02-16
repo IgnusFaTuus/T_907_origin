@@ -33,6 +33,7 @@ import net.kehui.www.t_907_origin.fragment.SettingFragment;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
 import net.kehui.www.t_907_origin.thread.ListenerThread;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
+import net.kehui.www.t_907_origin.util.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -97,8 +98,7 @@ public class MainActivity extends BaseActivity {
     LinearLayout stateList;
     @BindView(R.id.wave_display)
     LinearLayout waveDisplay;
-    @BindView(R.id.wait_trigger)
-    TextView waitTrigger;
+
     @BindView(R.id.tv_balance)
     TextView tvBalance;
     @BindView(R.id.vl_balance)
@@ -158,7 +158,7 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
                     hasReceivedData = true;
                 }
-                WIFIStream = msg.getData().getIntArray("STM");  //GC20190103 接收WIFI数据流
+                WIFIStream = msg.getData().getIntArray("STM");//GC20190103 接收WIFI数据流
                 assert WIFIStream != null;
                 streamLen = WIFIStream.length;
                 Log.e("AAA", "streamLen：" + streamLen); //GT
@@ -607,16 +607,6 @@ public class MainActivity extends BaseActivity {
                                 .setCancelableOutside(false)
                                 .create()
                                 .show();
-                    }else if (WIFIArray[6] == 0x33) {
-                        //handler.sendEmptyMessage(RECEIVE_SUCCESS);  //下发command成功
-                        /*if(method == 0x11){
-                            if ( (WIFIArray[5] == 0x04) || (WIFIArray[5] == 0x55) ){
-                                handler.sendEmptyMessage(CLICK_TEST);   //GC20190110
-                            }
-                        }*/
-
-                    }else if (WIFIArray[6] == 0x44) {
-                        //handler.sendEmptyMessage(RECEIVE_ERROR);    //下发command失败
                     }
                 }
             }
@@ -769,6 +759,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[0];
                 }
+                rangeMethod = 0;
                 waveArray = new int[max];  //GC20181227
                 vlRange.setText(getResources().getString(R.string.btn_500m));
                 gainState = 12;
@@ -780,6 +771,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[1];
                 }
+                rangeMethod = 1;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_1km));
                 gainState = 10;
@@ -791,6 +783,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[2];
                 }
+                rangeMethod = 2;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_2km));
                 gainState = 10;
@@ -802,6 +795,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[3];
                 }
+                rangeMethod = 3;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_4km));
                 gainState = 10;
@@ -813,6 +807,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[4];
                 }
+                rangeMethod = 4;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_8km));
                 gainState = 10;
@@ -824,6 +819,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[5];
                 }
+                rangeMethod = 5;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_16km));
                 gainState = 9;
@@ -835,6 +831,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[6];
                 }
+                rangeMethod = 6;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_32km));
                 gainState = 9;
@@ -846,6 +843,7 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[7];
                 }
+                rangeMethod = 7;
                 waveArray = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_64km));
                 gainState = 9;

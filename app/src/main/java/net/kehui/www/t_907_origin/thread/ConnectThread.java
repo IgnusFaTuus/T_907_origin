@@ -22,7 +22,6 @@ public class ConnectThread extends Thread{
     private Handler handler;
     private InputStream inputStream;
     private OutputStream outputStream;
-
     public ConnectThread(Socket socket, Handler handler){
         setName("ConnectThread");
         Log.w("AAA","ConnectThread");
@@ -62,8 +61,6 @@ public class ConnectThread extends Thread{
                     message.setData(bundle);
                     handler.sendMessage(message);
                     Log.e("AAA","读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6] );  //GT
-                    //Log.w("AAA","读取到数据:"+new String(data));
-
                 }
             }
         } catch (IOException e) {
