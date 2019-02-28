@@ -49,5 +49,9 @@
     <string name="wait_trigger">等待触发...</string>
     <string name="tv_balance">平衡:</string>
     <string name="receive_data">正在接收数据...</string>
+    <string name="wave_1">波形1</string>
+    <string name="wave_2">波形2</string>
+    <string name="wave_3">波形3</string>
+    <string name="wave_4">波形4</string>
 
 </resources>
