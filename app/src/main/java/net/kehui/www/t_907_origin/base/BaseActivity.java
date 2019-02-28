@@ -21,15 +21,22 @@ public class BaseActivity extends AppCompatActivity {
     /*sparkView波形绘制*/
     public MyChartAdapter myChartAdapterMainWave;
     public MyChartAdapter myChartAdapterFullWave;
-    public int max;             //要画的波形数组个数
-    public int[] waveArray;     //要画的波形数组
+    public int            max;             //要画的波形数组个数
+    public int[]          waveArray;     //要画的波形数组
+    public int[]          simArray0;
+    public int[]          simArray1;
+    public int[]          simArray2;
+    public int[]          simArray3;
+    public int[]          simArray4;
+    public int[] simArrayCmp;
     //public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
-    public int[] readTdrSim = { 530, 1042, 2066, 4114, 8210, 16402, 32786, 65546 };         //GC20190104去掉末尾错误的数据
+    public int[]          readTdrSim   =
+            { 530, 1042, 2066, 4114, 8210, 16402, 32786, 65546 };         //GC20190104去掉末尾错误的数据
     //public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };    //不同范围点数选择
-    public int[] readIcmDecay = { 2058, 4106, 8202, 16394, 32778, 65546, 32778, 65546 };    //GC20190126去掉末尾错误的数据
-    public int positionReal;
-    public int positionVirtual; //光标位置
-    public boolean clickCursor; //光标按钮点击状态
+    public int[]          readIcmDecay = { 2058, 4106, 8202, 16394, 32778, 65546, 32778, 65546 };    //GC20190126去掉末尾错误的数据
+    public int            positionReal;
+    public int            positionVirtual; //光标位置
+    public boolean        clickCursor; //光标按钮点击状态
 
     /*WIFI数据获取*/
     public ConnectThread connectThread;     //连接线程

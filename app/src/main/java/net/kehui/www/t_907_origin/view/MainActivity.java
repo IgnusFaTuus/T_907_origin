@@ -97,8 +97,6 @@ public class MainActivity extends BaseActivity {
     LinearLayout stateList;
     @BindView(R.id.wave_display)
     LinearLayout waveDisplay;
-    @BindView(R.id.wait_trigger)
-    TextView waitTrigger;
     @BindView(R.id.tv_balance)
     TextView tvBalance;
     @BindView(R.id.vl_balance)
@@ -123,6 +121,7 @@ public class MainActivity extends BaseActivity {
     public static final int GET_STREAM = 5;         //接收WIFI数据流
     public static final int RECEIVE_SUCCESS = 6;   //T-907接收command成功
     public static final int RECEIVE_ERROR = 7;     //T-907接收command失败
+    public static final int DATA_COMPLETED=8;       //接受到全部数据
     public static final int RESPOND_TIME = 9;      //GC20190110 命令响应结束
     public static final int CLICK_TEST = 10;       //GC20190110 点击测试按钮事件
 
@@ -145,13 +144,13 @@ public class MainActivity extends BaseActivity {
                         data = 0x11;
                         sendCommand();
                     }
-                }, 50);    //发送初始化命令：方式、范围
+                }, 1200);    //发送初始化命令：方式、范围
                 handler.postDelayed(new Runnable() {    //GC20190110
                     @Override
                     public void run() {
                         handler.sendEmptyMessage(CLICK_TEST);
                     }
-                }, 1200);
+                }, 300);
 
             }else if(msg.what == GET_STREAM){
                 if(!hasReceivedData){
@@ -301,6 +300,7 @@ public class MainActivity extends BaseActivity {
     public void initSparkView() {
         for (int i = 0; i < max; i++) {
             waveArray[i] = 128;
+            //simArrayCmp[i] = 128;
         }
         myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);
@@ -482,7 +482,7 @@ public class MainActivity extends BaseActivity {
                     data = 0x11;
                     sendCommand(); //接收数据
                 }
-            }, 50);
+            }, 300);
             tDialog = new TDialog.Builder(getSupportFragmentManager())
                     .setLayoutRes(R.layout.receiving_data)
                     .setScreenWidthAspect(this,0.25f)
@@ -593,7 +593,7 @@ public class MainActivity extends BaseActivity {
                 boolean isCrc2 = doTempCrc2(WIFIArray);
                 if (isCrc2) {    //命令sum校验成功
                     hasSentCommand = false;
-//                    handler.sendEmptyMessage(RESPOND_TIME); //GC20190110
+                    //                    handler.sendEmptyMessage(RESPOND_TIME); //GC20190110
                     if (WIFIArray[5] == 0x08){  //GC20190122 接收到触发信号
                         command = 0x09;
                         data = 0x11;
@@ -607,26 +607,16 @@ public class MainActivity extends BaseActivity {
                                 .setCancelableOutside(false)
                                 .create()
                                 .show();
-                    }else if (WIFIArray[6] == 0x33) {
-                        //handler.sendEmptyMessage(RECEIVE_SUCCESS);  //下发command成功
-                        /*if(method == 0x11){
-                            if ( (WIFIArray[5] == 0x04) || (WIFIArray[5] == 0x55) ){
-                                handler.sendEmptyMessage(CLICK_TEST);   //GC20190110
-                            }
-                        }*/
-
-                    }else if (WIFIArray[6] == 0x44) {
-                        //handler.sendEmptyMessage(RECEIVE_ERROR);    //下发command失败
                     }
                 }
             }
-        }else {     //GN收到设备返回的波形数据（脉冲电流会夹杂命令）
-            if(hasLeft){    //数组长度不够wave,拼接处理
+        } else if (WIFIArray[3] == 0x66|WIFIArray[3]==0x55) {     //GN收到设备返回的波形数据（脉冲电流会夹杂命令）
+            if (hasLeft) {    //数组长度不够wave,拼接处理
                 for (int i = leftLen, j = 0; j < length; i++, j++) {
                     leftArray[i] = WIFIArray[j];    //与剩余数据进行拼接
                 }
                 leftLen = leftLen + length;
-                if(leftLen == (max + 9 + 10)){
+                if (leftLen == (max + 9 + 10)) {
                     for (int i = 8, j = 0; i < leftLen - 1 - 10; i++, j++) {
                         waveArray[j] = leftArray[i];    //取wave长度的数组
                     }
@@ -635,25 +625,27 @@ public class MainActivity extends BaseActivity {
                     drawWIFIData();
                 }
 
-            }else{
+            } else {
                 //GC20190126
                 System.arraycopy(WIFIArray, 0, tempCommand, 0, 8);  //取command长度的数组
                 boolean isCrc2 = doTempCrc2(tempCommand);
                 if (isCrc2) {    //sum校验成功，包含command
                     if (length == (max + 9 + 10 + 8)) {
-                        for (int i = 16, j = 0; i < length - 1 - 10; i++, j++) {    //GC20190126 去掉command
+                        for (int i = 16, j = 0; i < length - 1 - 10; i++, j++) {    //GC20190126
+                            // 去掉command
                             waveArray[j] = WIFIArray[i];    //取wave长度的数组
                         }
                         drawWIFIData();
 
                     } else {  //数组长度不够wave,准备拼接处理
-                        for (int i = leftLen, j = 8; j < length; i++, j++) {    //GC20190126 去掉command
+                        for (int i = leftLen, j = 8; j < length; i++, j++) {    //GC20190126
+                            // 去掉command
                             leftArray[i] = WIFIArray[j];
                         }
                         hasLeft = true;
                         leftLen = leftLen + length - 8;
                     }
-                }else{
+                } else {
                     if (length == (max + 9 + 10)) {  //GC20190104 波形数据去掉末尾10个点
                         for (int i = 8, j = 0; i < length - 1 - 10; i++, j++) {
                             waveArray[j] = WIFIArray[i];    //取wave长度的数组
@@ -670,8 +662,17 @@ public class MainActivity extends BaseActivity {
                 }
 
             }
+        } else if (WIFIArray[3] == 0x77) {
+            System.arraycopy(WIFIArray, 8, simArray0, 0, length / 5 - 8 - 11);
+            System.arraycopy(WIFIArray, length / 5 + 8, simArray1, 0, length / 5 - 8 - 11);
+            System.arraycopy(WIFIArray, length / 5 * 2 + 8, simArray2, 0, length / 5 - 19);
+            System.arraycopy(WIFIArray, length / 5 * 3 + 8, simArray3, 0, length / 5 - 19);
+            System.arraycopy(WIFIArray, length / 5 * 4 + 8, simArray4, 0, length / 5 - 19);
+            simArrayCmp = simArray1;
+            drawWIFIDataSim();
         }
     }
+
 
     //波形数据sum校验
     private boolean doTempCrc(int[] tempWave) {
@@ -696,6 +697,26 @@ public class MainActivity extends BaseActivity {
                 false, 0, false, max);  //GC20181227
         myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);
+        mainWave.setAdapter(myChartAdapterMainWave);
+        fullWave.setAdapter(myChartAdapterFullWave);
+        Log.e("isDraw", "结束");  //GT
+        if (tDialog != null){
+            tDialog.dismiss();
+        }
+        //画光标
+        positionReal = 0;
+        mainWave.setScrubLineReal(positionReal);
+        positionVirtual = max / 2;
+        mainWave.setScrubLineVirtual(positionVirtual);
+        tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+        btnCursor.setTextColor(getResources().getColor(R.color.T_purple)); //20190104 初始化光标按钮颜色
+    }
+
+    private void drawWIFIDataSim() {
+        myChartAdapterMainWave = new MyChartAdapter(simArray0, simArrayCmp,
+                true, 0, false, max);  //GC20181227
+        myChartAdapterFullWave = new MyChartAdapter(simArray0, simArrayCmp,
+                true, 0, false, max);
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
         Log.e("isDraw", "结束");  //GT
@@ -739,7 +760,11 @@ public class MainActivity extends BaseActivity {
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
                 max = readTdrSim[rangeMethod];
-                waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 break;
             case 0x44:
                 vlMethod.setText(getResources().getString(R.string.btn_decay));
@@ -761,7 +786,7 @@ public class MainActivity extends BaseActivity {
         this.range = range;
         command = 0x03;
         data = range;
-//        btnTest.setClickable(false);    //GC20190110
+        //        btnTest.setClickable(false);    //GC20190110
         switch (range) {
             case 0x11:
                 if ((method == 0x11) || (method == 0x33)) {
@@ -769,7 +794,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[0];
                 }
+                rangeMethod = 0;
                 waveArray = new int[max];  //GC20181227
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_500m));
                 gainState = 12;
                 vlGain.setText("12");
@@ -780,7 +811,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[1];
                 }
+                rangeMethod = 1;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_1km));
                 gainState = 10;
                 vlGain.setText("10");
@@ -791,7 +828,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[2];
                 }
+                rangeMethod = 2;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_2km));
                 gainState = 10;
                 vlGain.setText("10");
@@ -802,7 +845,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[3];
                 }
+                rangeMethod = 3;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_4km));
                 gainState = 10;
                 vlGain.setText("10");
@@ -813,7 +862,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[4];
                 }
+                rangeMethod = 4;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_8km));
                 gainState = 10;
                 vlGain.setText("10");
@@ -824,7 +879,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[5];
                 }
+                rangeMethod = 5;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_16km));
                 gainState = 9;
                 vlGain.setText("9");
@@ -835,7 +896,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[6];
                 }
+                rangeMethod = 6;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_32km));
                 gainState = 9;
                 vlGain.setText("9");
@@ -846,7 +913,13 @@ public class MainActivity extends BaseActivity {
                 } else if ((method == 0x22) || (method == 0x44)) {
                     max = readIcmDecay[7];
                 }
+                rangeMethod = 7;
                 waveArray = new int[max];
+                simArray0 = new int[max];
+                simArray1 = new int[max];
+                simArray2 = new int[max];
+                simArray3 = new int[max];
+                simArray4 = new int[max];
                 vlRange.setText(getResources().getString(R.string.btn_64km));
                 gainState = 9;
                 vlGain.setText("9");

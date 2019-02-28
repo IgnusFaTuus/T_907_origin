@@ -46,6 +46,12 @@ public class ConnectThread extends Thread{
 
             while (true){
                 //读取数据
+                if (inputStream.available() <= 0) {
+                    handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
+                    continue;
+                } else {
+                    Thread.sleep(200);
+                }
                 bytes = inputStream.read(buffer);
                 if (bytes > 0) {
                     byte[] data = new byte[bytes];
@@ -61,12 +67,13 @@ public class ConnectThread extends Thread{
                     bundle.putIntArray("STM", WIFIStream);
                     message.setData(bundle);
                     handler.sendMessage(message);
-                    Log.e("AAA","读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6] );  //GT
+                    Log.e("AAA",
+                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6] );  //GT
                     //Log.w("AAA","读取到数据:"+new String(data));
 
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
