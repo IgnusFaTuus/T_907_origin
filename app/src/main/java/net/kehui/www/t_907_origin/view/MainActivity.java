@@ -152,8 +152,8 @@ public class MainActivity extends BaseActivity {
                     }
                 }, 300);
 
-            }else if(msg.what == GET_STREAM){
-                if(!hasReceivedData){
+            } else if (msg.what == GET_STREAM ) {
+                if (!hasReceivedData) {
                     Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
                     hasReceivedData = true;
                 }
@@ -168,7 +168,7 @@ public class MainActivity extends BaseActivity {
                 System.arraycopy(WIFIStream, 0, waveArray, 0, streamLen);
                 drawWIFIData();*/
 
-            }else if(msg.what == RESPOND_TIME){ //GC20190110
+            } else if (msg.what == RESPOND_TIME) { //GC20190110
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -176,7 +176,7 @@ public class MainActivity extends BaseActivity {
                     }
                 }, 1200);
 
-            }else if(msg.what == CLICK_TEST){
+            } else if (msg.what == CLICK_TEST) {
                 clickTest();
 
             }

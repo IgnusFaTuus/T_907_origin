@@ -52,37 +52,6 @@
         android:background="@drawable/border"
         android:visibility="invisible">
 
-        <Button
-            android:id="@+id/btn_wave1"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/wave_1"
-            android:textColor="@android:color/black"/>
-
-        <Button
-            android:id="@+id/btn_wave2"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/wave_2"
-            android:textColor="@android:color/black"/>
-
-        <Button
-            android:id="@+id/btn_wave3"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/wave_3"
-            android:textColor="@android:color/black"/>
-
-        <Button
-            android:id="@+id/btn_wave4"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/wave_4"
-            android:textColor="@android:color/black"/>
     </LinearLayout>
 
 </RelativeLayout>

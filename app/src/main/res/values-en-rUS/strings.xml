@@ -49,9 +49,4 @@
     <string name="wait_trigger">Wait For Trigger...</string>
     <string name="tv_balance">BAL:</string>
     <string name="receive_data">RECEIVING DATA...</string>
-    <string name="wave_1">Wave 1</string>
-    <string name="wave_2">Wave2</string>
-    <string name="wave_3">Wave3</string>
-    <string name="wave_4">Wave4</string>
-
 </resources>
