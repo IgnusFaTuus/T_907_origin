@@ -2,8 +2,16 @@ package net.kehui.www.t_907_origin.view;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
+import android.net.NetworkInfo;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +48,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,47 +61,47 @@ import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
     @BindView(R.id.content)
-    FrameLayout content;
+    FrameLayout  content;
     @BindView(R.id.mainWave)
-    SparkView mainWave;
+    SparkView    mainWave;
     @BindView(R.id.textView)
-    TextView textView;
+    TextView     textView;
     @BindView(R.id.tv_distance)
-    TextView tvDistance;
+    TextView     tvDistance;
     @BindView(R.id.fullWave)
-    SparkView fullWave;
+    SparkView    fullWave;
     @BindView(R.id.btn_mtd)
-    Button btnMtd;
+    Button       btnMtd;
     @BindView(R.id.btn_range)
-    Button btnRange;
+    Button       btnRange;
     @BindView(R.id.btn_adj)
-    Button btnAdj;
+    Button       btnAdj;
     @BindView(R.id.btn_opt)
-    Button btnOpt;
+    Button       btnOpt;
     @BindView(R.id.btn_file)
-    Button btnFile;
+    Button       btnFile;
     @BindView(R.id.btn_setting)
-    Button btnSetting;
+    Button       btnSetting;
     @BindView(R.id.btn_test)
-    Button btnTest;
+    Button       btnTest;
     @BindView(R.id.btn_cursor)
-    Button btnCursor;
+    Button       btnCursor;
     @BindView(R.id.tv_method)
-    TextView tvMethod;
+    TextView     tvMethod;
     @BindView(R.id.tv_gain)
-    TextView tvGain;
+    TextView     tvGain;
     @BindView(R.id.tv_vel)
-    TextView tvVel;
+    TextView     tvVel;
     @BindView(R.id.tv_range)
-    TextView tvRange;
+    TextView     tvRange;
     @BindView(R.id.vl_method)
-    TextView vlMethod;
+    TextView     vlMethod;
     @BindView(R.id.vl_gain)
-    TextView vlGain;
+    TextView     vlGain;
     @BindView(R.id.vl_vel)
-    TextView vlVel;
+    TextView     vlVel;
     @BindView(R.id.vl_range)
-    TextView vlRange;
+    TextView     vlRange;
     @BindView(R.id.value_list)
     LinearLayout valueList;
     @BindView(R.id.stateList)
@@ -98,42 +109,44 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.wave_display)
     LinearLayout waveDisplay;
     @BindView(R.id.tv_balance)
-    TextView tvBalance;
+    TextView     tvBalance;
     @BindView(R.id.vl_balance)
-    TextView vlBalance;
+    TextView     vlBalance;
+    @BindView(R.id.wifiState)
+    ImageButton  wifiState;
     //用于展示Fragment
-    private MethodFragment methodFragment;
-    private RangeFragment rangeFragment;
-    private AdjustFragment adjustFragment;
-    private OptionFragment optionFragment;
-    private FileFragment fileFragment;
-    private SettingFragment settingFragment;
-    private FragmentManager fragmentManager;
+    private             MethodFragment  methodFragment;
+    private             RangeFragment   rangeFragment;
+    private             AdjustFragment  adjustFragment;
+    private             OptionFragment  optionFragment;
+    private             FileFragment    fileFragment;
+    private             SettingFragment settingFragment;
+    private             FragmentManager fragmentManager;
     /*下发command*/
-    private int command;
-    private int data;
-    private TDialog tDialog;
+    private             int             command;
+    private             int             data;
+    private             TDialog         tDialog;
     /*全局的handler对象用来执行UI更新*/
-    public static final int DEVICE_CONNECTING = 1;  //设备连接中
-    public static final int DEVICE_CONNECTED = 2;   //设备连接成功
-    public static final int SEND_SUCCESS = 3;       //发送command成功
-    public static final int SEND_ERROR = 4;         //发送command失败
-    public static final int GET_STREAM = 5;         //接收WIFI数据流
-    public static final int RECEIVE_SUCCESS = 6;   //T-907接收command成功
-    public static final int RECEIVE_ERROR = 7;     //T-907接收command失败
-    public static final int DATA_COMPLETED=8;       //接受到全部数据
-    public static final int RESPOND_TIME = 9;      //GC20190110 命令响应结束
-    public static final int CLICK_TEST = 10;       //GC20190110 点击测试按钮事件
+    public static final int             DEVICE_CONNECTING = 1;  //设备连接中
+    public static final int             DEVICE_CONNECTED  = 2;   //设备连接成功
+    public static final int             SEND_SUCCESS      = 3;       //发送command成功
+    public static final int             SEND_ERROR        = 4;         //发送command失败
+    public static final int             GET_STREAM        = 5;         //接收WIFI数据流
+    public static final int             RECEIVE_SUCCESS   = 6;   //T-907接收command成功
+    public static final int             RECEIVE_ERROR     = 7;     //T-907接收command失败
+    public static final int             DATA_COMPLETED    = 8;       //接受到全部数据
+    public static final int             RESPOND_TIME      = 9;      //GC20190110 命令响应结束
+    public static final int             CLICK_TEST        = 10;       //GC20190110 点击测试按钮事件
 
-    public Handler handler = new Handler(new Handler.Callback()  {
+    public Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if(msg.what == DEVICE_CONNECTING){
+            if (msg.what == DEVICE_CONNECTING) {
+                Toast.makeText(MainActivity.this, "正在连接T-907......", Toast.LENGTH_LONG).show();
                 connectThread = new ConnectThread(listenerThread.getSocket(), handler);
                 connectThread.start();
 
-            }else if(msg.what == DEVICE_CONNECTED){
-                Toast.makeText(MainActivity.this, "正在连接T-907......", Toast.LENGTH_LONG).show();
+            } else if (msg.what == DEVICE_CONNECTED) {
                 command = 0x02;
                 data = 0x11;
                 sendCommand();
@@ -152,7 +165,7 @@ public class MainActivity extends BaseActivity {
                     }
                 }, 300);
 
-            } else if (msg.what == GET_STREAM ) {
+            } else if (msg.what == GET_STREAM) {
                 if (!hasReceivedData) {
                     Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
                     hasReceivedData = true;
@@ -184,6 +197,7 @@ public class MainActivity extends BaseActivity {
         }
     });
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,10 +208,11 @@ public class MainActivity extends BaseActivity {
         initSparkView();
         setChartListener();
         startThread();
+        initBroadcastReceiver();
     }
 
     //初始化界面框架
-    public void initFrame(){
+    public void initFrame() {
         fragmentManager = getFragmentManager();
         //第一次启动时选中第0个tab
         setTabSelection(0);
@@ -212,6 +227,17 @@ public class MainActivity extends BaseActivity {
         vlGain.setText(String.valueOf(getGainState()));
         vlVel.setText(String.valueOf(getVelocityState()) + "m/μs");
         vlBalance.setText(String.valueOf(getBalanceState()));
+    }
+
+    private void initBroadcastReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        //        intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
+
+        registerReceiver(receiver, intentFilter);
     }
 
     public void setTabSelection(int index) {
@@ -309,7 +335,7 @@ public class MainActivity extends BaseActivity {
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
         Log.e("isDraw", "结束");  //GT
-        btnCursor.setTextColor(getResources().getColor(R.color.T_purple ));   //GT 初始化光标按钮颜色
+        btnCursor.setTextColor(getResources().getColor(R.color.T_purple));   //GT 初始化光标按钮颜色
 
     }
 
@@ -359,7 +385,8 @@ public class MainActivity extends BaseActivity {
 
     //wifi获取 已连接网络路由  路由ip地址
     public static String getWifiRouteIPAddress(Context context) {
-        WifiManager wifi_service = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifi_service =
+                (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         DhcpInfo dhcpInfo = wifi_service.getDhcpInfo();
         String routeIp = Formatter.formatIpAddress(dhcpInfo.gateway);
         Log.i("route ip", "wifi route ip：" + routeIp);
@@ -369,7 +396,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @OnClick({R.id.btn_mtd, R.id.btn_range, R.id.btn_adj, R.id.btn_opt, R.id.btn_file, R.id
-            .btn_setting, R.id.btn_test, R.id.btn_cursor})
+            .btn_setting, R.id.btn_test, R.id.btn_cursor,R.id.wifiState})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             // 点击方式tab，选中第1个tab
@@ -401,6 +428,9 @@ public class MainActivity extends BaseActivity {
                 break;
             case R.id.btn_cursor:
                 clickCursor();
+                break;
+            case R.id.wifiState:
+                clickWifiState();
                 break;
             default:
                 break;
@@ -485,23 +515,24 @@ public class MainActivity extends BaseActivity {
             }, 300);
             tDialog = new TDialog.Builder(getSupportFragmentManager())
                     .setLayoutRes(R.layout.receiving_data)
-                    .setScreenWidthAspect(this,0.25f)
+                    .setScreenWidthAspect(this, 0.25f)
                     .setCancelableOutside(false)
                     .create()
                     .show();  //GX
 
-        } else if ( (method == 0x22) || (method == 0x33) || (method == 0x44) ) {
+        } else if ((method == 0x22) || (method == 0x33) || (method == 0x44)) {
             command = 0x01;
             data = 0x11;   //测试
             sendCommand();
             tDialog = new TDialog.Builder(getSupportFragmentManager())
                     .setLayoutRes(R.layout.wait_trigger)
-                    .setScreenWidthAspect(this,0.3f)
+                    .setScreenWidthAspect(this, 0.3f)
                     .setCancelableOutside(false)
                     .addOnClickListener(R.id.tv_cancel)
                     .setOnViewClickListener(new OnViewClickListener() {
                         @Override
-                        public void onViewClick(BindViewHolder viewHolder, View view, TDialog tDialog) {
+                        public void onViewClick(BindViewHolder viewHolder, View view,
+                                                TDialog tDialog) {
                             tDialog.dismiss();
                             command = 0x01;
                             data = 0x22;   //取消测试
@@ -517,12 +548,17 @@ public class MainActivity extends BaseActivity {
     private void clickCursor() {
         clickCursor = myChartAdapterMainWave.getCursorState();
         clickCursor = !clickCursor;
-        if(clickCursor){
+        if (clickCursor) {
             btnCursor.setTextColor(getResources().getColor(R.color.T_red));
-        }else{
+        } else {
             btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
         }
         myChartAdapterMainWave.setCursorState(clickCursor);
+    }
+
+    private void clickWifiState() {
+        wifiState.setBackgroundResource(R.drawable.wifi_connected);
+
     }
 
     /* 数据头   数据长度  指令  传输数据  校验和
@@ -594,23 +630,23 @@ public class MainActivity extends BaseActivity {
                 if (isCrc2) {    //命令sum校验成功
                     hasSentCommand = false;
                     //                    handler.sendEmptyMessage(RESPOND_TIME); //GC20190110
-                    if (WIFIArray[5] == 0x08){  //GC20190122 接收到触发信号
+                    if (WIFIArray[5] == 0x08) {  //GC20190122 接收到触发信号
                         command = 0x09;
                         data = 0x11;
                         sendCommand(); //接收数据
-                        if (tDialog != null){
+                        if (tDialog != null) {
                             tDialog.dismiss();
                         }
                         tDialog = new TDialog.Builder(getSupportFragmentManager())
                                 .setLayoutRes(R.layout.receiving_data)
-                                .setScreenWidthAspect(this,0.25f)
+                                .setScreenWidthAspect(this, 0.25f)
                                 .setCancelableOutside(false)
                                 .create()
                                 .show();
                     }
                 }
             }
-        } else if (WIFIArray[3] == 0x66|WIFIArray[3]==0x55) {     //GN收到设备返回的波形数据（脉冲电流会夹杂命令）
+        } else if (WIFIArray[3] == 0x66 | WIFIArray[3] == 0x55) {     //GN收到设备返回的波形数据（脉冲电流会夹杂命令）
             if (hasLeft) {    //数组长度不够wave,拼接处理
                 for (int i = leftLen, j = 0; j < length; i++, j++) {
                     leftArray[i] = WIFIArray[j];    //与剩余数据进行拼接
@@ -700,7 +736,7 @@ public class MainActivity extends BaseActivity {
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
         Log.e("isDraw", "结束");  //GT
-        if (tDialog != null){
+        if (tDialog != null) {
             tDialog.dismiss();
         }
         //画光标
@@ -720,7 +756,7 @@ public class MainActivity extends BaseActivity {
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
         Log.e("isDraw", "结束");  //GT
-        if (tDialog != null){
+        if (tDialog != null) {
             tDialog.dismiss();
         }
         //画光标
@@ -998,7 +1034,50 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(receiver);
     }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                Log.w("BBB", "WifiManager.NETWORK_STATE_CHANGED_ACTION");
+                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
+                    WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                    final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    Log.w("AAA","wifiInfo.getSSID():"+wifiInfo.getSSID()+"  WIFI_HOTSPOT_SSID:"+WIFI_HOTSPOT_SSID);
+                    if (wifiInfo.getSSID().equals(WIFI_HOTSPOT_SSID)) {
+                        wifiState.setBackgroundResource(R.drawable.wifi_connected);
+                        /*//如果当前连接到的wifi是热点,则开启连接线程
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    ArrayList<String> connectedIP = getConnectedIP();
+                                    for (String ip : connectedIP) {
+                                        if (ip.contains(".")) {
+                                            Log.w("AAA", "IP:" + ip);
+                                            Socket socket = new Socket(ip, PORT);
+                                            connectThread = new ConnectThread(socket, handler);
+                                            connectThread.start();
+                                        }
+                                    }
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();*/
+                    } else {
+                        wifiState.setBackgroundResource(R.drawable.wifi_disconnected);
+                    }
+                }
+
+            }
+        }
+    };
 
     //GT 测试绘制效果
     public void testWaveData() {

@@ -313,6 +313,16 @@
                 android:text="@string/btn_cursor"
                 android:textColor="@color/T_purple" />
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/wifiState"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/fct_bottom_l"
+            android:scaleType="fitXY"
+            android:background="@drawable/wifi_connected"/>
     </RelativeLayout>
 
 </RelativeLayout>
+
