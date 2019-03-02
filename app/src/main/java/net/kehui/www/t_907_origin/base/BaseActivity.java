@@ -42,6 +42,7 @@ public class BaseActivity extends AppCompatActivity {
     public ConnectThread connectThread;     //连接线程
     public ListenerThread listenerThread;   //监听线程
     private WifiManager wifiManager;
+    public static final String WIFI_HOTSPOT_SSID = "T-907";
     public static final int PORT = 9000;    //设置硬件端口 9000
     public OutputStream wifiOutputStream;   //GC20190105 下发命令
 
