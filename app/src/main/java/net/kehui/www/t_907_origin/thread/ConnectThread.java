@@ -41,7 +41,7 @@ public class ConnectThread extends Thread{
             inputStream = socket.getInputStream();
             //GC20190105 outputStream = socket.getOutputStream();
 
-            byte[] buffer = new byte[10240];
+            byte[] buffer = new byte[402400];
             int bytes;
 
             while (true){
@@ -69,7 +69,6 @@ public class ConnectThread extends Thread{
                     handler.sendMessage(message);
                     Log.e("AAA",
                             "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6] );  //GT
-                    //Log.w("AAA","读取到数据:"+new String(data));
 
                 }
             }

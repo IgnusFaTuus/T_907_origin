@@ -6,11 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
 import android.net.NetworkInfo;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -44,12 +42,13 @@ import net.kehui.www.t_907_origin.thread.ListenerThread;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -126,17 +125,20 @@ public class MainActivity extends BaseActivity {
     private             int             command;
     private             int             data;
     private             TDialog         tDialog;
+
+
     /*全局的handler对象用来执行UI更新*/
-    public static final int             DEVICE_CONNECTING = 1;  //设备连接中
-    public static final int             DEVICE_CONNECTED  = 2;   //设备连接成功
-    public static final int             SEND_SUCCESS      = 3;       //发送command成功
-    public static final int             SEND_ERROR        = 4;         //发送command失败
-    public static final int             GET_STREAM        = 5;         //接收WIFI数据流
-    public static final int             RECEIVE_SUCCESS   = 6;   //T-907接收command成功
-    public static final int             RECEIVE_ERROR     = 7;     //T-907接收command失败
-    public static final int             DATA_COMPLETED    = 8;       //接受到全部数据
-    public static final int             RESPOND_TIME      = 9;      //GC20190110 命令响应结束
-    public static final int             CLICK_TEST        = 10;       //GC20190110 点击测试按钮事件
+    public static final int             DEVICE_CONNECTING   = 1;  //设备连接中
+    public static final int             DEVICE_CONNECTED    = 2;   //设备连接成功
+    public static final int             DEVICE_DISCONNECTED = 11;   //设备连接成功
+    public static final int             SEND_SUCCESS        = 3;       //发送command成功
+    public static final int             SEND_ERROR          = 4;         //发送command失败
+    public static final int             GET_STREAM          = 5;         //接收WIFI数据流
+    public static final int             RECEIVE_SUCCESS     = 6;   //T-907接收command成功
+    public static final int             RECEIVE_ERROR       = 7;     //T-907接收command失败
+    public static final int             DATA_COMPLETED      = 8;       //接受到全部数据
+    public static final int             RESPOND_TIME        = 9;      //GC20190110 命令响应结束
+    public static final int             CLICK_TEST          = 10;       //GC20190110 点击测试按钮事件
 
     public Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -164,6 +166,9 @@ public class MainActivity extends BaseActivity {
                         handler.sendEmptyMessage(CLICK_TEST);
                     }
                 }, 300);
+
+            } else if (msg.what == DEVICE_DISCONNECTED) {
+
 
             } else if (msg.what == GET_STREAM) {
                 if (!hasReceivedData) {
@@ -207,7 +212,14 @@ public class MainActivity extends BaseActivity {
         initFrame();
         initSparkView();
         setChartListener();
-        startThread();
+
+        listenerThread = new ListenerThread(PORT, handler);
+        listenerThread.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         initBroadcastReceiver();
     }
 
@@ -235,8 +247,6 @@ public class MainActivity extends BaseActivity {
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        //        intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
-
         registerReceiver(receiver, intentFilter);
     }
 
@@ -355,48 +365,66 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    //GC20190103 启动接收WIFI数据流的线程
-    private void startThread() {
-        //开启连接线程
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Socket socket = new Socket(getWifiRouteIPAddress(MainActivity.this), PORT);
-                    connectThread = new ConnectThread(socket, handler);
-                    connectThread.start();
-                    wifiOutputStream = socket.getOutputStream();   //GC20190105 获取WIFI输出流
+    //监听网络广播，匹配SSID后开启线程 IF190305
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                Log.w("BBB", "WifiManager.NETWORK_STATE_CHANGED_ACTION");
+                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if (info.getState().equals(NetworkInfo.State.DISCONNECTED)) {
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "通信失败，请检查网络后重试", Toast.LENGTH_LONG).show();
-                        }
-                    });
+                }else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
+                    WifiManager wifiManager =
+                            (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                    final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    Log.w("AAA", "wifiInfo.getSSID():" + wifiInfo.getSSID() + "  " +
+                            "WIFI_HOTSPOT_SSID:" + WIFI_HOTSPOT_SSID);
+                    if (wifiInfo.getSSID().equals("\"" + WIFI_HOTSPOT_SSID + "\"")) {
+                        //如果当前连接到的wifi是热点,则开启连接线程
+                        wifiState.setBackgroundResource(R.drawable.wifi_connected);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    ArrayList<String> connectedIP = getConnectedIP();
+                                    for (String ip : connectedIP) {
+                                        if (ip.contains(".")) {
+                                            Socket  socket = new Socket(ip, PORT);
+                                            connectThread = new ConnectThread(socket, handler);
+                                            connectThread.start();
+                                            wifiOutputStream = socket.getOutputStream();
+                                            //GC20190105 获取WIFI输出流
+                                        }
+                                    }
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(MainActivity.this, "通信失败，请检查网络后重试",
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                }
+                            }
+                        }).start();
+
+
+                    } else {
+                        handler.sendEmptyMessage(DEVICE_DISCONNECTED);
+                        wifiState.setBackgroundResource(R.drawable.wifi_disconnected);
+                    }
                 }
+
             }
-        }).start();
-        //开启监听线程
-        listenerThread = new ListenerThread(PORT, handler);
-        listenerThread.start();
-    }
-
-    //wifi获取 已连接网络路由  路由ip地址
-    public static String getWifiRouteIPAddress(Context context) {
-        WifiManager wifi_service =
-                (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        DhcpInfo dhcpInfo = wifi_service.getDhcpInfo();
-        String routeIp = Formatter.formatIpAddress(dhcpInfo.gateway);
-        Log.i("route ip", "wifi route ip：" + routeIp);
-
-        return routeIp;
-
-    }
+        }
+    };
 
     @OnClick({R.id.btn_mtd, R.id.btn_range, R.id.btn_adj, R.id.btn_opt, R.id.btn_file, R.id
-            .btn_setting, R.id.btn_test, R.id.btn_cursor,R.id.wifiState})
+            .btn_setting, R.id.btn_test, R.id.btn_cursor, R.id.wifiState})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             // 点击方式tab，选中第1个tab
@@ -558,6 +586,11 @@ public class MainActivity extends BaseActivity {
 
     private void clickWifiState() {
         wifiState.setBackgroundResource(R.drawable.wifi_connected);
+        if (!wifiManager.isWifiEnabled()) {
+            //开启wifi
+            wifiManager.setWifiEnabled(true);
+        }
+        wifiManager.startScan();
 
     }
 
@@ -704,7 +737,7 @@ public class MainActivity extends BaseActivity {
             System.arraycopy(WIFIArray, length / 5 * 2 + 8, simArray2, 0, length / 5 - 19);
             System.arraycopy(WIFIArray, length / 5 * 3 + 8, simArray3, 0, length / 5 - 19);
             System.arraycopy(WIFIArray, length / 5 * 4 + 8, simArray4, 0, length / 5 - 19);
-            simArrayCmp = simArray1;
+            simArrayCmp = simArray2;
             drawWIFIDataSim();
         }
     }
@@ -1031,53 +1064,42 @@ public class MainActivity extends BaseActivity {
         vlVel.setText(String.valueOf(velocityState) + "m/μs");
     }
 
+    /**
+     * 获取连接到热点上的手机ip
+     *
+     * @return
+     */
+    private ArrayList<String> getConnectedIP() {
+        ArrayList<String> connectedIP = new ArrayList<String>();
+        try {
+            br = new BufferedReader(new FileReader(
+                    "/proc/net/arp"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] splitted = line.split(" +");
+                if (splitted != null && splitted.length >= 4) {
+                    String ip = splitted[0];
+                    connectedIP.add(ip);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return connectedIP;
+    }
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         unregisterReceiver(receiver);
     }
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-                Log.w("BBB", "WifiManager.NETWORK_STATE_CHANGED_ACTION");
-                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
-                    WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                    final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                    Log.w("AAA","wifiInfo.getSSID():"+wifiInfo.getSSID()+"  WIFI_HOTSPOT_SSID:"+WIFI_HOTSPOT_SSID);
-                    if (wifiInfo.getSSID().equals(WIFI_HOTSPOT_SSID)) {
-                        wifiState.setBackgroundResource(R.drawable.wifi_connected);
-                        /*//如果当前连接到的wifi是热点,则开启连接线程
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    ArrayList<String> connectedIP = getConnectedIP();
-                                    for (String ip : connectedIP) {
-                                        if (ip.contains(".")) {
-                                            Log.w("AAA", "IP:" + ip);
-                                            Socket socket = new Socket(ip, PORT);
-                                            connectThread = new ConnectThread(socket, handler);
-                                            connectThread.start();
-                                        }
-                                    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }).start();*/
-                    } else {
-                        wifiState.setBackgroundResource(R.drawable.wifi_disconnected);
-                    }
-                }
 
-            }
-        }
-    };
 
     //GT 测试绘制效果
     public void testWaveData() {

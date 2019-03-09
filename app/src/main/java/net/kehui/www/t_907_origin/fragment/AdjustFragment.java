@@ -38,9 +38,9 @@ public class AdjustFragment extends Fragment {
     @BindView(R.id.adj_sidebar)
     LinearLayout adjSidebar;
 
-    private int gain;
-    private int velocity;
-    private int balance;
+    private int     gain;
+    private int     velocity;
+    private int     balance;
     private Handler handler;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,7 +56,8 @@ public class AdjustFragment extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus, R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
+    @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus,
+            R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_gain_plus:

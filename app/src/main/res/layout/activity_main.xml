@@ -321,7 +321,7 @@
             android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/fct_bottom_l"
             android:scaleType="fitXY"
-            android:background="@drawable/wifi_connected"/>
+            android:background="@drawable/wifi_disconnected"/>
     </RelativeLayout>
 
 </RelativeLayout>
