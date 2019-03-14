@@ -44,10 +44,13 @@ public class BaseActivity extends AppCompatActivity {
     public  Socket         socket;
     public  BufferedReader br;
     public  OutputStream   wifiOutputStream;   //GC20190105 下发命令
-    public WifiManager    wifiManager;
+    public  WifiManager    wifiManager;
 
     public static final String WIFI_HOTSPOT_SSID = "T-9071";
     public static final int    PORT              = 9000;    //设置硬件端口 9000
+
+    private static final int MIN_DELAY_TIME = 500;  // 两次点击间隔不能少于1000ms
+    private static long lastClickTime;
 
     /*WIFI数据处理*/
     public int     streamLen;                       //接收到的WIFI数组长度
@@ -99,6 +102,16 @@ public class BaseActivity extends AppCompatActivity {
         gainState = 12;
         balanceState = 5;
         velocityState = 172;
+    }
+
+    public static boolean isFastClick() {
+        boolean flag = true;
+        long currentClickTime = System.currentTimeMillis();
+        if ((currentClickTime - lastClickTime) >= MIN_DELAY_TIME) {
+            flag = false;
+        }
+        lastClickTime = currentClickTime;
+        return flag;
     }
 
 }

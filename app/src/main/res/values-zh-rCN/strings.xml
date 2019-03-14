@@ -46,8 +46,9 @@
     <string name="tv_vel" translatable="true">波速: </string>
     <string name="tv_range" translatable="true">范围: </string>
     <string name="btn_cancel" translatable="true">取消测试</string>
-    <string name="wait_trigger">等待触发...</string>
+    <string name="wait_trigger">等待触发…</string>
     <string name="tv_balance">平衡:</string>
-    <string name="receive_data">正在接收数据...</string>
+    <string name="receive_data">正在接收数据…</string>
+    <string name="connecting_wifi">等待WiFi连接…</string>
 
 </resources>

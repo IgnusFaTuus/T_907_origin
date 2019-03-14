@@ -39,7 +39,7 @@ public class ConnectThread extends Thread{
         try {
             //获取数据流
             inputStream = socket.getInputStream();
-            //GC20190105 outputStream = socket.getOutputStream();
+            outputStream = socket.getOutputStream();
 
             byte[] buffer = new byte[402400];
             int bytes;

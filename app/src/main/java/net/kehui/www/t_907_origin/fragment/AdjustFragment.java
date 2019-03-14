@@ -17,6 +17,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
+import static net.kehui.www.t_907_origin.base.BaseActivity.isFastClick;
+
 /**
  * Created by IF on 2018/3/26.
  */
@@ -59,6 +61,9 @@ public class AdjustFragment extends Fragment {
     @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus,
             R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
     public void onViewClicked(View view) {
+        if (isFastClick()) {
+            return;
+        }
         switch (view.getId()) {
             case R.id.btn_gain_plus:
                 //adjSidebar.setClickable(false);
@@ -69,12 +74,6 @@ public class AdjustFragment extends Fragment {
                 }
                 ((MainActivity) getActivity()).setGain(0x11);
                 ((MainActivity) getActivity()).sendCommand();
-                /*handler.postDelayed(new Runnable() {    //GC20190110
-                    @Override
-                    public void run() {
-                        adjSidebar.setClickable(true);
-                    }
-                }, 1000);*/
                 break;
             case R.id.btn_gain_minus:
                 gain = ((MainActivity) getActivity()).getGainState();

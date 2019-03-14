@@ -143,60 +143,57 @@ public class MainActivity extends BaseActivity {
     public Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (msg.what == DEVICE_CONNECTING) {
-                Toast.makeText(MainActivity.this, "正在连接T-907......", Toast.LENGTH_LONG).show();
-                connectThread = new ConnectThread(listenerThread.getSocket(), handler);
-                connectThread.start();
-
-            } else if (msg.what == DEVICE_CONNECTED) {
-                command = 0x02;
-                data = 0x11;
-                sendCommand();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        command = 0x03;
-                        data = 0x11;
-                        sendCommand();
+            switch (msg.what) {
+                case DEVICE_CONNECTING:
+                    Toast.makeText(MainActivity.this, "正在连接T-907......", Toast.LENGTH_LONG).show();
+                    connectThread = new ConnectThread(listenerThread.getSocket(), handler);
+                    connectThread.start();
+                    break;
+                case DEVICE_CONNECTED:
+                    command = 0x02;
+                    data = 0x11;
+                    sendCommand();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            command = 0x03;
+                            data = 0x11;
+                            sendCommand();
+                        }
+                    }, 1200);    //发送初始化命令：方式、范围
+                    handler.postDelayed(new Runnable() {    //GC20190110
+                        @Override
+                        public void run() {
+                            handler.sendEmptyMessage(CLICK_TEST);
+                        }
+                    }, 300);
+                    break;
+                case DEVICE_DISCONNECTED:
+                    break;
+                case GET_STREAM:
+                    if (!hasReceivedData) {
+                        Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
+                        hasReceivedData = true;
                     }
-                }, 1200);    //发送初始化命令：方式、范围
-                handler.postDelayed(new Runnable() {    //GC20190110
-                    @Override
-                    public void run() {
-                        handler.sendEmptyMessage(CLICK_TEST);
-                    }
-                }, 300);
-
-            } else if (msg.what == DEVICE_DISCONNECTED) {
-
-
-            } else if (msg.what == GET_STREAM) {
-                if (!hasReceivedData) {
-                    Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
-                    hasReceivedData = true;
-                }
-                WIFIStream = msg.getData().getIntArray("STM");  //GC20190103 接收WIFI数据流
-                assert WIFIStream != null;
-                streamLen = WIFIStream.length;
-                Log.e("AAA", "streamLen：" + streamLen); //GT
-                Log.e("hasLeft", "" + hasLeft);     //GT
-                Log.e("max", "" + max); //GT
-                doWIFIArray(WIFIStream, streamLen);
-                /*max = streamLen;
-                System.arraycopy(WIFIStream, 0, waveArray, 0, streamLen);
-                drawWIFIData();*/
-
-            } else if (msg.what == RESPOND_TIME) { //GC20190110
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        btnTest.setClickable(true);
-                    }
-                }, 1200);
-
-            } else if (msg.what == CLICK_TEST) {
-                clickTest();
-
+                    WIFIStream = msg.getData().getIntArray("STM");  //GC20190103 接收WIFI数据流
+                    assert WIFIStream != null;
+                    streamLen = WIFIStream.length;
+                    Log.e("AAA", "streamLen：" + streamLen); //GT
+                    Log.e("hasLeft", "" + hasLeft);     //GT
+                    Log.e("max", "" + max); //GT
+                    doWIFIArray(WIFIStream, streamLen);
+                    break;
+                case RESPOND_TIME:
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnTest.setClickable(true);
+                        }
+                    }, 1200);
+                    break;
+                case CLICK_TEST:
+                    clickTest();
+                    break;
             }
             return false;
         }
@@ -374,6 +371,12 @@ public class MainActivity extends BaseActivity {
                 Log.w("BBB", "WifiManager.NETWORK_STATE_CHANGED_ACTION");
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 if (info.getState().equals(NetworkInfo.State.DISCONNECTED)) {
+                    tDialog = new TDialog.Builder(getSupportFragmentManager())
+                            .setLayoutRes(R.layout.connecting_wifi)
+                            .setScreenWidthAspect(MainActivity.this, 0.25f)
+                            .setCancelableOutside(false)
+                            .create()
+                            .show();
 
                 }else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
                     WifiManager wifiManager =
@@ -382,23 +385,28 @@ public class MainActivity extends BaseActivity {
                     Log.w("AAA", "wifiInfo.getSSID():" + wifiInfo.getSSID() + "  " +
                             "WIFI_HOTSPOT_SSID:" + WIFI_HOTSPOT_SSID);
                     if (wifiInfo.getSSID().equals("\"" + WIFI_HOTSPOT_SSID + "\"")) {
+                        if (tDialog != null) {
+                            tDialog.dismiss();
+                        }
                         //如果当前连接到的wifi是热点,则开启连接线程
                         wifiState.setBackgroundResource(R.drawable.wifi_connected);
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
+                                    Thread.sleep(1000);
                                     ArrayList<String> connectedIP = getConnectedIP();
                                     for (String ip : connectedIP) {
                                         if (ip.contains(".")) {
-                                            Socket  socket = new Socket(ip, PORT);
+                                            Log.w("AAA", "IP:" + ip);
+                                            Socket socket = new Socket(ip, PORT);
                                             connectThread = new ConnectThread(socket, handler);
                                             connectThread.start();
-                                            wifiOutputStream = socket.getOutputStream();
+                                            //wifiOutputStream = socket.getOutputStream();
                                             //GC20190105 获取WIFI输出流
+                                            //handler.sendEmptyMessage(DEVICE_CONNECTED);
                                         }
                                     }
-
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     runOnUiThread(new Runnable() {
@@ -408,11 +416,11 @@ public class MainActivity extends BaseActivity {
                                                     Toast.LENGTH_LONG).show();
                                         }
                                     });
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }).start();
-
-
                     } else {
                         handler.sendEmptyMessage(DEVICE_DISCONNECTED);
                         wifiState.setBackgroundResource(R.drawable.wifi_disconnected);
@@ -629,20 +637,14 @@ public class MainActivity extends BaseActivity {
         request[6] = (byte) data;
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
-        //GC20190105 connectThread.sendCommand(request);
-        sendCommand(request);
+        connectThread.sendCommand(request);
+        Log.e("AAA", "指令：" + command + "数据：" + data);
+        //sendCommand(request);
     }
 
     //GC20190105 下发命令
     public void sendCommand(byte[] request) {
         if (!hasSentCommand) {
-            /*for (int i = 0; i < request.length; i++) {
-                tempRequest[i] = request[i];
-            }
-            if (mOutputStream == null) {
-                Toast.makeText(this, getResources().getString(R.string.Bluetooth_is_not_connected),
-                        Toast.LENGTH_SHORT).show();
-            }*/
             try {
                 wifiOutputStream.write(request);
                 //GX hasSentCommand = true;
