@@ -39,18 +39,18 @@ public class BaseActivity extends AppCompatActivity {
     public boolean        clickCursor; //光标按钮点击状态
 
     /*WIFI数据获取*/
-    public  ConnectThread  connectThread;     //连接线程
-    public  ListenerThread listenerThread;   //监听线程
-    public  Socket         socket;
-    public  BufferedReader br;
-    public  OutputStream   wifiOutputStream;   //GC20190105 下发命令
-    public  WifiManager    wifiManager;
+    public ConnectThread  connectThread;     //连接线程
+    public ListenerThread listenerThread;   //监听线程
+    public Socket         socket;
+    public BufferedReader br;
+    public OutputStream   wifiOutputStream;   //GC20190105 下发命令
+    public WifiManager    wifiManager;
 
     public static final String WIFI_HOTSPOT_SSID = "T-9071";
     public static final int    PORT              = 9000;    //设置硬件端口 9000
 
-    private static final int MIN_DELAY_TIME = 500;  // 两次点击间隔不能少于1000ms
-    private static long lastClickTime;
+    private static final int  MIN_DELAY_TIME = 500;  // 两次点击间隔不能少于1000ms
+    private static       long lastClickTime;
 
     /*WIFI数据处理*/
     public int     streamLen;                       //接收到的WIFI数组长度

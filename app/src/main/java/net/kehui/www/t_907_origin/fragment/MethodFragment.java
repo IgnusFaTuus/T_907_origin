@@ -58,46 +58,75 @@ public class MethodFragment extends Fragment implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_tdr:
-                btn_tdr.setEnabled(false);
-                btn_icm.setEnabled(true);
-                btn_sim.setEnabled(true);
-                btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(0x11); //GC20181225
-                ((MainActivity)getActivity()).sendCommand();
-                wave_select.setVisibility(View.INVISIBLE);
-
+                clickTdr();
                 break;
             case R.id.btn_icm:
-                btn_tdr.setEnabled(true);
-                btn_icm.setEnabled(false);
-                btn_sim.setEnabled(true);
-                btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(0x22);
-                ((MainActivity)getActivity()).sendCommand();
-                wave_select.setVisibility(View.INVISIBLE);
+                clickIcm();
                 break;
             case R.id.btn_sim:
-                btn_tdr.setEnabled(true);
-                btn_icm.setEnabled(true);
-                btn_sim.setEnabled(false);
-                btn_decay.setEnabled(true);
-                ((MainActivity)getActivity()).setMethod(0x33);
-                ((MainActivity)getActivity()).sendCommand();
-                wave_select.setVisibility(View.VISIBLE);
+                clickSim();
                 break;
             case R.id.btn_decay:
-                btn_tdr.setEnabled(true);
-                btn_icm.setEnabled(true);
-                btn_sim.setEnabled(true);
-                btn_decay.setEnabled(false);
-                ((MainActivity)getActivity()).setMethod(0x44);
-                ((MainActivity)getActivity()).sendCommand();
-                wave_select.setVisibility(View.INVISIBLE);
-
+                clickDecay();
                 break;
-
             default:
                 break;
         }
+    }
+
+    private void clickTdr() {
+        btn_tdr.setEnabled(false);
+        ((MainActivity)getActivity()).setMethod(0x11); //GC20181225
+        ((MainActivity)getActivity()).sendCommand();
+        if(((MainActivity)getActivity()).getMethod() == 0x11){
+            btn_icm.setEnabled(true);
+            btn_sim.setEnabled(true);
+            btn_decay.setEnabled(true);
+        }else {
+            btn_tdr.setEnabled(true);
+        }
+        wave_select.setVisibility(View.INVISIBLE);
+    }
+
+    private void clickIcm() {
+        btn_icm.setEnabled(false);
+        ((MainActivity)getActivity()).setMethod(0x22);
+        ((MainActivity)getActivity()).sendCommand();
+        if(((MainActivity)getActivity()).getMethod() == 0x22){
+            btn_tdr.setEnabled(true);
+            btn_sim.setEnabled(true);
+            btn_decay.setEnabled(true);
+        }else {
+            btn_icm.setEnabled(true);
+        }
+        wave_select.setVisibility(View.INVISIBLE);
+    }
+
+    private void clickSim() {
+        btn_sim.setEnabled(false);
+        ((MainActivity)getActivity()).setMethod(0x33);
+        ((MainActivity)getActivity()).sendCommand();
+        if(((MainActivity)getActivity()).getMethod() == 0x33){
+            btn_tdr.setEnabled(true);
+            btn_icm.setEnabled(true);
+            btn_decay.setEnabled(true);
+        }else {
+            btn_sim.setEnabled(true);
+        }
+        wave_select.setVisibility(View.VISIBLE);
+    }
+
+    private void clickDecay() {
+        btn_decay.setEnabled(false);
+        ((MainActivity)getActivity()).setMethod(0x44);
+        ((MainActivity)getActivity()).sendCommand();
+        if(((MainActivity)getActivity()).getMethod() == 0x44){
+            btn_tdr.setEnabled(true);
+            btn_icm.setEnabled(true);
+            btn_sim.setEnabled(true);
+        }else {
+            btn_decay.setEnabled(true);
+        }
+        wave_select.setVisibility(View.INVISIBLE);
     }
 }

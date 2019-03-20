@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
+import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.application.MyApplication;
 import net.kehui.www.t_907_origin.view.MainActivity;
 
@@ -103,19 +104,18 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
 
     public SparkView(Context context) {
         super(context);
-        init(context, null, com.robinhood.spark.R.attr.spark_SparkViewStyle, com.robinhood.spark
-                .R.style.spark_SparkView);
+        init(context, null, R.attr.spark_SparkViewStyle,
+                R.style.spark_SparkView);
     }
 
     public SparkView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs, com.robinhood.spark.R.attr.spark_SparkViewStyle, com.robinhood.spark
-                .R.style.spark_SparkView);
+        init(context, attrs, R.attr.spark_SparkViewStyle, R.style.spark_SparkView);
     }
 
     public SparkView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs, defStyleAttr, com.robinhood.spark.R.style.spark_SparkView);
+        init(context, attrs, defStyleAttr, R.style.spark_SparkView);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -126,27 +126,18 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        TypedArray a = context.obtainStyledAttributes(attrs, com.robinhood.spark.R.styleable
-                        .spark_SparkView,
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.spark_SparkView,
                 defStyleAttr, defStyleRes);
-        lineColor = a.getColor(com.robinhood.spark.R.styleable.spark_SparkView_spark_lineColor, 0);
-        lineWidth = a.getDimension(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_lineWidth, 0);
-        cornerRadius = a.getDimension(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_cornerRadius, 0);
-        fill = a.getBoolean(com.robinhood.spark.R.styleable.spark_SparkView_spark_fill, false);
-        baseLineColor = a.getColor(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_baseLineColor, 0);
-        baseLineWidth = a.getDimension(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_baseLineWidth, 0);
-        scrubEnabled = a.getBoolean(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_scrubEnabled, true);
-        scrubLineColor = a.getColor(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_scrubLineColor, baseLineColor);
-        scrubLineWidth = a.getDimension(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_scrubLineWidth, lineWidth);
-        animateChanges = a.getBoolean(com.robinhood.spark.R.styleable
-                .spark_SparkView_spark_animateChanges, false);
+        lineColor = a.getColor(R.styleable.spark_SparkView_spark_lineColor, 0);
+        lineWidth = a.getDimension(R.styleable.spark_SparkView_spark_lineWidth, 0);
+        cornerRadius = a.getDimension(R.styleable.spark_SparkView_spark_cornerRadius, 0);
+        fill = a.getBoolean(R.styleable.spark_SparkView_spark_fill, false);
+        baseLineColor = a.getColor(R.styleable.spark_SparkView_spark_baseLineColor, 0);
+        baseLineWidth = a.getDimension(R.styleable.spark_SparkView_spark_baseLineWidth, 0);
+        scrubEnabled = a.getBoolean(R.styleable.spark_SparkView_spark_scrubEnabled, true);
+        scrubLineColor = a.getColor(R.styleable.spark_SparkView_spark_scrubLineColor, baseLineColor);
+        scrubLineWidth = a.getDimension(R.styleable.spark_SparkView_spark_scrubLineWidth, lineWidth);
+        animateChanges = a.getBoolean(R.styleable.spark_SparkView_spark_animateChanges, false);
         a.recycle();
 
         sparkLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);

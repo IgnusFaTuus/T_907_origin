@@ -7,19 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +29,7 @@ import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
 import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
+import net.kehui.www.t_907_origin.fragment.AdjustFragment2;
 import net.kehui.www.t_907_origin.fragment.FileFragment;
 import net.kehui.www.t_907_origin.fragment.MethodFragment;
 import net.kehui.www.t_907_origin.fragment.OptionFragment;
@@ -111,34 +109,33 @@ public class MainActivity extends BaseActivity {
     TextView     tvBalance;
     @BindView(R.id.vl_balance)
     TextView     vlBalance;
-    @BindView(R.id.wifiState)
-    ImageButton  wifiState;
     //用于展示Fragment
-    private             MethodFragment  methodFragment;
-    private             RangeFragment   rangeFragment;
-    private             AdjustFragment  adjustFragment;
-    private             OptionFragment  optionFragment;
-    private             FileFragment    fileFragment;
-    private             SettingFragment settingFragment;
-    private             FragmentManager fragmentManager;
+    private MethodFragment  methodFragment;
+    private RangeFragment   rangeFragment;
+    private AdjustFragment  adjustFragment;
+    private AdjustFragment2 adjustFragment2;
+    private OptionFragment  optionFragment;
+    private FileFragment    fileFragment;
+    private SettingFragment settingFragment;
+    private FragmentManager fragmentManager;
     /*下发command*/
-    private             int             command;
-    private             int             data;
-    private             TDialog         tDialog;
+    private int             command;
+    private int             data;
+    private TDialog         tDialog;
 
 
     /*全局的handler对象用来执行UI更新*/
-    public static final int             DEVICE_CONNECTING   = 1;  //设备连接中
-    public static final int             DEVICE_CONNECTED    = 2;   //设备连接成功
-    public static final int             DEVICE_DISCONNECTED = 11;   //设备连接成功
-    public static final int             SEND_SUCCESS        = 3;       //发送command成功
-    public static final int             SEND_ERROR          = 4;         //发送command失败
-    public static final int             GET_STREAM          = 5;         //接收WIFI数据流
-    public static final int             RECEIVE_SUCCESS     = 6;   //T-907接收command成功
-    public static final int             RECEIVE_ERROR       = 7;     //T-907接收command失败
-    public static final int             DATA_COMPLETED      = 8;       //接受到全部数据
-    public static final int             RESPOND_TIME        = 9;      //GC20190110 命令响应结束
-    public static final int             CLICK_TEST          = 10;       //GC20190110 点击测试按钮事件
+    public static final int DEVICE_CONNECTING   = 1;  //设备连接中
+    public static final int DEVICE_CONNECTED    = 2;   //设备连接成功
+    public static final int DEVICE_DISCONNECTED = 11;   //设备连接成功
+    public static final int SEND_SUCCESS        = 3;       //发送command成功
+    public static final int SEND_ERROR          = 4;         //发送command失败
+    public static final int GET_STREAM          = 5;         //接收WIFI数据流
+    public static final int RECEIVE_SUCCESS     = 6;   //T-907接收command成功
+    public static final int RECEIVE_ERROR       = 7;     //T-907接收command失败
+    public static final int DATA_COMPLETED      = 8;       //接受到全部数据
+    public static final int RESPOND_TIME        = 9;      //GC20190110 命令响应结束
+    public static final int CLICK_TEST          = 10;       //GC20190110 点击测试按钮事件
 
     public Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -304,6 +301,15 @@ public class MainActivity extends BaseActivity {
                     transaction.show(settingFragment);
                 }
                 break;
+            case 6:
+
+                if (adjustFragment2 == null) {
+                    adjustFragment2 = new AdjustFragment2();
+                    transaction.add(R.id.content, adjustFragment2);
+                } else {
+                    transaction.show(adjustFragment2);
+                }
+                break;
         }
         transaction.commit();
     }
@@ -317,6 +323,9 @@ public class MainActivity extends BaseActivity {
         }
         if (adjustFragment != null) {
             transaction.hide(adjustFragment);
+        }
+        if (adjustFragment2 != null) {
+            transaction.hide(adjustFragment2);
         }
         if (optionFragment != null) {
             transaction.hide(optionFragment);
@@ -378,7 +387,7 @@ public class MainActivity extends BaseActivity {
                             .create()
                             .show();
 
-                }else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
+                } else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
                     WifiManager wifiManager =
                             (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                     final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -388,8 +397,8 @@ public class MainActivity extends BaseActivity {
                         if (tDialog != null) {
                             tDialog.dismiss();
                         }
-                        //如果当前连接到的wifi是热点,则开启连接线程
-                        wifiState.setBackgroundResource(R.drawable.wifi_connected);
+                        //如果当前连接到的T-907硬件,则开启连接线程
+
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -402,9 +411,6 @@ public class MainActivity extends BaseActivity {
                                             Socket socket = new Socket(ip, PORT);
                                             connectThread = new ConnectThread(socket, handler);
                                             connectThread.start();
-                                            //wifiOutputStream = socket.getOutputStream();
-                                            //GC20190105 获取WIFI输出流
-                                            //handler.sendEmptyMessage(DEVICE_CONNECTED);
                                         }
                                     }
                                 } catch (IOException e) {
@@ -423,7 +429,7 @@ public class MainActivity extends BaseActivity {
                         }).start();
                     } else {
                         handler.sendEmptyMessage(DEVICE_DISCONNECTED);
-                        wifiState.setBackgroundResource(R.drawable.wifi_disconnected);
+
                     }
                 }
 
@@ -432,7 +438,7 @@ public class MainActivity extends BaseActivity {
     };
 
     @OnClick({R.id.btn_mtd, R.id.btn_range, R.id.btn_adj, R.id.btn_opt, R.id.btn_file, R.id
-            .btn_setting, R.id.btn_test, R.id.btn_cursor, R.id.wifiState})
+            .btn_setting, R.id.btn_test, R.id.btn_cursor})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             // 点击方式tab，选中第1个tab
@@ -465,9 +471,6 @@ public class MainActivity extends BaseActivity {
             case R.id.btn_cursor:
                 clickCursor();
                 break;
-            case R.id.wifiState:
-                clickWifiState();
-                break;
             default:
                 break;
         }
@@ -494,7 +497,12 @@ public class MainActivity extends BaseActivity {
     }
 
     private void clickAdjust() {
-        setTabSelection(2);
+        if (method == 0x22 || method == 0x44) {
+            setTabSelection(6);
+        } else {
+            setTabSelection(2);
+
+        }
         btnMtd.setEnabled(true);
         btnRange.setEnabled(true);
         btnAdj.setEnabled(false);
@@ -592,15 +600,6 @@ public class MainActivity extends BaseActivity {
         myChartAdapterMainWave.setCursorState(clickCursor);
     }
 
-    private void clickWifiState() {
-        wifiState.setBackgroundResource(R.drawable.wifi_connected);
-        if (!wifiManager.isWifiEnabled()) {
-            //开启wifi
-            wifiManager.setWifiEnabled(true);
-        }
-        wifiManager.startScan();
-
-    }
 
     /* 数据头   数据长度  指令  传输数据  校验和
     eb90aa55     03      01      11       15
@@ -639,20 +638,6 @@ public class MainActivity extends BaseActivity {
         request[7] = (byte) sum;
         connectThread.sendCommand(request);
         Log.e("AAA", "指令：" + command + "数据：" + data);
-        //sendCommand(request);
-    }
-
-    //GC20190105 下发命令
-    public void sendCommand(byte[] request) {
-        if (!hasSentCommand) {
-            try {
-                wifiOutputStream.write(request);
-                //GX hasSentCommand = true;
-                Log.e("AAA", "指令：" + command + "数据：" + data);    //GT
-            } catch (IOException e) {
-                Toast.makeText(this, "命令下发失败" + e.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     //GC20190103 处理接收到的WIFI数据
@@ -1067,7 +1052,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 获取连接到热点上的手机ip
+     * 获取ip
      *
      * @return
      */
@@ -1100,7 +1085,6 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
 
 
     //GT 测试绘制效果

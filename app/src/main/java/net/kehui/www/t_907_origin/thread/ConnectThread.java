@@ -11,28 +11,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * Created by IF on 2018/12/26
  */
-public class ConnectThread extends Thread{
+public class ConnectThread extends Thread {
 
-    private final Socket socket;
-    private Handler handler;
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    private final Socket       socket;
+    private       Handler      handler;
+    private       InputStream  inputStream;
+    private       OutputStream outputStream;
 
-    public ConnectThread(Socket socket, Handler handler){
+    public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
-        Log.w("AAA","ConnectThread");
+        Log.w("AAA", "ConnectThread");
         this.socket = socket;
         this.handler = handler;
     }
 
     @Override
     public void run() {
-        if(socket==null){
+        if (socket == null) {
             return;
         }
         handler.sendEmptyMessage(MainActivity.DEVICE_CONNECTED);
@@ -44,14 +43,14 @@ public class ConnectThread extends Thread{
             byte[] buffer = new byte[402400];
             int bytes;
 
-            while (true){
+            while (true) {
                 //读取数据
-                if (inputStream.available() <= 0) {
+                /*if (inputStream.available() <= 0) {
                     handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
                     continue;
                 } else {
                     Thread.sleep(200);
-                }
+                }*/
                 bytes = inputStream.read(buffer);
                 if (bytes > 0) {
                     byte[] data = new byte[bytes];
@@ -68,18 +67,18 @@ public class ConnectThread extends Thread{
                     message.setData(bundle);
                     handler.sendMessage(message);
                     Log.e("AAA",
-                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6] );  //GT
+                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6]);  //GT
 
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     //GC20190102 命令发送处理
-    public void sendCommand(byte[] request){
-        if(outputStream != null){
+    public void sendCommand(byte[] request) {
+        if (outputStream != null) {
             try {
                 outputStream.write(request);
                 Message message = Message.obtain();
@@ -95,16 +94,16 @@ public class ConnectThread extends Thread{
     }
 
     //发送数据
-    public void sendData(String msg){
-        Log.w("AAA","发送数据:"+(outputStream==null));
-        if(outputStream!=null){
+    public void sendData(String msg) {
+        Log.w("AAA", "发送数据:" + (outputStream == null));
+        if (outputStream != null) {
             try {
                 outputStream.write(msg.getBytes());
-                Log.w("AAA","发送消息："+msg);
+                Log.w("AAA", "发送消息：" + msg);
                 Message message = Message.obtain();
                 message.what = MainActivity.SEND_SUCCESS;
                 Bundle bundle = new Bundle();
-                bundle.putString("MSG",new String(msg));
+                bundle.putString("MSG", new String(msg));
                 message.setData(bundle);
                 handler.sendMessage(message);
             } catch (IOException e) {
@@ -112,7 +111,7 @@ public class ConnectThread extends Thread{
                 Message message = Message.obtain();
                 message.what = MainActivity.SEND_ERROR;
                 Bundle bundle = new Bundle();
-                bundle.putString("MSG",new String(msg));
+                bundle.putString("MSG", new String(msg));
                 message.setData(bundle);
                 handler.sendMessage(message);
             }
