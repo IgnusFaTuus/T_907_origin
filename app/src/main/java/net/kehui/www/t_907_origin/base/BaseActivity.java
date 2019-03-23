@@ -1,18 +1,17 @@
 package net.kehui.www.t_907_origin.base;
 
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
+import net.kehui.www.t_907_origin.thread.CommandThread;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
+import net.kehui.www.t_907_origin.thread.DataThread;
 import net.kehui.www.t_907_origin.thread.ListenerThread;
 import net.kehui.www.t_907_origin.util.WifiUtil;
 
 import java.io.BufferedReader;
-import java.io.OutputStream;
-import java.net.Socket;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -41,10 +40,9 @@ public class BaseActivity extends AppCompatActivity {
     /*WIFI数据获取*/
     public ConnectThread  connectThread;     //连接线程
     public ListenerThread listenerThread;   //监听线程
-    public Socket         socket;
+    public CommandThread  commandThread;
+    public DataThread     dataThread;
     public BufferedReader br;
-    public OutputStream   wifiOutputStream;   //GC20190105 下发命令
-    public WifiManager    wifiManager;
 
     public static final String WIFI_HOTSPOT_SSID = "T-9071";
     public static final int    PORT              = 9000;    //设置硬件端口 9000
@@ -59,7 +57,6 @@ public class BaseActivity extends AppCompatActivity {
     public int[]   leftArray;                     //剩余数据的数组
     public boolean hasLeft;                     //处理数据后是否有剩余数据的标志
     public boolean hasSentCommand;              //发送command的状态
-    public boolean hasReceivedCommand;          //接收command的状态
     public boolean isDraw;                       //是否画波形的标志
     public boolean hasReceivedData;             //是否接收到设备返回数据的标志
 

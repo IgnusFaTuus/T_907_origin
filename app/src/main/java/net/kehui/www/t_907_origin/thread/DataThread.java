@@ -13,18 +13,17 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Created by IF on 2018/12/26
+ * Created by IF on 2019/3/21
  */
-public class ConnectThread extends Thread {
-
+public class DataThread extends Thread {
     private final Socket       socket;
     private       Handler      handler;
     private       InputStream  inputStream;
     private       OutputStream outputStream;
 
-    public ConnectThread(Socket socket, Handler handler) {
-        setName("ConnectThread");
-        Log.w("AAA", "ConnectThread");
+    public DataThread(Socket socket, Handler handler) {
+        setName("DataThread");
+        Log.w("AAA", "DataThread");
         this.socket = socket;
         this.handler = handler;
     }
@@ -40,7 +39,7 @@ public class ConnectThread extends Thread {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
-            byte[] buffer = new byte[402400];
+            byte[] buffer = new byte[65556*8];
             int bytes;
 
             while (true) {
@@ -63,7 +62,7 @@ public class ConnectThread extends Thread {
                     Message message = Message.obtain();
                     message.what = MainActivity.GET_STREAM;
                     Bundle bundle = new Bundle();
-                    bundle.putIntArray("STM", WIFIStream);
+                    bundle.putIntArray("DATA", WIFIStream);
                     message.setData(bundle);
                     handler.sendMessage(message);
                     Log.e("AAA",
@@ -73,48 +72,6 @@ public class ConnectThread extends Thread {
             }
         } catch (IOException |InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    //GC20190102 命令发送处理
-    public void sendCommand(byte[] request) {
-        if (outputStream != null) {
-            try {
-                outputStream.write(request);
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_SUCCESS;
-                handler.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_ERROR;
-                handler.sendMessage(message);
-            }
-        }
-    }
-
-    //发送数据
-    public void sendData(String msg) {
-        Log.w("AAA", "发送数据:" + (outputStream == null));
-        if (outputStream != null) {
-            try {
-                outputStream.write(msg.getBytes());
-                Log.w("AAA", "发送消息：" + msg);
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_SUCCESS;
-                Bundle bundle = new Bundle();
-                bundle.putString("MSG", new String(msg));
-                message.setData(bundle);
-                handler.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_ERROR;
-                Bundle bundle = new Bundle();
-                bundle.putString("MSG", new String(msg));
-                message.setData(bundle);
-                handler.sendMessage(message);
-            }
         }
     }
 

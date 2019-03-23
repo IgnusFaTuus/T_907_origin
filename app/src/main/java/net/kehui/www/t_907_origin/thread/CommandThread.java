@@ -13,18 +13,17 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Created by IF on 2018/12/26
+ * Created by IF on 2019/3/21
  */
-public class ConnectThread extends Thread {
-
+public class CommandThread extends Thread{
     private final Socket       socket;
     private       Handler      handler;
     private       InputStream  inputStream;
     private       OutputStream outputStream;
 
-    public ConnectThread(Socket socket, Handler handler) {
-        setName("ConnectThread");
-        Log.w("AAA", "ConnectThread");
+    public CommandThread(Socket socket, Handler handler) {
+        setName("CommandThread");
+        Log.w("AAA", "CommandThread");
         this.socket = socket;
         this.handler = handler;
     }
@@ -40,17 +39,11 @@ public class ConnectThread extends Thread {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
-            byte[] buffer = new byte[402400];
+            byte[] buffer = new byte[8];
             int bytes;
 
             while (true) {
                 //读取数据
-                if (inputStream.available() <= 0) {
-                    handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
-                    continue;
-                } else {
-                    Thread.sleep(200);
-                }
                 bytes = inputStream.read(buffer);
                 if (bytes > 0) {
                     byte[] data = new byte[bytes];
@@ -63,7 +56,7 @@ public class ConnectThread extends Thread {
                     Message message = Message.obtain();
                     message.what = MainActivity.GET_STREAM;
                     Bundle bundle = new Bundle();
-                    bundle.putIntArray("STM", WIFIStream);
+                    bundle.putIntArray("CMD", WIFIStream);
                     message.setData(bundle);
                     handler.sendMessage(message);
                     Log.e("AAA",
@@ -71,7 +64,7 @@ public class ConnectThread extends Thread {
 
                 }
             }
-        } catch (IOException |InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -92,30 +85,5 @@ public class ConnectThread extends Thread {
             }
         }
     }
-
-    //发送数据
-    public void sendData(String msg) {
-        Log.w("AAA", "发送数据:" + (outputStream == null));
-        if (outputStream != null) {
-            try {
-                outputStream.write(msg.getBytes());
-                Log.w("AAA", "发送消息：" + msg);
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_SUCCESS;
-                Bundle bundle = new Bundle();
-                bundle.putString("MSG", new String(msg));
-                message.setData(bundle);
-                handler.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_ERROR;
-                Bundle bundle = new Bundle();
-                bundle.putString("MSG", new String(msg));
-                message.setData(bundle);
-                handler.sendMessage(message);
-            }
-        }
-    }
-
 }
+

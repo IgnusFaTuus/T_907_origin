@@ -1,8 +1,8 @@
 package net.kehui.www.t_907_origin.database;
 
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
 
 /**
  * Created by IF on 2018/12/15.
@@ -23,13 +23,14 @@ public class UserData {
     private String faultType;
     private String faultLength;
     private int    Gain;
+    private int    Balance;
     private String language;
 
-    @Generated(hash = 2067042902)
+    @Generated(hash = 1872888984)
     public UserData(Long id, String InfoId, long testTime, String testMethod,
                     String testRange, String waveVelocity, String testPosition,
-                    String cableFullLength, String cablePhase, String cableType,
-                    String faultType, String faultLength, int Gain, String language) {
+                    String cableFullLength, String cablePhase, String cableType, String faultType,
+                    String faultLength, int Gain, int Balance, String language) {
         this.id = id;
         this.InfoId = InfoId;
         this.testTime = testTime;
@@ -43,6 +44,7 @@ public class UserData {
         this.faultType = faultType;
         this.faultLength = faultLength;
         this.Gain = Gain;
+        this.Balance = Balance;
         this.language = language;
     }
 
@@ -160,6 +162,14 @@ public class UserData {
 
     public void setWaveVelocity(String waveVelocity) {
         this.waveVelocity = waveVelocity;
+    }
+
+    public int getBalance() {
+        return this.Balance;
+    }
+
+    public void setBalance(int Balance) {
+        this.Balance = Balance;
     }
 }
 

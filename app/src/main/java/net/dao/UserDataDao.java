@@ -37,7 +37,8 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
         public final static Property FaultType = new Property(10, String.class, "faultType", false, "FAULT_TYPE");
         public final static Property FaultLength = new Property(11, String.class, "faultLength", false, "FAULT_LENGTH");
         public final static Property Gain = new Property(12, int.class, "Gain", false, "GAIN");
-        public final static Property Language = new Property(13, String.class, "language", false, "LANGUAGE");
+        public final static Property Balance = new Property(13, int.class, "Balance", false, "BALANCE");
+        public final static Property Language = new Property(14, String.class, "language", false, "LANGUAGE");
     }
 
 
@@ -66,7 +67,8 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
                 "\"FAULT_TYPE\" TEXT," + // 10: faultType
                 "\"FAULT_LENGTH\" TEXT," + // 11: faultLength
                 "\"GAIN\" INTEGER NOT NULL ," + // 12: Gain
-                "\"LANGUAGE\" TEXT);"); // 13: language
+                "\"BALANCE\" INTEGER NOT NULL ," + // 13: Balance
+                "\"LANGUAGE\" TEXT);"); // 14: language
     }
 
     /** Drops the underlying database table. */
@@ -135,10 +137,11 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
             stmt.bindString(12, faultLength);
         }
         stmt.bindLong(13, entity.getGain());
+        stmt.bindLong(14, entity.getBalance());
  
         String language = entity.getLanguage();
         if (language != null) {
-            stmt.bindString(14, language);
+            stmt.bindString(15, language);
         }
     }
 
@@ -202,10 +205,11 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
             stmt.bindString(12, faultLength);
         }
         stmt.bindLong(13, entity.getGain());
+        stmt.bindLong(14, entity.getBalance());
  
         String language = entity.getLanguage();
         if (language != null) {
-            stmt.bindString(14, language);
+            stmt.bindString(15, language);
         }
     }
 
@@ -230,7 +234,8 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
             cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // faultType
             cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // faultLength
             cursor.getInt(offset + 12), // Gain
-            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13) // language
+            cursor.getInt(offset + 13), // Balance
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14) // language
         );
         return entity;
     }
@@ -250,7 +255,8 @@ public class UserDataDao extends AbstractDao<UserData, Long> {
         entity.setFaultType(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
         entity.setFaultLength(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
         entity.setGain(cursor.getInt(offset + 12));
-        entity.setLanguage(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
+        entity.setBalance(cursor.getInt(offset + 13));
+        entity.setLanguage(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
      }
     
     @Override

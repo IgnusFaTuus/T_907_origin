@@ -35,6 +35,7 @@ import net.kehui.www.t_907_origin.fragment.MethodFragment;
 import net.kehui.www.t_907_origin.fragment.OptionFragment;
 import net.kehui.www.t_907_origin.fragment.RangeFragment;
 import net.kehui.www.t_907_origin.fragment.SettingFragment;
+import net.kehui.www.t_907_origin.thread.CommandThread;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
 import net.kehui.www.t_907_origin.thread.ListenerThread;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
@@ -126,16 +127,16 @@ public class MainActivity extends BaseActivity {
 
     /*全局的handler对象用来执行UI更新*/
     public static final int DEVICE_CONNECTING   = 1;  //设备连接中
-    public static final int DEVICE_CONNECTED    = 2;   //设备连接成功
-    public static final int DEVICE_DISCONNECTED = 11;   //设备连接成功
-    public static final int SEND_SUCCESS        = 3;       //发送command成功
-    public static final int SEND_ERROR          = 4;         //发送command失败
-    public static final int GET_STREAM          = 5;         //接收WIFI数据流
+    public static final int DEVICE_CONNECTED    = 2;  //设备连接成功
+    public static final int DEVICE_DISCONNECTED = 11; //设备连接失败
+    public static final int SEND_SUCCESS        = 3;  //发送command成功
+    public static final int SEND_ERROR          = 4;  //发送command失败
+    public static final int GET_STREAM          = 5;   //接收WIFI数据流
     public static final int RECEIVE_SUCCESS     = 6;   //T-907接收command成功
-    public static final int RECEIVE_ERROR       = 7;     //T-907接收command失败
-    public static final int DATA_COMPLETED      = 8;       //接受到全部数据
-    public static final int RESPOND_TIME        = 9;      //GC20190110 命令响应结束
-    public static final int CLICK_TEST          = 10;       //GC20190110 点击测试按钮事件
+    public static final int RECEIVE_ERROR       = 7;   //T-907接收command失败
+    public static final int DATA_COMPLETED      = 8;   //接受到全部数据
+    public static final int RESPOND_TIME        = 9;   //GC20190110 命令响应结束
+    public static final int CLICK_TEST          = 10;  //GC20190110 点击测试按钮事件
 
     public Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -398,7 +399,6 @@ public class MainActivity extends BaseActivity {
                             tDialog.dismiss();
                         }
                         //如果当前连接到的T-907硬件,则开启连接线程
-
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -413,7 +413,7 @@ public class MainActivity extends BaseActivity {
                                             connectThread.start();
                                         }
                                     }
-                                } catch (IOException e) {
+                                } catch (IOException | InterruptedException e) {
                                     e.printStackTrace();
                                     runOnUiThread(new Runnable() {
                                         @Override
@@ -422,8 +422,6 @@ public class MainActivity extends BaseActivity {
                                                     Toast.LENGTH_LONG).show();
                                         }
                                     });
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
                                 }
                             }
                         }).start();
@@ -626,6 +624,8 @@ public class MainActivity extends BaseActivity {
     eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
     eb90aa55 03 0a 11 1e		//G后续添加 关机重连*/
     public void sendCommand() {
+        commandThread = new CommandThread(listenerThread.getSocket(), handler);
+        commandThread.start();
         byte[] request = new byte[8];
         request[0] = (byte) 0xeb;
         request[1] = (byte) 0x90;
@@ -636,8 +636,37 @@ public class MainActivity extends BaseActivity {
         request[6] = (byte) data;
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
-        connectThread.sendCommand(request);
+        commandThread.sendCommand(request);
         Log.e("AAA", "指令：" + command + "数据：" + data);
+    }
+
+    public void receiveCommand(int[] tempArray, int length) {
+        int[] tempCommand = new int[8];
+        if (length == 8) {
+            if (tempArray[0] == 0xeb) {
+                boolean isCrc = doTempCrc2(tempArray);
+                if (isCrc) {
+                    if (tempArray[5] == 0X08) {
+                        command = 0x09;
+                        data = 0x11;
+                        sendCommand();
+                        if (tDialog != null) {
+                            tDialog.dismiss();
+                        }
+                        tDialog = new TDialog.Builder(getSupportFragmentManager())
+                                .setLayoutRes(R.layout.receiving_data)
+                                .setScreenWidthAspect(this, 0.25f)
+                                .setCancelableOutside(false)
+                                .create()
+                                .show();
+                    }
+
+                } else {
+                    sendCommand();
+                }
+            }
+
+        }
     }
 
     //GC20190103 处理接收到的WIFI数据
