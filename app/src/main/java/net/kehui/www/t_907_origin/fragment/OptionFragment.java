@@ -16,7 +16,9 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 /**
- * Created by IF on 2018/3/26.
+ *
+ * @author IF
+ * @date 2018/3/26
  */
 
 public class OptionFragment extends Fragment {
@@ -32,6 +34,7 @@ public class OptionFragment extends Fragment {
     Button btnCompare;
     Unbinder unbinder;
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View optionLayout = inflater.inflate(R.layout.opt_layout, container, false);
@@ -58,6 +61,8 @@ public class OptionFragment extends Fragment {
                 break;
             case R.id.btn_compare:
                 break;
+                default:
+                    break;
         }
     }
 }

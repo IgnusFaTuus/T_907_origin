@@ -5,7 +5,9 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
 /**
- * Created by IF on 2018/12/15.
+ *
+ * @author IF
+ * @date 2018/12/15
  */
 @Entity
 public class UserData {

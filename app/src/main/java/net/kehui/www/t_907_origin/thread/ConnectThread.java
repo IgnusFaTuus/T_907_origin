@@ -17,10 +17,10 @@ import java.net.Socket;
  */
 public class ConnectThread extends Thread {
 
-    private final Socket       socket;
-    private       Handler      handler;
-    private       InputStream  inputStream;
-    private       OutputStream outputStream;
+    private final Socket socket;
+    private Handler handler;
+    private InputStream inputStream;
+    private OutputStream outputStream;
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
@@ -57,8 +57,9 @@ public class ConnectThread extends Thread {
                     System.arraycopy(buffer, 0, data, 0, bytes);
                     //GC20190103 WIFI数据流接收处理
                     int[] WIFIStream = new int[bytes];
+                    //将传过来的字节数组转变为int数组
                     for (int i = 0; i < bytes; i++) {
-                        WIFIStream[i] = data[i] & 0xff;   //将传过来的字节数组转变为int数组
+                        WIFIStream[i] = data[i] & 0xff;
                     }
                     Message message = Message.obtain();
                     message.what = MainActivity.GET_STREAM;
@@ -67,16 +68,19 @@ public class ConnectThread extends Thread {
                     message.setData(bundle);
                     handler.sendMessage(message);
                     Log.e("AAA",
-                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6]);  //GT
+                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6]);
 
                 }
             }
-        } catch (IOException |InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    //GC20190102 命令发送处理
+    /**
+     * GC20190102
+     * 命令发送处理
+     */
     public void sendCommand(byte[] request) {
         if (outputStream != null) {
             try {
@@ -92,30 +96,4 @@ public class ConnectThread extends Thread {
             }
         }
     }
-
-    //发送数据
-    public void sendData(String msg) {
-        Log.w("AAA", "发送数据:" + (outputStream == null));
-        if (outputStream != null) {
-            try {
-                outputStream.write(msg.getBytes());
-                Log.w("AAA", "发送消息：" + msg);
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_SUCCESS;
-                Bundle bundle = new Bundle();
-                bundle.putString("MSG", new String(msg));
-                message.setData(bundle);
-                handler.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Message message = Message.obtain();
-                message.what = MainActivity.SEND_ERROR;
-                Bundle bundle = new Bundle();
-                bundle.putString("MSG", new String(msg));
-                message.setData(bundle);
-                handler.sendMessage(message);
-            }
-        }
-    }
-
 }

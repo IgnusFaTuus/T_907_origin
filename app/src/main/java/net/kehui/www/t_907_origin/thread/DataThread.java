@@ -16,10 +16,9 @@ import java.net.Socket;
  * Created by IF on 2019/3/21
  */
 public class DataThread extends Thread {
-    private final Socket       socket;
-    private       Handler      handler;
-    private       InputStream  inputStream;
-    private       OutputStream outputStream;
+    private final Socket socket;
+    private Handler handler;
+    private InputStream inputStream;
 
     public DataThread(Socket socket, Handler handler) {
         setName("DataThread");
@@ -37,9 +36,8 @@ public class DataThread extends Thread {
         try {
             //获取数据流
             inputStream = socket.getInputStream();
-            outputStream = socket.getOutputStream();
 
-            byte[] buffer = new byte[65556*8];
+            byte[] buffer = new byte[65556 * 8];
             int bytes;
 
             while (true) {
@@ -60,7 +58,7 @@ public class DataThread extends Thread {
                         WIFIStream[i] = data[i] & 0xff;   //将传过来的字节数组转变为int数组
                     }
                     Message message = Message.obtain();
-                    message.what = MainActivity.GET_STREAM;
+                    message.what = MainActivity.GET_DATA;
                     Bundle bundle = new Bundle();
                     bundle.putIntArray("DATA", WIFIStream);
                     message.setData(bundle);
@@ -70,7 +68,7 @@ public class DataThread extends Thread {
 
                 }
             }
-        } catch (IOException |InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

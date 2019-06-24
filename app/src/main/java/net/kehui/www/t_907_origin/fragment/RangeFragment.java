@@ -16,7 +16,9 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 /**
- * Created by IF on 2018/3/26.
+ *
+ * @author IF
+ * @date 2018/3/26
  */
 
 public class RangeFragment extends Fragment {
@@ -38,6 +40,7 @@ public class RangeFragment extends Fragment {
     Button       btn64km;
     Unbinder unbinder;
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rangeLayout = inflater.inflate(R.layout.range_layout, container, false);
@@ -45,6 +48,7 @@ public class RangeFragment extends Fragment {
         return rangeLayout;
     }
 
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -197,8 +201,8 @@ public class RangeFragment extends Fragment {
                     btn64km.setEnabled(true);
                 }
                 break;
-            default:
-                break;
+                default:
+                    break;
         }
     }
 }

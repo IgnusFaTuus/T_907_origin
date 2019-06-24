@@ -18,7 +18,9 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 /**
- * Created by IF on 2018/3/26.
+ *
+ * @author IF
+ * @date 2018/3/26
  */
 
 public class FileFragment extends Fragment {
@@ -34,6 +36,7 @@ public class FileFragment extends Fragment {
     LinearLayout fileSidebar;
     Unbinder unbinder;
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View fileLayout = inflater.inflate(R.layout.file_layout, container, false);
@@ -53,17 +56,19 @@ public class FileFragment extends Fragment {
             case R.id.btn_save:
                 break;
             case R.id.btn_browse:
-                Log.e("isDraw", "开始");  //GT
-                ((MainActivity)getActivity()).getTxtWaveData();   //GT
+                Log.e("isDraw", "开始");
+                ((MainActivity)getActivity()).getTxtWaveData();
                 break;
             case R.id.btn_display:
-                Log.e("isDraw", "开始");  //GT
-                ((MainActivity)getActivity()).testWaveData();   //GT
+                Log.e("isDraw", "开始");
+                ((MainActivity)getActivity()).testWaveData();
                 break;
             case R.id.btn_dele:
-                Log.e("isDraw", "开始");  //GT
-                ((MainActivity)getActivity()).initSparkView();   //GT
+                Log.e("isDraw", "开始");
+                ((MainActivity)getActivity()).initSparkView();
                 break;
+                default:
+                    break;
         }
     }
 }

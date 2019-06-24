@@ -4,6 +4,9 @@ import android.util.Log;
 
 import net.kehui.www.t_907_origin.ui.SparkView.SparkAdapter;
 
+/**
+ * @author IF
+ */
 public class MyChartAdapter extends SparkAdapter {
 
     private int[] mTempArray;

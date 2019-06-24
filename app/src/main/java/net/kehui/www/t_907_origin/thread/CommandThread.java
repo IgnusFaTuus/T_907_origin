@@ -13,13 +13,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Created by IF on 2019/3/21
+ * @author IF
  */
-public class CommandThread extends Thread{
-    private final Socket       socket;
-    private       Handler      handler;
-    private       InputStream  inputStream;
-    private       OutputStream outputStream;
+public class CommandThread extends Thread {
+    private final Socket socket;
+    private Handler handler;
+    private InputStream inputStream;
+    private OutputStream outputStream;
 
     public CommandThread(Socket socket, Handler handler) {
         setName("CommandThread");
@@ -54,13 +54,12 @@ public class CommandThread extends Thread{
                         WIFIStream[i] = data[i] & 0xff;   //将传过来的字节数组转变为int数组
                     }
                     Message message = Message.obtain();
-                    message.what = MainActivity.GET_STREAM;
+                    message.what = MainActivity.GET_COMMAND;
                     Bundle bundle = new Bundle();
                     bundle.putIntArray("CMD", WIFIStream);
                     message.setData(bundle);
                     handler.sendMessage(message);
-                    Log.e("AAA",
-                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6]);  //GT
+                    Log.e("AAA", "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6]);  //GT
 
                 }
             }
@@ -69,18 +68,22 @@ public class CommandThread extends Thread{
         }
     }
 
-    //GC20190102 命令发送处理
+    /**
+     * GC20190102
+     * 命令发送处理
+     */
+
     public void sendCommand(byte[] request) {
         if (outputStream != null) {
             try {
                 outputStream.write(request);
                 Message message = Message.obtain();
-                message.what = MainActivity.SEND_SUCCESS;
+                //message.what = MainActivity.SEND_SUCCESS;
                 handler.sendMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();
                 Message message = Message.obtain();
-                message.what = MainActivity.SEND_ERROR;
+                //message.what = MainActivity.SEND_ERROR;
                 handler.sendMessage(message);
             }
         }

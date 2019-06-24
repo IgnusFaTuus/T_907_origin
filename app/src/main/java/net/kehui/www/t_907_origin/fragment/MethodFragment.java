@@ -14,7 +14,9 @@ import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.view.MainActivity;
 
 /**
- * Created by IF on 2018/3/26.
+ *
+ * @author IF
+ * @date 2018/3/26
  */
 
 public class MethodFragment extends Fragment implements OnClickListener {
@@ -24,6 +26,7 @@ public class MethodFragment extends Fragment implements OnClickListener {
     private Button       btn_decay;
     private LinearLayout wave_select;
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View methodLayout = inflater.inflate(R.layout.mtd_layout, container, false);

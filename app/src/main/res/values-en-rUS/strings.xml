@@ -50,4 +50,6 @@
     <string name="tv_balance">BAL:</string>
     <string name="receive_data">RECEIVING DATA…</string>
     <string name="connecting_wifi">Wait For WiFi Connect…</string>
+    <string name="btn_delay_plus">DELAY+</string>
+    <string name="btn_delay_minus">DELAY-</string>
 </resources>

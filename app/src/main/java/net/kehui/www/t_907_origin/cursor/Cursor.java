@@ -13,7 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 
 /**
- * Created by IF on 2018/5/30.
+ *
+ * @author IF
+ * @date 2018/5/30
  */
 
 public class Cursor extends View {
@@ -40,7 +42,9 @@ public class Cursor extends View {
         init();
     }
 
-    //初始化
+    /**
+     * 初始化
+     */
     private void init() {
         //背景颜色
         mTextPaint = new Paint();
@@ -57,7 +61,11 @@ public class Cursor extends View {
         mCursorPaint.setStrokeWidth(4);
     }
 
-    //测量view 高度宽度
+    /**
+     *
+     * 测量view 高度宽度
+     */
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(viewHeight(widthMeasureSpec),
                 viewWidth(heightMeasureSpec));
@@ -65,11 +73,12 @@ public class Cursor extends View {
         viewWidth = MeasureSpec.getSize(widthMeasureSpec);
     }
 
-    /*
-    EXACTCLY：宽和高为具体值，或为match_parent（父布局的大小）属性时系统会用此模式
-    AT_MOST：  布局文件中的宽和高为wrap_content 属性时，控件的大小一般会随着子View大小大或内容的多少的变化而变化
-    UNSPECIFIED：view大小没有限制，想多大就多大
-    */
+    /**
+     *
+     *EXACTCLY：宽和高为具体值，或为match_parent（父布局的大小）属性时系统会用此模式
+     *AT_MOST：  布局文件中的宽和高为wrap_content 属性时，控件的大小一般会随着子View大小大或内容的多少的变化而变化
+     *UNSPECIFIED：view大小没有限制，想多大就多大
+     */
     private int viewHeight(int measureSpec) {
         int result = 0;
         int mode = MeasureSpec.getMode(measureSpec);
@@ -95,7 +104,7 @@ public class Cursor extends View {
         if (mode == MeasureSpec.EXACTLY) {
             result = size;
         } else {
-            result = 75;//根据自己的需要更改
+            result = 75;
             if (mode == MeasureSpec.AT_MOST) {
                 result = Math.min(result, size);
             }
@@ -104,7 +113,10 @@ public class Cursor extends View {
 
     }
 
-    //画线画圆
+    /**
+     * 画线画圆
+     */
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.save();
@@ -117,7 +129,11 @@ public class Cursor extends View {
         canvas.drawText(bd.floatValue() + "m", viewWidth -100, 100, mTextPaint);
     }
 
-    //触摸事件
+    /**
+     *
+     * 触摸事件
+     */
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -131,6 +147,8 @@ public class Cursor extends View {
                 progress = x;
                 invalidate();
                 break;
+                default:
+                    break;
         }
         return true;
     }

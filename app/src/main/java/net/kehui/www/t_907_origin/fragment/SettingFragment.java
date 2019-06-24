@@ -17,7 +17,9 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 /**
- * Created by IF on 2018/3/26.
+ *
+ * @author IF
+ * @date 2018/3/26
  */
 
 public class SettingFragment extends Fragment {
@@ -27,6 +29,7 @@ public class SettingFragment extends Fragment {
     Button       btnLang;
     Unbinder unbinder;
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View settingLayout = inflater.inflate(R.layout.setting_layout, container, false);
@@ -47,6 +50,8 @@ public class SettingFragment extends Fragment {
                 break;
             case R.id.btn_lang:
                 break;
+                default:
+                    break;
         }
     }
 }
