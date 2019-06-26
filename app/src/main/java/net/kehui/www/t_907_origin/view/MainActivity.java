@@ -121,9 +121,6 @@ public class MainActivity extends BaseActivity {
     private FileFragment fileFragment;
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
-    /**
-     * 下发command
-     */
     private int command;
     private int data;
     private TDialog tDialog;
@@ -157,14 +154,14 @@ public class MainActivity extends BaseActivity {
                     command = 0x02;
                     data = 0x11;
                     sendCommand();
-                    if (msg.what == SEND_SUCCESS) {
+                    /*if (msg.what == SEND_SUCCESS) {
                         command = 0x03;
                         data = 0x11;
                         sendCommand();
                         if (msg.what == SEND_SUCCESS) {
                             clickTest();
                         }
-                    }
+                    }*/
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -198,17 +195,17 @@ public class MainActivity extends BaseActivity {
                     doWIFIArray(WIFIStream, streamLen);
                     break;
                     default:break;
-                /*case RESPOND_TIME:
+                case RESPOND_TIME:
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             btnTest.setClickable(true);
                         }
                     }, 1200);
-                    break;*/
-                /*case CLICK_TEST:
+                    break;
+                case CLICK_TEST:
                     clickTest();
-                    break;*/
+                    break;
             }
             return false;
         }
@@ -578,7 +575,10 @@ public class MainActivity extends BaseActivity {
         btnSetting.setEnabled(false);
     }
 
-    //测试按钮
+    /**
+     * 测试按钮
+     *
+     */
     private void clickTest() {
         Log.e("isDraw", "开始");
         if (method == 0x11) {
@@ -722,6 +722,7 @@ public class MainActivity extends BaseActivity {
     /**
      * GC20190103
      * 处理接收到的WIFI数据
+     *
      */
 
     private void doWIFIArray(int[] WIFIArray, int length) {
@@ -961,7 +962,8 @@ public class MainActivity extends BaseActivity {
                     max = readIcmDecay[0];
                 }
                 rangeMethod = 0;
-                waveArray = new int[max];  //GC20181227
+                //GC20181227
+                waveArray = new int[max];
                 simArray0 = new int[max];
                 simArray1 = new int[max];
                 simArray2 = new int[max];
@@ -1213,18 +1215,22 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    //GT 测试绘制效果
+    /**
+     * GT 测试绘制效果
+     * GC20181227
+     *
+     */
     public void testWaveData() {
         for (int i = 0; i < max; i++) {
             waveArray[i] = 12;
         }
         myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);  //GC20181227
+                false, 0, false, max);
         myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
-        Log.e("isDraw", "结束");  //GT
+        Log.e("isDraw", "结束");
         positionReal = 0;
         //positionReal = Integer.valueOf(split[6], 16);
         mainWave.setScrubLineReal(positionReal);

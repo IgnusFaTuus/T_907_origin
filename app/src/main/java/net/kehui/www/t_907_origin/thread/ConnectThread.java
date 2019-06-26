@@ -13,7 +13,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Created by IF on 2018/12/26
+ * @author IF
+ * @date 2018/12/26
+ *
  */
 public class ConnectThread extends Thread {
 

@@ -54,7 +54,7 @@ public class BaseActivity extends AppCompatActivity {
     public DataThread dataThread;
     public BufferedReader br;
 
-    public static final String WIFI_HOTSPOT_SSID = "T-9071";
+    public static final String WIFI_HOTSPOT_SSID = "T-907";
     //设置硬件端口 9000
     public static final int PORT = 9000;
 
