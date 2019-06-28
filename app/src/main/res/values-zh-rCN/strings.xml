@@ -50,7 +50,8 @@
     <string name="tv_balance">平衡:</string>
     <string name="receive_data">正在接收数据…</string>
     <string name="connecting_wifi">等待WiFi连接…</string>
+    <string name="connecting_hw">等待硬件连接…</string>
     <string name="btn_delay_plus">增益+</string>
     <string name="btn_delay_minus">增益-</string>
-
+    <string name="distance">%1$fm</string>
 </resources>

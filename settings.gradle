@@ -1,1 +1,1 @@
-include ':app', ':threadtest'
+include ':app'

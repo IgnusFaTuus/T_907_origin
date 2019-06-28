@@ -20,7 +20,6 @@ import butterknife.Unbinder;
 import static net.kehui.www.t_907_origin.base.BaseActivity.isFastClick;
 
 /**
- *
  * @author IF
  * @date 2018/3/26
  */
@@ -43,7 +42,7 @@ public class AdjustFragment extends Fragment {
     LinearLayout adjSidebar;
 
     private int     gain;
-    private float     velocity;
+    private float   velocity;
     private int     balance;
     private Handler handler;
 
@@ -65,9 +64,9 @@ public class AdjustFragment extends Fragment {
             R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
     public void onViewClicked(View view) {
 
-        if (isFastClick()) {
+        /*if (isFastClick()) {
             return;
-        }
+        }*/
         switch (view.getId()) {
             case R.id.btn_gain_plus:
                 gain = ((MainActivity) getActivity()).getGainState();
@@ -119,6 +118,8 @@ public class AdjustFragment extends Fragment {
                     velocity--;
                     ((MainActivity) getActivity()).setVelocityState(velocity);
                 }
+                break;
+            default:
                 break;
         }
     }

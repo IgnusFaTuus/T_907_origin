@@ -154,7 +154,7 @@ public class WifiUtil {
 
     //然后是一个实际应用方法，只验证过没有密码的情况：
 
-    public WifiConfiguration CreateWifiInfo(String SSID, String Password, int Type) {
+    public WifiConfiguration createWifiInfo(String SSID, String Password, int Type) {
         WifiConfiguration config = new WifiConfiguration();
         config.allowedAuthAlgorithms.clear();
         config.allowedGroupCiphers.clear();
@@ -168,14 +168,14 @@ public class WifiUtil {
             mWifiManager.removeNetwork(tempConfig.networkId);
         }
 
-        if (Type == 1) //WIFICIPHER_NOPASS
-        {
+        //WIFICIPHER_NOPASS
+        if (Type == 1) {
             config.wepKeys[0] = "";
             config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
             config.wepTxKeyIndex = 0;
         }
-        if (Type == 2) //WIFICIPHER_WEP
-        {
+        //WIFICIPHER_WEP
+        if (Type == 2) {
             config.hiddenSSID = true;
             config.wepKeys[0] = "\"" + Password + "\"";
             config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
@@ -186,15 +186,14 @@ public class WifiUtil {
             config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
             config.wepTxKeyIndex = 0;
         }
-        if (Type == 3) //WIFICIPHER_WPA
-        {
+        //WIFICIPHER_WPA
+        if (Type == 3) {
             config.preSharedKey = "\"" + Password + "\"";
             config.hiddenSSID = true;
             config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
             config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
             config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
             config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-            //config.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
             config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
             config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
             config.status = WifiConfiguration.Status.ENABLED;

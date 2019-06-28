@@ -48,8 +48,10 @@
     <string name="btn_test" translatable="true">TEST</string>
     <string name="wait_trigger">Wait For Trigger…</string>
     <string name="tv_balance">BAL:</string>
-    <string name="receive_data">RECEIVING DATA…</string>
-    <string name="connecting_wifi">Wait For WiFi Connect…</string>
+    <string name="receive_data">Receiving Data…</string>
+    <string name="connecting_wifi">Wait For WiFi Connection…</string>
+    <string name="connecting_hw">Wait For Hardware Connection…</string>
     <string name="btn_delay_plus">DELAY+</string>
     <string name="btn_delay_minus">DELAY-</string>
+    <string name="distance">%1$fm</string>
 </resources>
