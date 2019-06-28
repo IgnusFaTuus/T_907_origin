@@ -47,12 +47,12 @@ public class ConnectThread extends Thread {
 
             while (true) {
                 //读取数据
-                if (inputStream.available() <= 0) {
+                /*if (inputStream.available() <= 0) {
                     handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
                     continue;
                 } else {
                     Thread.sleep(200);
-                }
+                }*/
                 bytes = inputStream.read(buffer);
                 if (bytes > 0) {
                     byte[] data = new byte[bytes];
@@ -74,7 +74,7 @@ public class ConnectThread extends Thread {
 
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

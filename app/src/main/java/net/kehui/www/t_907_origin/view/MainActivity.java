@@ -6,9 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.timmy.tdialog.TDialog;
 import com.timmy.tdialog.base.BindViewHolder;
 import com.timmy.tdialog.listener.OnViewClickListener;
@@ -46,60 +47,64 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- *
  * @author IF
  * @date 2018/3/26
  */
 
 public class MainActivity extends BaseActivity {
     @BindView(R.id.content)
-    FrameLayout content;
+    FrameLayout  content;
     @BindView(R.id.mainWave)
-    SparkView mainWave;
+    SparkView    mainWave;
     @BindView(R.id.textView)
-    TextView textView;
+    TextView     textView;
     @BindView(R.id.tv_distance)
-    TextView tvDistance;
+    TextView     tvDistance;
     @BindView(R.id.fullWave)
-    SparkView fullWave;
+    SparkView    fullWave;
     @BindView(R.id.btn_mtd)
-    Button btnMtd;
+    Button       btnMtd;
     @BindView(R.id.btn_range)
-    Button btnRange;
+    Button       btnRange;
     @BindView(R.id.btn_adj)
-    Button btnAdj;
+    Button       btnAdj;
     @BindView(R.id.btn_opt)
-    Button btnOpt;
+    Button       btnOpt;
     @BindView(R.id.btn_file)
-    Button btnFile;
+    Button       btnFile;
     @BindView(R.id.btn_setting)
-    Button btnSetting;
+    Button       btnSetting;
     @BindView(R.id.btn_test)
-    Button btnTest;
+    Button       btnTest;
     @BindView(R.id.btn_cursor)
-    Button btnCursor;
+    Button       btnCursor;
     @BindView(R.id.tv_method)
-    TextView tvMethod;
+    TextView     tvMethod;
     @BindView(R.id.tv_gain)
-    TextView tvGain;
+    TextView     tvGain;
     @BindView(R.id.tv_vel)
-    TextView tvVel;
+    TextView     tvVel;
     @BindView(R.id.tv_range)
-    TextView tvRange;
+    TextView     tvRange;
     @BindView(R.id.vl_method)
-    TextView vlMethod;
+    TextView     vlMethod;
     @BindView(R.id.vl_gain)
-    TextView vlGain;
+    TextView     vlGain;
     @BindView(R.id.vl_vel)
-    TextView vlVel;
+    TextView     vlVel;
     @BindView(R.id.vl_range)
-    TextView vlRange;
+    TextView     vlRange;
     @BindView(R.id.value_list)
     LinearLayout valueList;
     @BindView(R.id.stateList)
@@ -107,61 +112,48 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.wave_display)
     LinearLayout waveDisplay;
     @BindView(R.id.tv_balance)
-    TextView tvBalance;
+    TextView     tvBalance;
     @BindView(R.id.vl_balance)
-    TextView vlBalance;
+    TextView     vlBalance;
     /**
      * 用于展示Fragment
      */
-    private MethodFragment methodFragment;
-    private RangeFragment rangeFragment;
-    private AdjustFragment adjustFragment;
+    private MethodFragment  methodFragment;
+    private RangeFragment   rangeFragment;
+    private AdjustFragment  adjustFragment;
     private AdjustFragment2 adjustFragment2;
-    private OptionFragment optionFragment;
-    private FileFragment fileFragment;
+    private OptionFragment  optionFragment;
+    private FileFragment    fileFragment;
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
-    private int command;
-    private int data;
-    private TDialog tDialog;
+    private int             command;
+    private int             data;
+    private TDialog         tDialog;
 
 
     /**
      * 全局的handler对象用来执行UI更新
      */
-    public static final int DEVICE_CONNECTING = 1;  //设备连接中
-    public static final int DEVICE_CONNECTED = 2;  //设备连接成功
+    public static final int DEVICE_CONNECTING   = 1;  //设备连接中
+    public static final int DEVICE_CONNECTED    = 2;  //设备连接成功
     public static final int DEVICE_DISCONNECTED = 11; //设备连接失败
-    public static final int SEND_SUCCESS = 3;  //发送command成功
-    public static final int SEND_ERROR = 4;  //发送command失败
-    public static final int GET_STREAM = 5;   //接收WIFI数据流
-    public static final int GET_COMMAND = 6;   //T-907接收command成功
-    public static final int GET_DATA = 7;   //T-907接收data成功
-    public static final int DATA_COMPLETED = 8;   //接受到全部数据
-    public static final int RESPOND_TIME = 9;   //GC20190110 命令响应结束
-    public static final int CLICK_TEST = 10;  //GC20190110 点击测试按钮事件
+    public static final int SEND_SUCCESS        = 3;  //发送command成功
+    public static final int SEND_ERROR          = 4;  //发送command失败
+    public static final int GET_STREAM          = 5;   //接收WIFI数据流
+    public static final int GET_COMMAND         = 6;   //T-907接收command成功
+    public static final int GET_DATA            = 7;   //T-907接收data成功
+    public static final int DATA_COMPLETED      = 8;   //接受到全部数据
+    public static final int RESPOND_TIME        = 9;   //GC20190110 命令响应结束
+    public static final int CLICK_TEST          = 10;  //GC20190110 点击测试按钮事件
 
     public Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
-               /* case DEVICE_CONNECTING:
-                    Toast.makeText(MainActivity.this, "正在连接T-907......", Toast.LENGTH_LONG).show();
-                    connectThread = new ConnectThread(listenerThread.getSocket(), handler);
-                    connectThread.start();
-                    break;*/
                 case DEVICE_CONNECTED:
                     command = 0x02;
                     data = 0x11;
                     sendCommand();
-                    /*if (msg.what == SEND_SUCCESS) {
-                        command = 0x03;
-                        data = 0x11;
-                        sendCommand();
-                        if (msg.what == SEND_SUCCESS) {
-                            clickTest();
-                        }
-                    }*/
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -194,7 +186,8 @@ public class MainActivity extends BaseActivity {
                     Log.e("STM", "max: " + max);
                     doWIFIArray(WIFIStream, streamLen);
                     break;
-                    default:break;
+                default:
+                    break;
                 case RESPOND_TIME:
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -220,17 +213,17 @@ public class MainActivity extends BaseActivity {
 
         initFrame();
         initSparkView();
+        initBroadcastReceiver();
         setChartListener();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        initBroadcastReceiver();
     }
 
     /**
-     *初始化界面框架
+     * 初始化界面框架
      */
     public void initFrame() {
         fragmentManager = getFragmentManager();
@@ -327,8 +320,8 @@ public class MainActivity extends BaseActivity {
                     transaction.show(adjustFragment2);
                 }
                 break;
-                default:
-                    break;
+            default:
+                break;
         }
         transaction.commit();
     }
@@ -362,6 +355,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 初始化sparkView
+     * GC20181227
      */
     public void initSparkView() {
         for (int i = 0; i < max; i++) {
@@ -371,11 +365,12 @@ public class MainActivity extends BaseActivity {
         myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
                 false, 0, false, max);
         myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);  //GC20181227
+                false, 0, false, max);
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
-        Log.e("isDraw", "结束");  //GT
-        btnCursor.setTextColor(getResources().getColor(R.color.T_purple));   //GT 初始化光标按钮颜色
+        Log.e("isDraw", "结束");
+        //GT 初始化光标按钮颜色
+        btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
 
     }
 
@@ -405,61 +400,93 @@ public class MainActivity extends BaseActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-                Log.w("BBB", "WifiManager.NETWORK_STATE_CHANGED_ACTION");
-                NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                if (info.getState().equals(NetworkInfo.State.DISCONNECTED)) {
+            String action = intent.getAction();
+            assert action != null;
+            if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                ConnectivityManager connectivityManager =
+                        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                assert connectivityManager != null;
+                NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+                SharedPreferences sp = getSharedPreferences("config", Context.MODE_PRIVATE);
+                SharedPreferences.Editor edit = sp.edit();
+                Intent netIntent = new Intent();
+                netIntent.setAction("android.intent.action.netState");
+
+                //当前开关状态
+                boolean netAvailable;
+                if (info != null) {
+                    netAvailable = info.isAvailable();
+
+                    ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                            .setNameFormat("connect-pool-%d").build();
+                    ExecutorService singleThreadPool = new ThreadPoolExecutor(3, 3,
+                            0L, TimeUnit.MILLISECONDS,
+                            new LinkedBlockingQueue<Runnable>(1024), threadFactory, new ThreadPoolExecutor.AbortPolicy());
+
+                    singleThreadPool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                //Thread.sleep(1000);
+                                ArrayList<String> connectedIP = getConnectedIP();
+                                for (String ip : connectedIP) {
+                                    if (ip.contains(".")) {
+                                        Log.w("AAA", "IP:" + ip);
+                                        Socket socket = new Socket(ip, PORT);
+                                        connectThread = new ConnectThread(socket, handler);
+                                        connectThread.start();
+                                    }
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(MainActivity.this, "通信失败，请检查网络后重试",
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    if (tDialog != null) {
+                        tDialog.dismiss();
+                    }
+                    Log.e("DIA", "WIFI连接：" +  "隐藏");
+                    singleThreadPool.shutdown();
+
+                } else {
+                    netAvailable = false;
+
+                    handler.sendEmptyMessage(DEVICE_DISCONNECTED);
+
+                    if (tDialog != null) {
+                        tDialog.dismiss();
+                    }
                     tDialog = new TDialog.Builder(getSupportFragmentManager())
                             .setLayoutRes(R.layout.connecting_wifi)
                             .setScreenWidthAspect(MainActivity.this, 0.25f)
                             .setCancelableOutside(false)
                             .create()
                             .show();
-
-                } else if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
-                    WifiManager wifiManager =
-                            (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                    final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                    Log.w("AAA", "wifiInfo.getSSID():" + wifiInfo.getSSID() + "  " +
-                            "WIFI_HOTSPOT_SSID:" + WIFI_HOTSPOT_SSID);
-                    if (wifiInfo.getSSID().equals("\"" + WIFI_HOTSPOT_SSID + "\"")) {
-                        if (tDialog != null) {
-                            tDialog.dismiss();
-                        }
-                        //如果当前连接到的T-907硬件,则开启连接线程
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    Thread.sleep(1000);
-                                    ArrayList<String> connectedIP = getConnectedIP();
-                                    for (String ip : connectedIP) {
-                                        if (ip.contains(".")) {
-                                            Log.w("AAA", "IP:" + ip);
-                                            Socket socket = new Socket(ip, PORT);
-                                            connectThread = new ConnectThread(socket, handler);
-                                            connectThread.start();
-                                        }
-                                    }
-                                } catch (IOException | InterruptedException e) {
-                                    e.printStackTrace();
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(MainActivity.this, "通信失败，请检查网络后重试",
-                                                    Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                }
-                            }
-                        }).start();
-                    } else {
-                        handler.sendEmptyMessage(DEVICE_DISCONNECTED);
-
-                    }
+                    Log.e("DIA", "WIFI连接：" +  "显示");
                 }
 
+                if (isFirst) {
+                    netIntent.putExtra("netAble", netAvailable);
+                    sendBroadcast(netIntent);
+                    edit.putBoolean("netAble", netAvailable);
+                    netBoolean = netAvailable;
+                    isFirst = false;
+                } else {
+                    if (netBoolean != netAvailable) {
+                        netIntent.putExtra("netAble", netAvailable);
+                        edit.putBoolean("netAble", netAvailable);
+                        sendBroadcast(netIntent);
+                        netBoolean = netAvailable;
+                    }
+                }
+                edit.apply();
             }
         }
     };
@@ -577,7 +604,6 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 测试按钮
-     *
      */
     private void clickTest() {
         Log.e("isDraw", "开始");
@@ -642,37 +668,35 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
     /**
      * 发送命令
-     *数据头   数据长度  指令  传输数据  校验和
-     *eb90aa55     03      01      11       15
-     *eb90aa55 03 01 11 15	    测试0x11
-     *eb90aa55 03 01 22 26	    取消测试0x22
-     *eb90aa55 03 02 11 16		TDR低压脉冲方式
-     *eb90aa55 03 02 22 27		ICM脉冲电流方式
-     *eb90aa55 03 02 33 38		SIM二次脉冲方式
-     *eb90aa55 03 03 11 17		范围500m
-     *eb90aa55 03 03 22 28
-     *eb90aa55 03 03 33 39
-     *eb90aa55 03 03 44 4a
-     *eb90aa55 03 03 55 5b
-     *eb90aa55 03 03 66 6c
-     *eb90aa55 03 03 77 7d
-     *eb90aa55 03 03 88 8e		范围64km
-     *eb90aa55 03 04 11 18		增益+
-     *eb90aa55 03 04 22 29		增益-
-     *eb90aa55 03 05 11 19		延时+
-     *eb90aa55 03 05 22 2a		延时-
-     *eb90aa55 03 07 11 1b  	平衡+
-     *eb90aa55 03 07 22 2c		平衡-
-     *eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
-     *eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
-     *eb90aa55 03 0a 11 1e		//G后续添加 关机重连
+     * 数据头   数据长度  指令  传输数据  校验和
+     * eb90aa55     03      01      11       15
+     * eb90aa55 03 01 11 15	    测试0x11
+     * eb90aa55 03 01 22 26	    取消测试0x22
+     * eb90aa55 03 02 11 16		TDR低压脉冲方式
+     * eb90aa55 03 02 22 27		ICM脉冲电流方式
+     * eb90aa55 03 02 33 38		SIM二次脉冲方式
+     * eb90aa55 03 03 11 17		范围500m
+     * eb90aa55 03 03 22 28
+     * eb90aa55 03 03 33 39
+     * eb90aa55 03 03 44 4a
+     * eb90aa55 03 03 55 5b
+     * eb90aa55 03 03 66 6c
+     * eb90aa55 03 03 77 7d
+     * eb90aa55 03 03 88 8e		范围64km
+     * eb90aa55 03 04 11 18		增益+
+     * eb90aa55 03 04 22 29		增益-
+     * eb90aa55 03 05 11 19		延时+
+     * eb90aa55 03 05 22 2a		延时-
+     * eb90aa55 03 07 11 1b  	平衡+
+     * eb90aa55 03 07 22 2c		平衡-
+     * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
+     * eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
+     * eb90aa55 03 0a 11 1e		//G后续添加 关机重连
      */
     public void sendCommand() {
-        //commandThread = new CommandThread(listenerThread.getSocket(), handler);
-        //commandThread.start();
+
         byte[] request = new byte[8];
         request[0] = (byte) 0xeb;
         request[1] = (byte) 0x90;
@@ -684,45 +708,12 @@ public class MainActivity extends BaseActivity {
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
         connectThread.sendCommand(request);
-        Log.e("AAA", "指令：" + command + "数据：" + data);
-    }
-
-    /**
-     *接受命令 待定
-     */
-    public void receiveCommand(int[] tempArray, int length) {
-        int[] tempCommand = new int[8];
-        if (length == 8) {
-            if (tempArray[0] == 0xeb) {
-                boolean isCrc = doTempCrc2(tempArray);
-                if (isCrc) {
-                    if (tempArray[5] == 0X08) {
-                        command = 0x09;
-                        data = 0x11;
-                        sendCommand();
-                        if (tDialog != null) {
-                            tDialog.dismiss();
-                        }
-                        tDialog = new TDialog.Builder(getSupportFragmentManager())
-                                .setLayoutRes(R.layout.receiving_data)
-                                .setScreenWidthAspect(this, 0.25f)
-                                .setCancelableOutside(false)
-                                .create()
-                                .show();
-                    }
-
-                } else {
-                    sendCommand();
-                }
-            }
-
-        }
+        Log.e("AAA", "发送指令：" + command + "数据：" + data);
     }
 
     /**
      * GC20190103
      * 处理接收到的WIFI数据
-     *
      */
 
     private void doWIFIArray(int[] WIFIArray, int length) {
@@ -752,6 +743,7 @@ public class MainActivity extends BaseActivity {
                                 .setCancelableOutside(false)
                                 .create()
                                 .show();
+                        Log.e("DIA", "接受数据：" +  "显示");
                     }
                 }
             }
@@ -865,6 +857,7 @@ public class MainActivity extends BaseActivity {
         if (tDialog != null) {
             tDialog.dismiss();
         }
+        Log.e("DIA", "接受数据：" +  "隐藏");
         //画光标
         positionReal = 0;
         mainWave.setScrubLineReal(positionReal);
@@ -1218,7 +1211,6 @@ public class MainActivity extends BaseActivity {
     /**
      * GT 测试绘制效果
      * GC20181227
-     *
      */
     public void testWaveData() {
         for (int i = 0; i < max; i++) {
@@ -1236,7 +1228,7 @@ public class MainActivity extends BaseActivity {
         mainWave.setScrubLineReal(positionReal);
         positionVirtual = max / 2;
         mainWave.setScrubLineVirtual(positionVirtual);
-        tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+        tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
         btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
     }
 
@@ -1276,7 +1268,7 @@ public class MainActivity extends BaseActivity {
             mainWave.setScrubLineReal(positionReal);
             positionVirtual = max / 2;
             mainWave.setScrubLineVirtual(positionVirtual);
-            tvDistance.setText(Math.abs(positionVirtual - positionReal) + "m");
+            tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
             btnCursor.setTextColor(getResources().getColor(R.color.T_purple)); //初始化光标按钮颜色
 
         } catch (IOException e) {

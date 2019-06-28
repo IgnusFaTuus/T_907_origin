@@ -5,15 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
-import net.kehui.www.t_907_origin.thread.CommandThread;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
-import net.kehui.www.t_907_origin.thread.DataThread;
-import net.kehui.www.t_907_origin.util.WifiUtil;
 
 import java.io.BufferedReader;
 
 /**
- *
  * @author IF
  * @date 2019/3/26
  */
@@ -25,49 +21,51 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * 要画的波形数组个数
      */
-    public int max;
+    public int            max;
     /**
      * 要画的波形数组
      */
-    public int[] waveArray;
-    public int[] simArray0;
-    public int[] simArray1;
-    public int[] simArray2;
-    public int[] simArray3;
-    public int[] simArray4;
-    public int[] simArrayCmp;
+    public int[]          waveArray;
+    public int[]          simArray0;
+    public int[]          simArray1;
+    public int[]          simArray2;
+    public int[]          simArray3;
+    public int[]          simArray4;
+    public int[]          simArrayCmp;
     //public int[] readTdrSim = { 540, 1052, 2076, 4124, 8220, 16412, 32796, 65556 };
-    public int[] readTdrSim =
+    public int[]          readTdrSim   =
             {530, 1042, 2066, 4114, 8210, 16402, 32786, 65546};         //GC20190104去掉末尾错误的数据
     //public int[] readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };
     // 不同范围点数选择
-    public int[] readIcmDecay =
+    public int[]          readIcmDecay =
             {2058, 4106, 8202, 16394, 32778, 65546, 32778, 65546};    //GC20190126去掉末尾错误的数据
-    public int positionReal;
-    public int positionVirtual; //光标位置
-    public boolean clickCursor; //光标按钮点击状态
+    public int            positionReal;
+    public int            positionVirtual; //光标位置
+    public boolean        clickCursor; //光标按钮点击状态
+
+    public boolean netBoolean = false;
+    public boolean isFirst    = true;
 
     /*WIFI数据获取*/
     //连接线程
-    public ConnectThread connectThread;
-    public CommandThread commandThread;
-    public DataThread dataThread;
+    public ConnectThread  connectThread;
     public BufferedReader br;
 
     public static final String WIFI_HOTSPOT_SSID = "T-907";
     //设置硬件端口 9000
-    public static final int PORT = 9000;
+    public static final int    PORT              = 9000;
 
-    private static final int MIN_DELAY_TIME = 400;  // 两次点击间隔不能少于1000ms
-    private static long lastClickTime;
+
+    private static final int  MIN_DELAY_TIME = 400;  // 两次点击间隔不能少于1000ms
+    private static       long lastClickTime;
 
     /**
      * WIFI数据处理
      */
-    public int streamLen;                       //接收到的WIFI数组长度
-    public int[] WIFIStream;                    //接收到的WIFI数组
-    public int leftLen;                         //剩余数据的数组长度
-    public int[] leftArray;                     //剩余数据的数组
+    public int     streamLen;                       //接收到的WIFI数组长度
+    public int[]   WIFIStream;                    //接收到的WIFI数组
+    public int     leftLen;                         //剩余数据的数组长度
+    public int[]   leftArray;                     //剩余数据的数组
     public boolean hasLeft;                     //处理数据后是否有剩余数据的标志
     public boolean hasSentCommand;              //发送command的状态
     public boolean isDraw;                       //是否画波形的标志
@@ -75,27 +73,27 @@ public class BaseActivity extends AppCompatActivity {
 
     /**
      * fragment状态值传递给mainActivity
+     * GC20190122
      */
-    public int method;
-    public int range;
-    public int rangeMethod;     //GC20190122
-    public int gain;
-    public int balance;
-    public int velocity;
-    public int delay;           //下发命令的数值
-    public int gainState;
-    public int unitTime;
-    public int balanceState;
-    public float velocityState;   //信息栏数值变化
+    public int   method;
+    public int   range;
+    public int   rangeMethod;
+    public int   gain;
+    public int   balance;
+    public int   velocity;
+    public int   delay;
+    public int   gainState;
+    public int   unitTime;
+    public int   balanceState;
+    public float velocityState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        WifiUtil wifiUtil = new WifiUtil(this);
-        wifiUtil.openWifi();
-        wifiUtil.addNetwork(wifiUtil.CreateWifiInfo("T-9071", "123456789", 3));
+
 
         initData();
 
