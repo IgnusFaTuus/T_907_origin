@@ -15,14 +15,14 @@ import java.net.Socket;
 /**
  * @author IF
  * @date 2018/12/26
- *
  */
 public class ConnectThread extends Thread {
 
-    private final Socket socket;
-    private Handler handler;
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    private final Socket       socket;
+    private       Handler      handler;
+    private       InputStream  inputStream;
+    private       OutputStream outputStream;
+    public        boolean      isCommand = true;
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
@@ -42,39 +42,63 @@ public class ConnectThread extends Thread {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
-            byte[] buffer = new byte[402400];
+            byte[] buffer = new byte[65556 * 8];
             int bytes;
 
             while (true) {
-                //读取数据
-                /*if (inputStream.available() <= 0) {
-                    handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
-                    continue;
-                } else {
-                    Thread.sleep(200);
-                }*/
-                bytes = inputStream.read(buffer);
-                if (bytes > 0) {
-                    byte[] data = new byte[bytes];
-                    System.arraycopy(buffer, 0, data, 0, bytes);
-                    //GC20190103 WIFI数据流接收处理
-                    int[] WIFIStream = new int[bytes];
-                    //将传过来的字节数组转变为int数组
-                    for (int i = 0; i < bytes; i++) {
-                        WIFIStream[i] = data[i] & 0xff;
+                if (isCommand) {
+                    bytes = inputStream.read(buffer);
+                    if (bytes > 0) {
+                        byte[] data = new byte[bytes];
+                        System.arraycopy(buffer, 0, data, 0, bytes);
+                        //GC20190103 WIFI数据流接收处理
+                        int[] wifiStream = new int[bytes];
+                        //将传过来的字节数组转变为int数组
+                        for (int i = 0; i < bytes; i++) {
+                            wifiStream[i] = data[i] & 0xff;
+                        }
+                        if (wifiStream[5] == 0x09 || wifiStream[6] == 0x22) {
+                            isCommand = false;
+                        }
+                        Message message = Message.obtain();
+                        message.what = MainActivity.GET_COMMAND;
+                        Bundle bundle = new Bundle();
+                        bundle.putIntArray("CMD", wifiStream);
+                        message.setData(bundle);
+                        handler.sendMessage(message);
+                        Log.e("CMD", "isCommand1：" + isCommand);
+                        Log.e("CMD",
+                                "读取到命令:" + wifiStream[0] + "指令：" + wifiStream[5] + "数据：" + wifiStream[6]);
                     }
-                    Message message = Message.obtain();
-                    message.what = MainActivity.GET_STREAM;
-                    Bundle bundle = new Bundle();
-                    bundle.putIntArray("STM", WIFIStream);
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-                    Log.e("AAA",
-                            "读取到数据:" + WIFIStream[0] + "指令：" + WIFIStream[5] + "数据：" + WIFIStream[6]);
-
+                }else {
+                    if (inputStream.available() <= 0) {
+                        handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
+                        continue;
+                    } else {
+                        Thread.sleep(200);
+                    }
+                    bytes = inputStream.read(buffer);
+                    if (bytes > 0) {
+                        byte[] data = new byte[bytes];
+                        System.arraycopy(buffer, 0, data, 0, bytes);
+                        //GC20190103 WIFI数据流接收处理
+                        int[] wifiStream = new int[bytes];
+                        //将传过来的字节数组转变为int数组
+                        for (int i = 0; i < bytes; i++) {
+                            wifiStream[i] = data[i] & 0xff;
+                        }
+                        Message message = Message.obtain();
+                        message.what = MainActivity.GET_DATA;
+                        Bundle bundle = new Bundle();
+                        bundle.putIntArray("DATA", wifiStream);
+                        message.setData(bundle);
+                        handler.sendMessage(message);
+                        Log.e("DATA", "isCommand2：" + isCommand);
+                        Log.e("DATA", "读取到数据:" + wifiStream.length);
+                    }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

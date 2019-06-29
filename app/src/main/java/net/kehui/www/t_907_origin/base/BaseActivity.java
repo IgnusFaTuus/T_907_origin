@@ -63,7 +63,7 @@ public class BaseActivity extends AppCompatActivity {
      * WIFI数据处理
      */
     public int     streamLen;                       //接收到的WIFI数组长度
-    public int[]   WIFIStream;                    //接收到的WIFI数组
+    public int[]   wifiStream;                    //接收到的WIFI数组
     public int     leftLen;                         //剩余数据的数组长度
     public int[]   leftArray;                     //剩余数据的数组
     public boolean hasLeft;                     //处理数据后是否有剩余数据的标志
@@ -92,8 +92,6 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-
 
         initData();
 

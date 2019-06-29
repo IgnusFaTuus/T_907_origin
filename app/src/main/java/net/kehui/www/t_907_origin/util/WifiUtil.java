@@ -27,7 +27,7 @@ public class WifiUtil {
     // 构造器
     public WifiUtil(Context context) {
         // 取得WifiManager对象
-        mWifiManager = (WifiManager) context
+        mWifiManager = (WifiManager) context.getApplicationContext()
                 .getSystemService(Context.WIFI_SERVICE);
         // 取得WifiInfo对象
         mWifiInfo = mWifiManager.getConnectionInfo();

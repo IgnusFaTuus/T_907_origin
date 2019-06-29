@@ -167,24 +167,29 @@ public class MainActivity extends BaseActivity {
                         public void run() {
                             handler.sendEmptyMessage(CLICK_TEST);
                         }
-                    }, 300);
+                    }, 1500);
                     break;
                 case DEVICE_DISCONNECTED:
                     break;
-                case GET_STREAM:
+                case GET_COMMAND:
                     if (!hasReceivedData) {
                         Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
                         hasReceivedData = true;
                     }
+                    wifiStream = msg.getData().getIntArray("CMD");
+                    assert wifiStream != null;
+                    doWifiCommand(wifiStream);
+                    break;
+                case GET_DATA:
                     //GC20190103
                     //接收WIFI数据流
-                    WIFIStream = msg.getData().getIntArray("STM");
-                    assert WIFIStream != null;
-                    streamLen = WIFIStream.length;
-                    Log.e("STM", "streamLen: " + streamLen);
-                    Log.e("STM", "hasLeft: " + hasLeft);
-                    Log.e("STM", "max: " + max);
-                    doWIFIArray(WIFIStream, streamLen);
+                    wifiStream = msg.getData().getIntArray("DATA");
+                    assert wifiStream != null;
+                    streamLen = wifiStream.length;
+                    Log.e("DATA", "streamLen: " + streamLen);
+                    Log.e("DATA", "hasLeft: " + hasLeft);
+                    Log.e("DATA", "max: " + max);
+                    doWifiArray(wifiStream, streamLen);
                     break;
                 default:
                     break;
@@ -428,11 +433,12 @@ public class MainActivity extends BaseActivity {
                         public void run() {
                             try {
                                 //Thread.sleep(1000);
-                                ArrayList<String> connectedIP = getConnectedIP();
-                                for (String ip : connectedIP) {
+                                ArrayList<String> connectedIp = getConnectedIP();
+                                for (String ip : connectedIp) {
                                     if (ip.contains(".")) {
                                         Log.w("AAA", "IP:" + ip);
                                         Socket socket = new Socket(ip, PORT);
+                                        //socket.setReceiveBufferSize(60*1024);
                                         connectThread = new ConnectThread(socket, handler);
                                         connectThread.start();
                                     }
@@ -626,6 +632,7 @@ public class MainActivity extends BaseActivity {
                     .setCancelableOutside(false)
                     .create()
                     .show();  //GX
+            Log.e("DIA", "接受数据：" +  "显示1");
 
         } else if ((method == 0x22) || (method == 0x33) || (method == 0x44)) {
             //测试命令
@@ -707,6 +714,7 @@ public class MainActivity extends BaseActivity {
         request[6] = (byte) data;
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
+        connectThread.isCommand = true;
         connectThread.sendCommand(request);
         Log.e("AAA", "发送指令：" + command + "数据：" + data);
     }
@@ -715,105 +723,37 @@ public class MainActivity extends BaseActivity {
      * GC20190103
      * 处理接收到的WIFI数据
      */
+    private void doWifiCommand(int[] wifiArray) {
+        if (wifiArray[5] == 0x08 || wifiArray[6] == 0x11) {
+            //收到触发命令后接收数据
+            command = 0x09;
+            data = 0x11;
+            sendCommand();
 
-    private void doWIFIArray(int[] WIFIArray, int length) {
-        //command临时数组
-        int[] tempCommand = new int[8];
-        //GN收到设备返回命令
-        if (length == 8) {
-            if (WIFIArray[0] == 0xeb) {
-                boolean isCrc2 = doTempCrc2(WIFIArray);
-
-                //命令sum校验成功
-                if (isCrc2) {
-                    hasSentCommand = false;
-                    //                    handler.sendEmptyMessage(RESPOND_TIME); //GC20190110
-                    //GC20190122 接收到触发信号
-                    if (WIFIArray[5] == 0x08) {
-                        //接收数据
-                        command = 0x09;
-                        data = 0x11;
-                        sendCommand();
-                        if (tDialog != null) {
-                            tDialog.dismiss();
-                        }
-                        tDialog = new TDialog.Builder(getSupportFragmentManager())
-                                .setLayoutRes(R.layout.receiving_data)
-                                .setScreenWidthAspect(this, 0.25f)
-                                .setCancelableOutside(false)
-                                .create()
-                                .show();
-                        Log.e("DIA", "接受数据：" +  "显示");
-                    }
-                }
+            if (tDialog != null) {
+                tDialog.dismiss();
             }
+            tDialog = new TDialog.Builder(getSupportFragmentManager())
+                    .setLayoutRes(R.layout.receiving_data)
+                    .setScreenWidthAspect(this, 0.25f)
+                    .setCancelableOutside(false)
+                    .create()
+                    .show();
+            Log.e("DIA", "接受数据：" + "显示2");
         }
-        //GN收到设备返回的波形数据（脉冲电流会夹杂命令）
-        else if (WIFIArray[3] == 0x66 | WIFIArray[3] == 0x55) {
-            //数组长度不够wave,拼接处理
-            if (hasLeft) {
-                for (int i = leftLen, j = 0; j < length; i++, j++) {
-                    //与剩余数据进行拼接
-                    leftArray[i] = WIFIArray[j];
-                }
-                leftLen = leftLen + length;
-                if (leftLen == (max + 9 + 10)) {
-                    for (int i = 8, j = 0; i < leftLen - 1 - 10; i++, j++) {
-                        //取wave长度的数组
-                        waveArray[j] = leftArray[i];
-                    }
-                    hasLeft = false;
-                    leftLen = 0;
-                    drawWIFIData();
-                }
 
-            } else {
-                //GC20190126
-                System.arraycopy(WIFIArray, 0, tempCommand, 0, 8);  //取command长度的数组
-                boolean isCrc2 = doTempCrc2(tempCommand);
-                //sum校验成功，包含command
-                if (isCrc2) {
-                    if (length == (max + 9 + 10 + 8)) {
-                        // 去掉command   GC20190126
-                        for (int i = 16, j = 0; i < length - 1 - 10; i++, j++) {
-                            //取wave长度的数组
-                            waveArray[j] = WIFIArray[i];
-                        }
-                        drawWIFIData();
+    }
 
-                    } else {  //数组长度不够wave,准备拼接处理  GC20190126
-                        for (int i = leftLen, j = 8; j < length; i++, j++) {
-                            // 去掉command
-                            leftArray[i] = WIFIArray[j];
-                        }
-                        hasLeft = true;
-                        leftLen = leftLen + length - 8;
-                    }
-                } else {
-                    //GC20190104 波形数据去掉末尾10个点
-                    if (length == (max + 9 + 10)) {
-                        for (int i = 8, j = 0; i < length - 1 - 10; i++, j++) {
-                            waveArray[j] = WIFIArray[i];
-                        }
-                        drawWIFIData();
-
-                    } else {
-                        //数组长度不够wave,准备拼接处理
-                        for (int i = leftLen, j = 0; j < length; i++, j++) {
-                            leftArray[i] = WIFIArray[j];
-                        }
-                        hasLeft = true;
-                        leftLen = leftLen + length;
-                    }
-                }
-
-            }
-        } else if (WIFIArray[3] == 0x77) {
-            System.arraycopy(WIFIArray, 8, simArray0, 0, length / 5 - 8 - 11);
-            System.arraycopy(WIFIArray, length / 5 + 8, simArray1, 0, length / 5 - 8 - 11);
-            System.arraycopy(WIFIArray, length / 5 * 2 + 8, simArray2, 0, length / 5 - 19);
-            System.arraycopy(WIFIArray, length / 5 * 3 + 8, simArray3, 0, length / 5 - 19);
-            System.arraycopy(WIFIArray, length / 5 * 4 + 8, simArray4, 0, length / 5 - 19);
+    private void doWifiArray(int[] wifiArray, int length) {
+        if (wifiArray[3] == 0x66 | wifiArray[3] == 0x55) {
+            System.arraycopy(wifiArray, 8, waveArray, 0, length - 8 - 11);
+            drawWIFIData();
+        } else if (wifiArray[3] == 0x77) {
+            System.arraycopy(wifiArray, 8, simArray0, 0, length / 5 - 8 - 11);
+            System.arraycopy(wifiArray, length / 5 + 8, simArray1, 0, length / 5 - 8 - 11);
+            System.arraycopy(wifiArray, length / 5 * 2 + 8, simArray2, 0, length / 5 - 19);
+            System.arraycopy(wifiArray, length / 5 * 3 + 8, simArray3, 0, length / 5 - 19);
+            System.arraycopy(wifiArray, length / 5 * 4 + 8, simArray4, 0, length / 5 - 19);
             simArrayCmp = simArray2;
             drawWIFIDataSim();
         }

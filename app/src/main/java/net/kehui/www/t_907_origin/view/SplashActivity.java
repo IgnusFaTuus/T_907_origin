@@ -1,8 +1,10 @@
 package net.kehui.www.t_907_origin.view;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -35,6 +37,7 @@ public class SplashActivity extends AppCompatActivity {
     private TDialog     tDialog;
     private ProgressBar progressBar;
     private TextView    tvProgress;
+    private WifiManager WifiManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,7 @@ public class SplashActivity extends AppCompatActivity {
 
         WifiUtil wifiUtil = new WifiUtil(this);
         wifiUtil.openWifi();
-        wifiUtil.addNetwork(wifiUtil.createWifiInfo("T-907", "123456789", 3));
+        wifiUtil.addNetwork(wifiUtil.createWifiInfo("T-9071", "123456789", 3));
         //隐藏状态栏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
@@ -77,7 +80,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 try {
                     //使程序休眠5秒
-                    sleep(15000);
+                    sleep(5000);
                     Intent it = new Intent(getApplicationContext(), MainActivity.class);
                     //启动MainActivity
                     startActivity(it);
@@ -90,4 +93,5 @@ public class SplashActivity extends AppCompatActivity {
         singleThreadPool.shutdown();
 
     }
+
 }
