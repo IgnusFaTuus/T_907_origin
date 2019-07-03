@@ -16,7 +16,6 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 /**
- *
  * @author IF
  * @date 2018/3/26
  */
@@ -32,6 +31,10 @@ public class OptionFragment extends Fragment {
     Button btnMemory;
     @BindView(R.id.btn_compare)
     Button btnCompare;
+    @BindView(R.id.wavePrevious)
+    Button btnWavePrevious;
+    @BindView(R.id.waveNext)
+    Button btnWaveNext;
     Unbinder unbinder;
 
     @Override
@@ -43,12 +46,26 @@ public class OptionFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (((MainActivity) getActivity()).isDrawSim) {
+            btnWavePrevious.setVisibility(View.VISIBLE);
+            btnWaveNext.setVisibility(View.VISIBLE);
+        } else {
+            btnWavePrevious.setVisibility(View.INVISIBLE);
+            btnWaveNext.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
     }
 
-    @OnClick({R.id.btn_zoom_in, R.id.btn_zoom_out, R.id.btn_res, R.id.btn_memory, R.id.btn_compare})
+    @OnClick({R.id.btn_zoom_in, R.id.btn_zoom_out, R.id.btn_res, R.id.btn_memory, R.id.btn_compare, R.id.wavePrevious, R.id.waveNext})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_zoom_in:
@@ -58,11 +75,31 @@ public class OptionFragment extends Fragment {
             case R.id.btn_res:
                 break;
             case R.id.btn_memory:
+                ((MainActivity) getActivity()).clickMemory();
                 break;
             case R.id.btn_compare:
+                ((MainActivity) getActivity()).clickCompare();
+                break;
+            case R.id.wavePrevious:
+                int waveSelect = ((MainActivity) getActivity()).getGainState();
+                if (waveSelect < 32) {
+                    waveSelect++;
+                    ((MainActivity) getActivity()).setGainState(waveSelect);
+                }
+                ((MainActivity) getActivity()).setGain(0x11);
+                break;
+            case R.id.waveNext:
+                waveSelect = ((MainActivity) getActivity()).getGainState();
+                if (waveSelect > 0) {
+                    waveSelect--;
+                    ((MainActivity) getActivity()).setGainState(waveSelect);
+                }
+                ((MainActivity) getActivity()).setGain(0x22);
+                ((MainActivity) getActivity()).sendCommand();
                 break;
                 default:
                     break;
+
         }
     }
 }

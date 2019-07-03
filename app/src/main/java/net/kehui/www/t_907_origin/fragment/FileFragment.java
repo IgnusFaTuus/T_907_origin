@@ -56,15 +56,12 @@ public class FileFragment extends Fragment {
             case R.id.btn_save:
                 break;
             case R.id.btn_browse:
-                Log.e("isDraw", "开始");
                 ((MainActivity)getActivity()).getTxtWaveData();
                 break;
             case R.id.btn_display:
-                Log.e("isDraw", "开始");
                 ((MainActivity)getActivity()).testWaveData();
                 break;
             case R.id.btn_dele:
-                Log.e("isDraw", "开始");
                 ((MainActivity)getActivity()).initSparkView();
                 break;
                 default:

@@ -12,17 +12,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_DATA;
+import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_RIGHT;
+
 /**
  * @author IF
  * @date 2018/12/26
  */
 public class ConnectThread extends Thread {
 
-    private final Socket       socket;
-    private       Handler      handler;
-    private       InputStream  inputStream;
-    private       OutputStream outputStream;
-    public        boolean      isCommand = true;
+    private final Socket    socket;
+    private Handler handler;
+    private InputStream  inputStream;
+    private OutputStream outputStream;
+    public  boolean isCommand = true;
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
@@ -51,13 +54,13 @@ public class ConnectThread extends Thread {
                     if (bytes > 0) {
                         byte[] data = new byte[bytes];
                         System.arraycopy(buffer, 0, data, 0, bytes);
-                        //GC20190103 WIFI数据流接收处理
                         int[] wifiStream = new int[bytes];
                         //将传过来的字节数组转变为int数组
                         for (int i = 0; i < bytes; i++) {
                             wifiStream[i] = data[i] & 0xff;
                         }
-                        if (wifiStream[5] == 0x09 || wifiStream[6] == 0x22) {
+                        //收到返回的“收取数据”命令后，准备接受波形数据
+                        if ( (wifiStream[5] == COMMAND_RECEIVE_DATA) && (wifiStream[6] == COMMAND_RECEIVE_RIGHT) ) {
                             isCommand = false;
                         }
                         Message message = Message.obtain();
@@ -66,39 +69,60 @@ public class ConnectThread extends Thread {
                         bundle.putIntArray("CMD", wifiStream);
                         message.setData(bundle);
                         handler.sendMessage(message);
-                        Log.e("CMD", "isCommand1：" + isCommand);
-                        Log.e("CMD",
-                                "读取到命令:" + wifiStream[0] + "指令：" + wifiStream[5] + "数据：" + wifiStream[6]);
+                        Log.e("CMD", " 指令：" + wifiStream[5] + " 传输数据：" + wifiStream[6]);
                     }
                 }else {
                     if (inputStream.available() <= 0) {
-                        handler.sendEmptyMessage(MainActivity.DATA_COMPLETED);
+                        handler.sendEmptyMessage(MainActivity.WAVE_COMPLETED);
                         continue;
                     } else {
-                        Thread.sleep(200);
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                     bytes = inputStream.read(buffer);
                     if (bytes > 0) {
                         byte[] data = new byte[bytes];
                         System.arraycopy(buffer, 0, data, 0, bytes);
-                        //GC20190103 WIFI数据流接收处理
                         int[] wifiStream = new int[bytes];
                         //将传过来的字节数组转变为int数组
                         for (int i = 0; i < bytes; i++) {
                             wifiStream[i] = data[i] & 0xff;
                         }
                         Message message = Message.obtain();
-                        message.what = MainActivity.GET_DATA;
+                        message.what = MainActivity.GET_WAVE;
                         Bundle bundle = new Bundle();
                         bundle.putIntArray("DATA", wifiStream);
                         message.setData(bundle);
                         handler.sendMessage(message);
-                        Log.e("DATA", "isCommand2：" + isCommand);
-                        Log.e("DATA", "读取到数据:" + wifiStream.length);
+                        Log.e("DATA", " 读取到数据:" + wifiStream.length);
+                        isCommand = true;
                     }
                 }
+//                //读取数据
+//                bytes = inputStream.read(buffer);
+//                if (bytes > 0) {
+//                    byte[] data = new byte[bytes];
+//                    System.arraycopy(buffer, 0, data, 0, bytes);
+//                    //GC20190103 WIFI数据流接收处理
+//                    int[] WIFIStream = new int[bytes];
+//                    //将传过来的字节数组转变为int数组
+//                    for (int i = 0; i < bytes; i++) {
+//                        WIFIStream[i] = data[i] & 0xff;
+//                    }
+//                    Message message = Message.obtain();
+//                    message.what = MainActivity.GET_STREAM;
+//                    Bundle bundle = new Bundle();
+//                    bundle.putIntArray("STM", WIFIStream);
+//                    message.setData(bundle);
+//                    handler.sendMessage(message);
+//                    Log.e("APP接收数据", "数据头:" + WIFIStream[3] + "  指令：" + WIFIStream[5] + "  传输数据：" + WIFIStream[6]);
+//
+//                }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

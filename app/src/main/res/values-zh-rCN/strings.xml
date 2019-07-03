@@ -54,4 +54,7 @@
     <string name="btn_delay_plus">增益+</string>
     <string name="btn_delay_minus">增益-</string>
     <string name="distance">%1$fm</string>
+    <string name="You_have_no_memory_data_can_not_compare">你还没有记忆数据，无法比较</string>
+    <string name="btn_wave_next">波形-</string>
+    <string name="btn_wave_previous">波形+</string>
 </resources>

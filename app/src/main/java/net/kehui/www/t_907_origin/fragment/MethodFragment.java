@@ -78,8 +78,10 @@ public class MethodFragment extends Fragment implements OnClickListener {
     }
 
     private void clickTdr() {
+        //GC20190702 画SIM波形
+        ((MainActivity)getActivity()).isCom = false;
         btn_tdr.setEnabled(false);
-        ((MainActivity)getActivity()).setMethod(0x11); //GC20181225
+        ((MainActivity)getActivity()).setMethod(0x11);
         ((MainActivity)getActivity()).sendCommand();
         if(((MainActivity)getActivity()).getMethod() == 0x11){
             btn_icm.setEnabled(true);
@@ -92,6 +94,8 @@ public class MethodFragment extends Fragment implements OnClickListener {
     }
 
     private void clickIcm() {
+        //GC20190702 画SIM波形
+        ((MainActivity)getActivity()).isCom = false;
         btn_icm.setEnabled(false);
         ((MainActivity)getActivity()).setMethod(0x22);
         ((MainActivity)getActivity()).sendCommand();
@@ -106,6 +110,8 @@ public class MethodFragment extends Fragment implements OnClickListener {
     }
 
     private void clickSim() {
+        //GC20190702 画SIM波形
+        ((MainActivity)getActivity()).isCom = true;
         btn_sim.setEnabled(false);
         ((MainActivity)getActivity()).setMethod(0x33);
         ((MainActivity)getActivity()).sendCommand();
@@ -120,6 +126,8 @@ public class MethodFragment extends Fragment implements OnClickListener {
     }
 
     private void clickDecay() {
+        //GC20190702 画SIM波形
+        ((MainActivity)getActivity()).isCom = false;
         btn_decay.setEnabled(false);
         ((MainActivity)getActivity()).setMethod(0x44);
         ((MainActivity)getActivity()).sendCommand();

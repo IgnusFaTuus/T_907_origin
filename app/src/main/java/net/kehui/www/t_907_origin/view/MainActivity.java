@@ -27,7 +27,7 @@ import com.timmy.tdialog.base.BindViewHolder;
 import com.timmy.tdialog.listener.OnViewClickListener;
 
 import net.kehui.www.t_907_origin.R;
-import net.kehui.www.t_907_origin.adpter.MyChartAdapter;
+import net.kehui.www.t_907_origin.adpter.MyChartAdapterBase;
 import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment2;
@@ -63,6 +63,7 @@ import butterknife.OnClick;
  */
 
 public class MainActivity extends BaseActivity {
+
     @BindView(R.id.content)
     FrameLayout  content;
     @BindView(R.id.mainWave)
@@ -115,6 +116,7 @@ public class MainActivity extends BaseActivity {
     TextView     tvBalance;
     @BindView(R.id.vl_balance)
     TextView     vlBalance;
+
     /**
      * 用于展示Fragment
      */
@@ -126,89 +128,95 @@ public class MainActivity extends BaseActivity {
     private FileFragment    fileFragment;
     private SettingFragment settingFragment;
     private FragmentManager fragmentManager;
-    private int             command;
-    private int             data;
+
+    /**
+     * APP下发命令 指令内容command/传输数据data
+     */
+    private int command;
+    private int dataTransfer;
     private TDialog         tDialog;
 
 
     /**
      * 全局的handler对象用来执行UI更新
      */
-    public static final int DEVICE_CONNECTING   = 1;  //设备连接中
-    public static final int DEVICE_CONNECTED    = 2;  //设备连接成功
-    public static final int DEVICE_DISCONNECTED = 11; //设备连接失败
-    public static final int SEND_SUCCESS        = 3;  //发送command成功
-    public static final int SEND_ERROR          = 4;  //发送command失败
-    public static final int GET_STREAM          = 5;   //接收WIFI数据流
-    public static final int GET_COMMAND         = 6;   //T-907接收command成功
-    public static final int GET_DATA            = 7;   //T-907接收data成功
-    public static final int DATA_COMPLETED      = 8;   //接受到全部数据
-    public static final int RESPOND_TIME        = 9;   //GC20190110 命令响应结束
-    public static final int CLICK_TEST          = 10;  //GC20190110 点击测试按钮事件
+    public static final int DEVICE_CONNECTED    = 1;
+    public static final int DEVICE_DISCONNECTED = 2;
+    public static final int SEND_SUCCESS        = 3;
+    public static final int SEND_ERROR          = 4;
+    public static final int GET_STREAM          = 5;
+    public static final int GET_COMMAND         = 6;
+    public static final int GET_WAVE            = 7;
+    public static final int WAVE_COMPLETED      = 8;
+    public static final int WHAT_REFRESH        = 9;
 
     public Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case DEVICE_CONNECTED:
-                    command = 0x02;
-                    data = 0x11;
+                    command = COMMAND_METHOD;
+                    dataTransfer = TDR;
                     sendCommand();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            command = 0x03;
-                            data = 0x11;
+                            command = COMMAND_RANGE;
+                            dataTransfer = RANGE_500;
                             sendCommand();
                         }
-                    }, 1200);    //发送初始化命令：方式、范围
-                    handler.postDelayed(new Runnable() {    //GC20190110
+                    }, 20);
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            handler.sendEmptyMessage(CLICK_TEST);
+                            clickTest();
                         }
-                    }, 1500);
+                    }, 50);
                     break;
                 case DEVICE_DISCONNECTED:
                     break;
-                case GET_COMMAND:
-                    if (!hasReceivedData) {
+                case GET_STREAM:
+                    if (!isSuccessful) {
                         Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
-                        hasReceivedData = true;
+                        isSuccessful = true;
+                    }
+                    //GC20190103
+                    //接收WIFI数据流
+                    wifiStream = msg.getData().getIntArray("STM");
+                    assert wifiStream != null;
+                    streamLen = wifiStream.length;
+                    Log.e("STM", "streamLen: " + streamLen);
+                    Log.e("STM", "hasLeft: " + hasLeft);
+                    Log.e("STM", "dataMax: " + dataMax);
+                    doWifiArray(wifiStream, streamLen);
+                    break;
+                case GET_COMMAND:
+                    if (!isSuccessful) {
+                        Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
+                        isSuccessful = true;
                     }
                     wifiStream = msg.getData().getIntArray("CMD");
                     assert wifiStream != null;
                     doWifiCommand(wifiStream);
                     break;
-                case GET_DATA:
-                    //GC20190103
-                    //接收WIFI数据流
+                case GET_WAVE:
                     wifiStream = msg.getData().getIntArray("DATA");
                     assert wifiStream != null;
                     streamLen = wifiStream.length;
-                    Log.e("DATA", "streamLen: " + streamLen);
-                    Log.e("DATA", "hasLeft: " + hasLeft);
-                    Log.e("DATA", "max: " + max);
-                    doWifiArray(wifiStream, streamLen);
+                    Log.e("DATA", "max: " + dataMax);
+                    doWifiWave(wifiStream);
+                    break;
+                case WHAT_REFRESH:
+                    setWaveParameter();
+                    organizeWaveData();
+                    displayWave();
                     break;
                 default:
-                    break;
-                case RESPOND_TIME:
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            btnTest.setClickable(true);
-                        }
-                    }, 1200);
-                    break;
-                case CLICK_TEST:
-                    clickTest();
                     break;
             }
             return false;
         }
     });
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,7 +251,7 @@ public class MainActivity extends BaseActivity {
         vlMethod.setText(getResources().getString(R.string.btn_tdr));
         vlRange.setText(getResources().getString(R.string.btn_500m));
         vlGain.setText(String.valueOf(getGainState()));
-        vlVel.setText(String.valueOf(getVelocityState()) + "m/μs");
+        vlVel.setText(getVelocityState() + "m/μs");
         vlBalance.setText(String.valueOf(getBalanceState()));
     }
 
@@ -259,6 +267,9 @@ public class MainActivity extends BaseActivity {
         registerReceiver(receiver, intentFilter);
     }
 
+    /**
+     * @param index 侧边栏设置
+     */
     public void setTabSelection(int index) {
         // 开启一个Fragment事务
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -359,22 +370,21 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 初始化sparkView
-     * GC20181227
+     * 初始化sparkView //GC20181227
      */
     public void initSparkView() {
-        for (int i = 0; i < max; i++) {
+        for (int i = 0; i < 510; i++) {
             waveArray[i] = 128;
             //simArrayCmp[i] = 128;
         }
-        myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);
-        myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);
+        myChartAdapterMainWave = new MyChartAdapterBase(waveArray, null,
+                false, 0, false, dataMax);
+        myChartAdapterFullWave = new MyChartAdapterBase(waveArray, null,
+                false, 0, false, dataMax);
         mainWave.setAdapter(myChartAdapterMainWave);
         fullWave.setAdapter(myChartAdapterFullWave);
-        Log.e("isDraw", "结束");
-        //GT 初始化光标按钮颜色
+        Log.i("Draw", "初始化绘制结束");
+        //初始化光标按钮颜色
         btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
 
     }
@@ -393,7 +403,7 @@ public class MainActivity extends BaseActivity {
                     positionVirtual = (int) value;
                 }
                 tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
-                //Log.e("VALUE", "" + value); //GN 数值从0开始计数
+                Log.e("光标移动数值", "" + value); //GN 数值从0开始计数
             }
         });
     }
@@ -433,12 +443,11 @@ public class MainActivity extends BaseActivity {
                         public void run() {
                             try {
                                 //Thread.sleep(1000);
-                                ArrayList<String> connectedIp = getConnectedIP();
-                                for (String ip : connectedIp) {
+                                ArrayList<String> connectedIP = getConnectedIP();
+                                for (String ip : connectedIP) {
                                     if (ip.contains(".")) {
                                         Log.w("AAA", "IP:" + ip);
                                         Socket socket = new Socket(ip, PORT);
-                                        //socket.setReceiveBufferSize(60*1024);
                                         connectThread = new ConnectThread(socket, handler);
                                         connectThread.start();
                                     }
@@ -559,12 +568,11 @@ public class MainActivity extends BaseActivity {
         btnSetting.setEnabled(true);
     }
 
-
     /**
      * 脉冲电流、Decay方式下去掉平衡，增加延时
      */
     private void clickAdjust() {
-        if (method == 0x22 || method == 0x44) {
+        if (mode == ICM || mode == DECAY) {
             setTabSelection(6);
         } else {
             setTabSelection(2);
@@ -612,33 +620,27 @@ public class MainActivity extends BaseActivity {
      * 测试按钮
      */
     private void clickTest() {
-        Log.e("isDraw", "开始");
-        if (method == 0x11) {
-            isDraw = false;
-            command = 0x01;
-            data = 0x11;
-            sendCommand();  //测试
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    command = 0x09;
-                    data = 0x11;
-                    sendCommand(); //接收数据
-                }
-            }, 300);
+        if (mode == TDR) {
             tDialog = new TDialog.Builder(getSupportFragmentManager())
                     .setLayoutRes(R.layout.receiving_data)
                     .setScreenWidthAspect(this, 0.25f)
                     .setCancelableOutside(false)
                     .create()
-                    .show();  //GX
-            Log.e("DIA", "接受数据：" +  "显示1");
-
-        } else if ((method == 0x22) || (method == 0x33) || (method == 0x44)) {
-            //测试命令
-            command = 0x01;
-            data = 0x11;
+                    .show();
+            Log.e("DIA", " 正在接受数据显示" + " TDR");
+            command = COMMAND_TEST;
+            dataTransfer = TESTING;
             sendCommand();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    command = COMMAND_RECEIVE_DATA;
+                    dataTransfer = RECEIVING_DATA;
+                    sendCommand();
+                }
+            }, 20);
+
+        } else if ((mode == ICM) || (mode == SIM) || (mode == DECAY)) {
             tDialog = new TDialog.Builder(getSupportFragmentManager())
                     .setLayoutRes(R.layout.wait_trigger)
                     .setScreenWidthAspect(this, 0.3f)
@@ -649,14 +651,17 @@ public class MainActivity extends BaseActivity {
                         public void onViewClick(BindViewHolder viewHolder, View view,
                                                 TDialog tDialog) {
                             tDialog.dismiss();
-                            //取消测试命令
-                            command = 0x01;
-                            data = 0x22;
+                            command = COMMAND_TEST;
+                            dataTransfer = CANCEL_TEST;
                             sendCommand();
                         }
                     })
                     .create()
                     .show();
+            Log.e("DIA", " 等待触发显示");
+            command = COMMAND_TEST;
+            dataTransfer = TESTING;
+            sendCommand();
         }
     }
 
@@ -674,62 +679,33 @@ public class MainActivity extends BaseActivity {
         myChartAdapterMainWave.setCursorState(clickCursor);
     }
 
-
     /**
-     * 发送命令
-     * 数据头   数据长度  指令  传输数据  校验和
-     * eb90aa55     03      01      11       15
-     * eb90aa55 03 01 11 15	    测试0x11
-     * eb90aa55 03 01 22 26	    取消测试0x22
-     * eb90aa55 03 02 11 16		TDR低压脉冲方式
-     * eb90aa55 03 02 22 27		ICM脉冲电流方式
-     * eb90aa55 03 02 33 38		SIM二次脉冲方式
-     * eb90aa55 03 03 11 17		范围500m
-     * eb90aa55 03 03 22 28
-     * eb90aa55 03 03 33 39
-     * eb90aa55 03 03 44 4a
-     * eb90aa55 03 03 55 5b
-     * eb90aa55 03 03 66 6c
-     * eb90aa55 03 03 77 7d
-     * eb90aa55 03 03 88 8e		范围64km
-     * eb90aa55 03 04 11 18		增益+
-     * eb90aa55 03 04 22 29		增益-
-     * eb90aa55 03 05 11 19		延时+
-     * eb90aa55 03 05 22 2a		延时-
-     * eb90aa55 03 07 11 1b  	平衡+
-     * eb90aa55 03 07 22 2c		平衡-
-     * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
-     * eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
-     * eb90aa55 03 0a 11 1e		//G后续添加 关机重连
+     * 下发命令
      */
     public void sendCommand() {
-
         byte[] request = new byte[8];
         request[0] = (byte) 0xeb;
         request[1] = (byte) 0x90;
         request[2] = (byte) 0xaa;
         request[3] = (byte) 0x55;
-        request[4] = (byte) 0x03;
+        request[4] = (byte) COMMAND_DATA_LENGTH;
         request[5] = (byte) command;
-        request[6] = (byte) data;
+        request[6] = (byte) dataTransfer;
         int sum = request[4] + request[5] + request[6];
         request[7] = (byte) sum;
-        connectThread.isCommand = true;
         connectThread.sendCommand(request);
-        Log.e("AAA", "发送指令：" + command + "数据：" + data);
+        Log.e("appCMD", "指令：" + command + "传输数据：" + dataTransfer);
     }
 
     /**
-     * GC20190103
-     * 处理接收到的WIFI数据
+     * 处理APP接收的命令
      */
     private void doWifiCommand(int[] wifiArray) {
-        if (wifiArray[5] == 0x08 || wifiArray[6] == 0x11) {
-            //收到触发命令后接收数据
-            command = 0x09;
-            data = 0x11;
+        //仪器触发时：APP发送接收数据命令
+        if ( (wifiArray[5] == COMMAND_TRIGGER) && (wifiArray[6] == TRIGGERED) ) {
+            command = COMMAND_RECEIVE_DATA;
+            dataTransfer = RECEIVING_DATA;
             sendCommand();
-
             if (tDialog != null) {
                 tDialog.dismiss();
             }
@@ -739,26 +715,125 @@ public class MainActivity extends BaseActivity {
                     .setCancelableOutside(false)
                     .create()
                     .show();
-            Log.e("DIA", "接受数据：" + "显示2");
+            Log.e("DIA", " 正在接受数据显示" + " ICM/SIM/DECAY");
         }
 
     }
 
+    /**
+     * 处理APP接收的波形数据
+     */
+    private void doWifiWave(int[] wifiArray) {
+        if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
+            System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
+            handler.sendEmptyMessage(WHAT_REFRESH);
+        } else if (wifiArray[3] == WAVE_SIM0) {
+            System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
+            System.arraycopy(wifiArray, dataMax + 9 + 8, simArray1, 0, dataMax);
+            System.arraycopy(wifiArray, (dataMax + 9) * 2 + 8, simArray2, 0, dataMax);
+            System.arraycopy(wifiArray, (dataMax + 9) * 3 + 8, simArray3, 0, dataMax);
+            System.arraycopy(wifiArray, (dataMax + 9) * 4 + 8, simArray4, 0, dataMax);
+            handler.sendEmptyMessage(WHAT_REFRESH);
+        }
+    }
+
+    /**
+     * 处理APP接收的数据
+     */
     private void doWifiArray(int[] wifiArray, int length) {
-        if (wifiArray[3] == 0x66 | wifiArray[3] == 0x55) {
-            System.arraycopy(wifiArray, 8, waveArray, 0, length - 8 - 11);
-            drawWIFIData();
-        } else if (wifiArray[3] == 0x77) {
-            System.arraycopy(wifiArray, 8, simArray0, 0, length / 5 - 8 - 11);
-            System.arraycopy(wifiArray, length / 5 + 8, simArray1, 0, length / 5 - 8 - 11);
-            System.arraycopy(wifiArray, length / 5 * 2 + 8, simArray2, 0, length / 5 - 19);
-            System.arraycopy(wifiArray, length / 5 * 3 + 8, simArray3, 0, length / 5 - 19);
-            System.arraycopy(wifiArray, length / 5 * 4 + 8, simArray4, 0, length / 5 - 19);
-            simArrayCmp = simArray2;
-            drawWIFIDataSim();
-        }
-    }
 
+        //command临时数组
+        int[] tempCommand = new int[8];
+
+        if ( (length == 8) && (wifiArray[3] == COMMAND) ) {
+            boolean isCommand = doCommandCrc(wifiArray);
+            //校验成功：APP接收的是命令
+            if (isCommand) {
+                //仪器触发时：APP发送接收数据命令
+                if ( (wifiArray[5] == COMMAND_TRIGGER) && (wifiArray[6] == COMMAND_RECEIVE_RIGHT) ) {
+                    command = COMMAND_RECEIVE_DATA;
+                    dataTransfer = RECEIVING_DATA;
+                    sendCommand();
+                    if (tDialog != null) {
+                        tDialog.dismiss();
+                    }
+                    tDialog = new TDialog.Builder(getSupportFragmentManager())
+                            .setLayoutRes(R.layout.receiving_data)
+                            .setScreenWidthAspect(this, 0.25f)
+                            .setCancelableOutside(false)
+                            .create()
+                            .show();
+                    Log.e("DIA", " 正在接受数据显示" + " ICM/SIM/DECAY");
+                }
+
+            }
+
+        } else if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
+            //数组长度不够wave,拼接处理
+            if (hasLeft) {
+                for (int i = leftLen, j = 0; j < length; i++, j++) {
+                    //与剩余数据进行拼接
+                    leftArray[i] = wifiArray[j];
+                }
+                leftLen = leftLen + length;
+                if (leftLen == (dataMax + 9)) {
+                    for (int i = 8, j = 0; i < leftLen - 1; i++, j++) {
+                        //取wave长度的数组
+                        waveArray[j] = leftArray[i];
+                    }
+                    hasLeft = false;
+                    leftLen = 0;
+                    setWaveParameter();
+                    organizeWaveData();
+                    displayWave();
+                }
+
+            } else {
+                //取command长度的数组(?ICM夹杂命令）
+                System.arraycopy(wifiArray, 0, tempCommand, 0, 8);
+                boolean isCommand = doCommandCrc(tempCommand);
+                //sum校验成功，包含command
+                if (isCommand) {
+                    if (length == (dataMax + 9 + 8)) {
+                        // 去掉command   GC20190126
+                        for (int i = 16, j = 0; i < length - 1; i++, j++) {
+                            waveArray[j] = wifiArray[i];
+                        }
+                        setWaveParameter();
+                        organizeWaveData();
+                        displayWave();
+
+                    } else {  //数组长度不够wave,准备拼接处理  GC20190126
+                        for (int i = leftLen, j = 8; j < length; i++, j++) {
+                            // 去掉command
+                            leftArray[i] = wifiArray[j];
+                        }
+                        hasLeft = true;
+                        leftLen = leftLen + length - 8;
+                    }
+                } else {
+                    if (length == (dataMax + 9)) {
+                        for (int i = 8, j = 0; i < length - 1; i++, j++) {
+                            waveArray[j] = wifiArray[i];
+                        }
+                        setWaveParameter();
+                        organizeWaveData();
+                        displayWave();
+
+                    } else {
+                        //数组长度不够wave,准备拼接处理
+                        for (int i = leftLen, j = 0; j < length; i++, j++) {
+                            leftArray[i] = wifiArray[j];
+                        }
+                        hasLeft = true;
+                        leftLen = leftLen + length;
+                    }
+                }
+
+            }
+        }
+
+    }
 
     /**
      * 波形数据sum校验
@@ -771,107 +846,135 @@ public class MainActivity extends BaseActivity {
             a = tempWave[i];
             sum = sum + a;
         }
-        return tempWave[max + 8] == sum;
+        return tempWave[dataMax + 8] == sum;
     }
 
     /**
      * 控制命令sum校验
      */
-    private boolean doTempCrc2(int[] tempCommand) {
+    private boolean doCommandCrc(int[] tempCommand) {
         int sum = tempCommand[4] + tempCommand[5] + tempCommand[6];
         return tempCommand[7] == sum;
     }
 
     /**
-     * 绘制波形（TDR ICM DECAY)
-     * GC20181227
+     * 设置波形参数
      */
-    private void drawWIFIData() {
-        myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);
-        myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);
-        mainWave.setAdapter(myChartAdapterMainWave);
-        fullWave.setAdapter(myChartAdapterFullWave);
-        Log.e("isDraw", "结束");
+    private void setWaveParameter() {
+        if ((mode == TDR) || (mode == SIM)) {
+            dataMax = readTdrSim[parameterRange];
+            densityMax = densityMaxTdrSim[parameterRange];
+            parameterDensity = densityMax;
+        } else if ((mode == ICM) || (mode == DECAY)) {
+            dataMax = readIcmDecay[parameterRange];
+            densityMax = densityMaxIcmDecay[parameterRange];
+            parameterDensity = densityMax;
+        }
+        positionVirtual = 255 * parameterDensity;
+    }
+
+    /**
+     * 组织需要绘制的波形数组
+     */
+    private void organizeWaveData() {
+        int start = 0,k;
+        //k=(MainPaintBox->Width/2)*Density;
+        k = 510 * parameterDensity / 2;
+        //寻找波形显示的起始地址在波形数据数组中的所处的位置(变量i即为此位置)
+        if(positionVirtual < k) {
+            start = 0;
+        } else if( (dataMax - positionVirtual) < k) {
+            //i=Data_Max - 2*k;
+            if ((mode == TDR) || (mode == SIM)) {
+                start = dataMax - 2 * k - removeTdrSim[parameterRange];
+            } else if ((mode == ICM) || (mode == DECAY)) {
+                start = dataMax - 2 * k - removeIcmDecay[parameterRange];
+            }
+        }
+
+        for (int i = start,j = 0; j < 510; i = i + parameterDensity, j++) {
+            waveDraw[j] = waveArray[i];
+            if (mode == SIM) {
+                waveDraw1[j] = simArray1[i];
+                waveDraw2[j] = simArray2[i];
+                waveDraw3[j] = simArray3[i];
+                waveDraw4[j] = simArray4[i];
+            }
+        }
+    }
+
+    /**
+     * 在界面显示波形
+     */
+    private void displayWave() {
+        myChartAdapterMainWave.setmTempArray(waveDraw);
+        myChartAdapterFullWave.setmTempArray(waveDraw);
+        myChartAdapterMainWave.setShowCompareLine(isCom);
+        myChartAdapterFullWave.setShowCompareLine(isCom);
+        if (mode == SIM) {
+            if (isCom) {
+                myChartAdapterMainWave.setmCompareArray(waveDraw2);
+                myChartAdapterFullWave.setmCompareArray(waveDraw2);
+                isDrawSim = true;
+            }
+        } else {
+            isDrawSim = false;
+        }
+        myChartAdapterMainWave.notifyDataSetChanged();
+        myChartAdapterFullWave.notifyDataSetChanged();
         if (tDialog != null) {
             tDialog.dismiss();
         }
-        Log.e("DIA", "接受数据：" +  "隐藏");
+        Log.e("DIA", "正在接受数据隐藏" + " 波形绘制完成");
         //画光标
         positionReal = 0;
         mainWave.setScrubLineReal(positionReal);
-        positionVirtual = max / 2;
+        positionVirtual = 255;
         mainWave.setScrubLineVirtual(positionVirtual);
         tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
         //20190104 初始化光标按钮颜色
         btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
     }
 
-
-    /**
-     * 绘制波形（SIM）
-     */
-    private void drawWIFIDataSim() {
-        myChartAdapterMainWave = new MyChartAdapter(simArray0, simArrayCmp,
-                true, 0, false, max);
-        myChartAdapterFullWave = new MyChartAdapter(simArray0, simArrayCmp,
-                true, 0, false, max);
-        mainWave.setAdapter(myChartAdapterMainWave);
-        fullWave.setAdapter(myChartAdapterFullWave);
-        Log.e("isDraw", "结束");
-        if (tDialog != null) {
-            tDialog.dismiss();
-        }
-        //画光标
-        positionReal = 0;
-        mainWave.setScrubLineReal(positionReal);
-        positionVirtual = max / 2;
-        mainWave.setScrubLineVirtual(positionVirtual);
-        tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
-        btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
-    }
-
     public int getMethod() {
-        return method;
+        return mode;
     }
 
     public void setMethod(int method) {
-        this.method = method;
-        command = 0x02;
-        data = method;
+        this.mode = method;
+        command = COMMAND_METHOD;
+        dataTransfer = method;
         switch (method) {
-            case 17:
+            case TDR:
                 vlMethod.setText(getResources().getString(R.string.btn_tdr));
                 tvBalance.setVisibility(View.VISIBLE);
                 vlBalance.setVisibility(View.VISIBLE);
-                max = readTdrSim[rangeMethod];
-                waveArray = new int[max];   //GC20190122
+                dataMax = readTdrSim[parameterRange];
+                waveArray = new int[dataMax];
                 break;
-            case 0x22:
+            case ICM:
                 vlMethod.setText(getResources().getString(R.string.btn_icm));
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
-                max = readIcmDecay[rangeMethod];
-                waveArray = new int[max];
+                dataMax = readIcmDecay[parameterRange];
+                waveArray = new int[dataMax];
                 break;
-            case 0x33:
+            case SIM:
                 vlMethod.setText(getResources().getString(R.string.btn_sim));
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
-                max = readTdrSim[rangeMethod];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                dataMax = readTdrSim[parameterRange];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 break;
-            case 0x44:
+            case DECAY:
                 vlMethod.setText(getResources().getString(R.string.btn_decay));
                 tvBalance.setVisibility(View.INVISIBLE);
                 vlBalance.setVisibility(View.INVISIBLE);
-                max = readIcmDecay[rangeMethod];
-                waveArray = new int[max];
+                dataMax = readIcmDecay[parameterRange];
+                waveArray = new int[dataMax];
                 break;
             default:
                 break;
@@ -884,153 +987,144 @@ public class MainActivity extends BaseActivity {
 
     public void setRange(int range) {
         this.range = range;
-        command = 0x03;
-        data = range;
-        //        btnTest.setClickable(false);    //GC20190110
+        command = COMMAND_RANGE;
+        dataTransfer = range;
         switch (range) {
-            case 0x11:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[0];
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[0];
+            case RANGE_500:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[0];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[0];
                 }
-                rangeMethod = 0;
+                parameterRange = 0;
                 //GC20181227
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_500m));
                 gainState = 12;
                 unitTime = 200;
                 vlGain.setText("12");
                 break;
-            case 0x22:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[1];
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[1];
+            case RANGE_1_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[1];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[1];
                 }
-                rangeMethod = 1;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 1;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_1km));
                 gainState = 10;
                 unitTime = 200;
                 vlGain.setText("10");
                 break;
-            case 0x33:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[2];
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[2];
+            case RANGE_2_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[2];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[2];
                 }
-                rangeMethod = 2;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 2;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_2km));
                 gainState = 10;
                 unitTime = 200;
                 vlGain.setText("10");
                 break;
-            case 0x44:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[3];
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[3];
+            case RANGE_4_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[3];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[3];
                 }
-                rangeMethod = 3;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 3;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_4km));
                 gainState = 10;
                 unitTime = 200;
                 vlGain.setText("10");
                 break;
-            case 0x55:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[4];
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[4];
+            case RANGE_8_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[4];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[4];
                 }
-                rangeMethod = 4;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 4;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_8km));
                 gainState = 10;
                 unitTime = 200;
                 vlGain.setText("10");
                 break;
-            case 0x66:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[5];
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[5];
+            case RANGE_16_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[5];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[5];
                 }
-                rangeMethod = 5;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 5;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_16km));
                 gainState = 9;
                 unitTime = 200;
                 vlGain.setText("9");
                 break;
-            case 0x77:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[6];
+            case RANGE_32_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[6];
                     unitTime = 200;
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[6];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[6];
                     unitTime = 800;
                 }
-                rangeMethod = 6;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 6;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_32km));
                 gainState = 9;
                 vlGain.setText("9");
                 break;
-            case 0x88:
-                if ((method == 0x11) || (method == 0x33)) {
-                    max = readTdrSim[7];
+            case RANGE_64_KM:
+                if ((mode == TDR) || (mode == SIM)) {
+                    dataMax = readTdrSim[7];
                     unitTime = 200;
-                } else if ((method == 0x22) || (method == 0x44)) {
-                    max = readIcmDecay[7];
+                } else if ((mode == ICM) || (mode == DECAY)) {
+                    dataMax = readIcmDecay[7];
                     unitTime = 800;
                 }
-                rangeMethod = 7;
-                waveArray = new int[max];
-                simArray0 = new int[max];
-                simArray1 = new int[max];
-                simArray2 = new int[max];
-                simArray3 = new int[max];
-                simArray4 = new int[max];
+                parameterRange = 7;
+                waveArray = new int[dataMax];
+                simArray1 = new int[dataMax];
+                simArray2 = new int[dataMax];
+                simArray3 = new int[dataMax];
+                simArray4 = new int[dataMax];
                 vlRange.setText(getResources().getString(R.string.btn_64km));
                 gainState = 9;
                 vlGain.setText("9");
@@ -1040,44 +1134,8 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public int getGain() {
-        return gain;
-    }
-
-    public void setGain(int gain) {
-        this.gain = gain;
-        command = 0x04;
-        data = gain;
-    }
-
-    public int getBalance() {
-        return balance;
-    }
-
-    public void setBalance(int balance) {
-        this.balance = balance;
-        command = 0x07;
-        data = balance;
-    }
-
-    public int getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(int velocity) {
-        this.velocity = velocity;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-    public void setDelay(int delay) {
-        this.delay = delay;
-    }
-
     /**
-     * 设置增益变化
+     * 响应状态栏增益变化
      */
     public int getGainState() {
         return gainState;
@@ -1089,7 +1147,25 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 设置平衡变化
+     * @param gain  需要发送的增益控制命令值
+     */
+    public void setGain(int gain) {
+        this.gain = gain;
+        command = COMMAND_GAIN;
+        dataTransfer = gain;
+        sendCommand();
+        if (mode == TDR) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    clickTest();
+                }
+            }, 50);
+        }
+    }
+
+    /**
+     * 响应状态栏平衡变化
      */
     public int getBalanceState() {
         return balanceState;
@@ -1101,7 +1177,25 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 设置波速度变化
+     * @param balance   需要发送的平衡控制命令值
+     */
+    public void setBalance(int balance) {
+        this.balance = balance;
+        command = COMMAND_BALANCE;
+        dataTransfer = balance;
+        sendCommand();
+        if (mode == TDR) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    clickTest();
+                }
+            }, 50);
+        }
+    }
+
+    /**
+     * 响应状态栏波速度变化
      */
     public float getVelocityState() {
         return velocityState;
@@ -1112,10 +1206,44 @@ public class MainActivity extends BaseActivity {
         vlVel.setText(String.valueOf(velocityState) + "m/μs");
     }
 
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
     /**
-     * 获取ip
-     *
-     * @return
+     * 点击记忆按钮执行的方法  //GC20190703
+     */
+    public void clickMemory() {
+        clickMemory = true;
+        for (int i = 0; i < 510; i++) {
+            waveCompare[i] = waveDraw[i];
+        }
+
+    }
+
+    /**
+     * 点击比较按钮执行的方法  //GC20190703
+     */
+    public void clickCompare() {
+        if (clickMemory) {
+            isCom = !isCom;
+        } else {
+            Toast.makeText(this, getResources().getString(R.string
+                    .You_have_no_memory_data_can_not_compare), Toast.LENGTH_SHORT).show();
+        }
+        myChartAdapterMainWave.setmTempArray(waveDraw);
+        myChartAdapterMainWave.setShowCompareLine(isCom);
+        myChartAdapterMainWave.setmCompareArray(waveCompare);
+        myChartAdapterMainWave.notifyDataSetChanged();
+
+    }
+
+    /**
+     * @return  获取ip
      */
     private ArrayList<String> getConnectedIP() {
         ArrayList<String> connectedIP = new ArrayList<String>();
@@ -1147,34 +1275,27 @@ public class MainActivity extends BaseActivity {
         super.onDestroy();
     }
 
-
     /**
-     * GT 测试绘制效果
-     * GC20181227
+     * GT 测试绘制效果    //GC20181227
      */
     public void testWaveData() {
-        for (int i = 0; i < max; i++) {
+        for (int i = 0; i < 510; i++) {
             waveArray[i] = 12;
         }
-        myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);
-        myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                false, 0, false, max);
-        mainWave.setAdapter(myChartAdapterMainWave);
-        fullWave.setAdapter(myChartAdapterFullWave);
-        Log.e("isDraw", "结束");
+        myChartAdapterMainWave = new MyChartAdapterBase(waveArray, null,
+                false, 0, false, dataMax);
+        myChartAdapterFullWave = new MyChartAdapterBase(waveArray, null,
+                false, 0, false, dataMax);
         positionReal = 0;
-        //positionReal = Integer.valueOf(split[6], 16);
         mainWave.setScrubLineReal(positionReal);
-        positionVirtual = max / 2;
+        positionVirtual = dataMax / 2;
         mainWave.setScrubLineVirtual(positionVirtual);
         tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
         btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
     }
 
     /**
-     * GT
-     * 测试读文本绘制效果
+     * GT 测试读文本绘制效果
      */
     public void getTxtWaveData() {
         InputStream mResourceAsStream = this.getClassLoader().getResourceAsStream("assets/" +
@@ -1193,23 +1314,20 @@ public class MainActivity extends BaseActivity {
             String s = baos.toString();
             String[] split = s.split("\\s+");
 
-            for (int i = 0; i < max; i++) {
+            for (int i = 0; i < split.length; i++) {
                 waveArray[i] = Integer.valueOf(split[i], 16);
             }
-            myChartAdapterMainWave = new MyChartAdapter(waveArray, null,
-                    false, 0, false, max);  //GC20181227
-            myChartAdapterFullWave = new MyChartAdapter(waveArray, null,
-                    false, 0, false, max);
-            mainWave.setAdapter(myChartAdapterMainWave);
-            fullWave.setAdapter(myChartAdapterFullWave);
-            Log.e("isDraw", "结束");  //GT
+            myChartAdapterMainWave = new MyChartAdapterBase(waveArray, null,
+                    false, 0, false, dataMax);
+            myChartAdapterFullWave = new MyChartAdapterBase(waveArray, null,
+                    false, 0, false, dataMax);
             positionReal = 0;
-            //positionReal = Integer.valueOf(split[6], 16);
             mainWave.setScrubLineReal(positionReal);
-            positionVirtual = max / 2;
+            positionVirtual = dataMax / 2;
             mainWave.setScrubLineVirtual(positionVirtual);
             tvDistance.setText(Math.abs(positionVirtual - positionReal) * velocityState / unitTime + "m");
-            btnCursor.setTextColor(getResources().getColor(R.color.T_purple)); //初始化光标按钮颜色
+            //初始化光标按钮颜色
+            btnCursor.setTextColor(getResources().getColor(R.color.T_purple));
 
         } catch (IOException e) {
             e.printStackTrace();

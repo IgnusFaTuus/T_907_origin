@@ -20,8 +20,8 @@ import butterknife.Unbinder;
 import static net.kehui.www.t_907_origin.base.BaseActivity.isFastClick;
 
 /**
- * @author IF
- * @date 2018/3/26
+ * @author Gong
+ * @date 2019/07/03
  */
 
 public class AdjustFragment extends Fragment {
@@ -41,9 +41,6 @@ public class AdjustFragment extends Fragment {
     @BindView(R.id.adj_sidebar)
     LinearLayout adjSidebar;
 
-    private int     gain;
-    private float   velocity;
-    private int     balance;
     private Handler handler;
 
     @Override
@@ -64,49 +61,58 @@ public class AdjustFragment extends Fragment {
             R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
     public void onViewClicked(View view) {
 
-        /*if (isFastClick()) {
-            return;
-        }*/
         switch (view.getId()) {
             case R.id.btn_gain_plus:
-                gain = ((MainActivity) getActivity()).getGainState();
+                int gain = ((MainActivity) getActivity()).getGainState();
+                if (gain == 31) {
+                    btnGainPlus.setEnabled(false);
+                }
                 if (gain < 32) {
                     gain++;
                     ((MainActivity) getActivity()).setGainState(gain);
+                    ((MainActivity) getActivity()).setGain(0x11);
+                    btnGainMinus.setEnabled(true);
                 }
-                ((MainActivity) getActivity()).setGain(0x11);
-                ((MainActivity) getActivity()).sendCommand();
+
                 break;
             case R.id.btn_gain_minus:
                 gain = ((MainActivity) getActivity()).getGainState();
+                if (gain == 1) {
+                    btnGainMinus.setEnabled(false);
+                }
                 if (gain > 0) {
                     gain--;
                     ((MainActivity) getActivity()).setGainState(gain);
+                    ((MainActivity) getActivity()).setGain(0x22);
+                    btnGainPlus.setEnabled(true);
                 }
-                ((MainActivity) getActivity()).setGain(0x22);
-                ((MainActivity) getActivity()).sendCommand();
                 break;
             case R.id.btn_balance_plus:
-
-                balance = ((MainActivity) getActivity()).getBalanceState();
+                int balance = ((MainActivity) getActivity()).getBalanceState();
+                if (balance == 15) {
+                    btnBalancePlus.setEnabled(false);
+                }
                 if (balance < 16) {
                     balance++;
                     ((MainActivity) getActivity()).setBalanceState(balance);
                     ((MainActivity) getActivity()).setBalance(0x11);
-                    ((MainActivity) getActivity()).sendCommand();
+                    btnBalanceMinus.setEnabled(true);
                 }
                 break;
             case R.id.btn_balance_minus:
                 balance = ((MainActivity) getActivity()).getBalanceState();
+                if (balance == 1) {
+                    btnBalanceMinus.setEnabled(false);
+                }
                 if (balance > 0) {
                     balance--;
                     ((MainActivity) getActivity()).setBalanceState(balance);
                     ((MainActivity) getActivity()).setBalance(0x22);
-                    ((MainActivity) getActivity()).sendCommand();
+                    btnBalancePlus.setEnabled(true);
                 }
                 break;
             case R.id.btn_vel_plus:
-                velocity = ((MainActivity) getActivity()).getVelocityState();
+                float velocity = ((MainActivity) getActivity()).getVelocityState();
                 if (velocity < 250) {
                     velocity++;
                     ((MainActivity) getActivity()).setVelocityState(velocity);

@@ -101,5 +101,3 @@ public class AdjustFragment2 extends Fragment {
         }
     }
 }
-
-

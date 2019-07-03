@@ -1,21 +1,26 @@
 package net.kehui.www.t_907_origin.adpter;
 
-import android.util.Log;
-
-import net.kehui.www.t_907_origin.ui.SparkView.SparkAdapter;
+import net.kehui.www.t_907_origin.ui.SparkView.BaseSparkAdapter;
 
 /**
- * @author IF
+ * @author Gong
+ * @date 2018/12/23
  */
-public class MyChartAdapter extends SparkAdapter {
+public class MyChartAdapterBase extends BaseSparkAdapter {
 
     private int[] mTempArray;
     private int[] mCompareArray;
     private boolean isShowCompareLine;
     private int splitNum;
     private boolean isShowSplitLine;
-    private boolean isCursorState;  //GC20181223
-    private int isMax;  //GC20181227
+    /**
+     * //GC20181223
+     */
+    private boolean isCursorState;
+    /**
+     * //GC20181227
+     */
+    private int isMax;
 
     public void setmCompareArray(int[] mCompareArray) {
         this.mCompareArray = mCompareArray;
@@ -29,25 +34,28 @@ public class MyChartAdapter extends SparkAdapter {
         isShowCompareLine = showCompareLine;
     }
 
-    public MyChartAdapter(int[] mTempArray, int[] mCompareArray, boolean isShowCompareLine, int
+    public MyChartAdapterBase(int[] mTempArray, int[] mCompareArray, boolean isShowCompareLine, int
             splitNum, boolean isShowSplitLine, int isMax) {
         this.mTempArray = mTempArray;
         this.mCompareArray = mCompareArray;
         this.isShowCompareLine = isShowCompareLine;
         this.splitNum = splitNum;
         this.isShowSplitLine = isShowSplitLine;
-        this.isMax = isMax; //GC20181227
+        //GC20181227
+        this.isMax = isMax;
     }
 
-    //GC20181223
+    /**
+     * @param cursorState   //GC20181223
+     */
     public void setCursorState(boolean cursorState) {
         isCursorState = cursorState;
     }
 
     @Override
     public int getCount() {
-        return 540;
-    }
+        return 510;
+    }   //GC20181227
 
     @Override
     public Object getItem(int index) {

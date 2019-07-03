@@ -54,4 +54,7 @@
     <string name="btn_delay_plus">DELAY+</string>
     <string name="btn_delay_minus">DELAY-</string>
     <string name="distance">%1$fm</string>
+    <string name="You_have_no_memory_data_can_not_compare">You have no memory data, can not compare</string>
+    <string name="btn_wave_next">WAVE-</string>
+    <string name="btn_wave_previous">WAVE+</string>
 </resources>

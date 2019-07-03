@@ -74,7 +74,7 @@ public class RangeFragment extends Fragment {
         switch (view.getId()) {
             case R.id.btn_500m:
                 btn500m.setEnabled(false);
-                ((MainActivity)getActivity()).setRange(0x11);  //GC20181225
+                ((MainActivity)getActivity()).setRange(0x11);
                 ((MainActivity)getActivity()).sendCommand();
                 if(((MainActivity)getActivity()).getRange() == 0x11){
                     btn1km.setEnabled(true);
