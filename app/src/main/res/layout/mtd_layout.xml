@@ -42,16 +42,4 @@
             android:textColor="@android:color/black"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/wave_select"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="@drawable/border"
-        android:visibility="invisible">
-
-    </LinearLayout>
-
 </RelativeLayout>

@@ -17,34 +17,28 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-import static net.kehui.www.t_907_origin.base.BaseActivity.isFastClick;
-
 /**
- * @author IF
- * @date 2018/3/26
+ * @author Gong
+ * @date 2019/07/03
  */
-
 public class AdjustFragment extends Fragment {
     @BindView(R.id.btn_gain_plus)
     Button btnGainPlus;
     @BindView(R.id.btn_gain_minus)
     Button btnGainMinus;
     @BindView(R.id.btn_balance_plus)
-    Button btnBalancePlus;
+    public Button btnBalancePlus;
     @BindView(R.id.btn_balance_minus)
-    Button btnBalanceMinus;
+    public Button btnBalanceMinus;
+    @BindView(R.id.btn_delay_plus)
+    public Button btnDelayPlus;
+    @BindView(R.id.btn_delay_minus)
+    public Button btnDelayMinus;
     @BindView(R.id.btn_vel_plus)
     Button btnVelPlus;
     @BindView(R.id.btn_vel_minus)
     Button btnVelMinus;
     Unbinder unbinder;
-    @BindView(R.id.adj_sidebar)
-    LinearLayout adjSidebar;
-
-    private int     gain;
-    private float   velocity;
-    private int     balance;
-    private Handler handler;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,72 +49,115 @@ public class AdjustFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        //GC20190705 调节栏fragment初始化——没有延时按钮
+        btnDelayPlus.setVisibility(View.GONE);
+        btnDelayMinus.setVisibility(View.GONE);
+        //初始化按键无效
+        btnDelayMinus.setEnabled(false);
+
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
     }
 
-    @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus,
+    @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus,R.id.btn_delay_plus,R.id.btn_delay_minus,
             R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
     public void onViewClicked(View view) {
 
-        /*if (isFastClick()) {
-            return;
-        }*/
         switch (view.getId()) {
             case R.id.btn_gain_plus:
-                gain = ((MainActivity) getActivity()).getGainState();
-                if (gain < 32) {
+                int gain = ((MainActivity) getActivity()).getGain();
+                if (gain < 31) {
                     gain++;
-                    ((MainActivity) getActivity()).setGainState(gain);
+                    //GC20190704 增益发送命令修改   (命令范围0-31阶)
+                    ((MainActivity) getActivity()).setGain(gain);
+                    btnGainMinus.setEnabled(true);
                 }
-                ((MainActivity) getActivity()).setGain(0x11);
-                ((MainActivity) getActivity()).sendCommand();
+                //增益命令到最大，按钮点击无效
+                if (gain == 31) {
+                    btnGainPlus.setEnabled(false);
+                }
                 break;
             case R.id.btn_gain_minus:
-                gain = ((MainActivity) getActivity()).getGainState();
+                gain = ((MainActivity) getActivity()).getGain();
                 if (gain > 0) {
                     gain--;
-                    ((MainActivity) getActivity()).setGainState(gain);
+                    ((MainActivity) getActivity()).setGain(gain);
+                    btnGainPlus.setEnabled(true);
                 }
-                ((MainActivity) getActivity()).setGain(0x22);
-                ((MainActivity) getActivity()).sendCommand();
+                if (gain == 0) {
+                    btnGainMinus.setEnabled(false);
+                }
                 break;
             case R.id.btn_balance_plus:
-
-                balance = ((MainActivity) getActivity()).getBalanceState();
-                if (balance < 16) {
+                int balance = ((MainActivity) getActivity()).getBalance();
+                if (balance < 15) {
                     balance++;
-                    ((MainActivity) getActivity()).setBalanceState(balance);
-                    ((MainActivity) getActivity()).setBalance(0x11);
-                    ((MainActivity) getActivity()).sendCommand();
+                    //GC20190704 平衡发送命令修改   (命令范围0-15阶)
+                    ((MainActivity) getActivity()).setBalance(balance);
+                    btnBalanceMinus.setEnabled(true);
+                }
+                if (balance == 15) {
+                    btnBalancePlus.setEnabled(false);
                 }
                 break;
             case R.id.btn_balance_minus:
-                balance = ((MainActivity) getActivity()).getBalanceState();
+                balance = ((MainActivity) getActivity()).getBalance();
                 if (balance > 0) {
                     balance--;
-                    ((MainActivity) getActivity()).setBalanceState(balance);
-                    ((MainActivity) getActivity()).setBalance(0x22);
-                    ((MainActivity) getActivity()).sendCommand();
+                    ((MainActivity) getActivity()).setBalance(balance);
+                    btnBalancePlus.setEnabled(true);
+                }
+                if (balance == 0) {
+                    btnBalanceMinus.setEnabled(false);
+                }
+                break;
+            case R.id.btn_delay_plus:
+                int delay = ((MainActivity) getActivity()).getDelay();
+                if (delay < 1250) {
+                    delay = delay + 5;
+                    //GC20190704 延时发送命令修改   (延时从0到1250，点击一次增加5，共250阶)
+                    ((MainActivity) getActivity()).setDelay(delay);
+                    btnDelayMinus.setEnabled(true);
+                }
+                if (delay == 1250) {
+                    btnDelayPlus.setEnabled(false);
+                }
+                break;
+            case R.id.btn_delay_minus:
+                delay = ((MainActivity) getActivity()).getDelay();
+                if (delay > 0) {
+                    delay = delay - 5;
+                    ((MainActivity) getActivity()).setDelay(delay);
+                    btnDelayPlus.setEnabled(true);
+                }
+                if (delay == 0) {
+                    btnDelayMinus.setEnabled(false);
                 }
                 break;
             case R.id.btn_vel_plus:
-                velocity = ((MainActivity) getActivity()).getVelocityState();
+                float velocity = ((MainActivity) getActivity()).getVelocity();
                 if (velocity < 250) {
                     velocity++;
-                    ((MainActivity) getActivity()).setVelocityState(velocity);
+                    ((MainActivity) getActivity()).setVelocity(velocity);
                 }
                 break;
             case R.id.btn_vel_minus:
-                velocity = ((MainActivity) getActivity()).getVelocityState();
+                velocity = ((MainActivity) getActivity()).getVelocity();
                 if (velocity > 0) {
                     velocity--;
-                    ((MainActivity) getActivity()).setVelocityState(velocity);
+                    ((MainActivity) getActivity()).setVelocity(velocity);
                 }
                 break;
             default:
                 break;
         }
     }
+
 }

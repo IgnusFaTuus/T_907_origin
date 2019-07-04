@@ -15,7 +15,7 @@
     <string name="btn_1km" translatable="true">1km</string>
     <string name="btn_2km" translatable="true">2km</string>
     <string name="btn_4km" translatable="true">4km</string>
-    <string name="btn_8km" translatable="true">8km</string>
+    <string name="btn_8km">8km</string>
     <string name="btn_16km" translatable="true">16km</string>
     <string name="btn_32km" translatable="true">32km</string>
     <string name="btn_64km" translatable="true">64km</string>
@@ -23,6 +23,8 @@
     <string name="btn_gain_minus" translatable="true">增益-</string>
     <string name="btn_balance_plus" translatable="true">平衡+</string>
     <string name="btn_balance_minus" translatable="true">平衡-</string>
+    <string name="btn_delay_plus">延时+</string>
+    <string name="btn_delay_minus">延时-</string>
     <string name="btn_vel_plus" translatable="true">波速+</string>
     <string name="btn_vel_minus" translatable="true">波速-</string>
     <string name="btn_zoom_in" translatable="true">放大</string>
@@ -48,10 +50,14 @@
     <string name="btn_cancel" translatable="true">取消测试</string>
     <string name="wait_trigger">等待触发…</string>
     <string name="tv_balance">平衡:</string>
+    <string name="tv_delay">延时:</string>
     <string name="receive_data">正在接收数据…</string>
     <string name="connecting_wifi">等待WiFi连接…</string>
     <string name="connecting_hw">等待硬件连接…</string>
-    <string name="btn_delay_plus">增益+</string>
-    <string name="btn_delay_minus">增益-</string>
     <string name="distance">%1$fm</string>
+    <string name="You_have_no_memory_data_can_not_compare">你还没有记忆数据，无法比较</string>
+    <string name="btn_wave_previous">波形上翻</string>
+    <string name="btn_wave_next">波形下翻</string>
+    <string name="tv_density">比例:</string>
+
 </resources>

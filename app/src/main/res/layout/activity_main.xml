@@ -101,7 +101,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -111,7 +111,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:text="@string/tv_method"
                         android:textColor="@color/colorPrimary" />
 
@@ -121,7 +121,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:text="@string/tv_range"
                         android:textColor="@color/colorPrimary" />
 
@@ -131,7 +131,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:text="@string/tv_gain"
                         android:textColor="@color/colorPrimary" />
 
@@ -141,8 +141,18 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:text="@string/tv_vel"
+                        android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/tv_density"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:textSize="12sp"
+                        android:text="@string/tv_density"
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
@@ -152,8 +162,19 @@
                         android:layout_weight="1"
                         android:gravity="end"
                         android:text="@string/tv_balance"
+                        android:textSize="12dp"
+                        android:textColor="@color/colorPrimary"/>
+
+                    <TextView
+                        android:id="@+id/tv_delay"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text="@string/tv_delay"
+                        android:textSize="12sp"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="12dp" />
+                        tools:visibility="gone"/>
 
                 </LinearLayout>
 
@@ -162,7 +183,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="0.6"
                     android:orientation="vertical">
 
@@ -171,7 +192,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:gravity="start"
                         android:textColor="@color/colorPrimary" />
 
@@ -181,7 +202,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="start"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
@@ -190,7 +211,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="start"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
@@ -199,7 +220,16 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="start"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/vl_density"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:textSize="12sp"
                         android:textColor="@color/colorPrimary" />
 
                     <TextView
@@ -208,8 +238,18 @@
                         android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="start"
-                        android:textSize="12dp"
+                        android:textSize="12sp"
                         android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/vl_delay"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:textSize="12sp"
+                        android:textColor="@color/colorPrimary"
+                        tools:visibility="gone"/>
 
                 </LinearLayout>
 

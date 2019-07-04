@@ -27,8 +27,11 @@ import java.util.List;
 /**
  * A simple adapter class - evenly distributes your points along the x axis, does not draw a base
  * line, and has support for registering/notifying {@link DataSetObserver}s when data is changed.
+ *
+ * @author Gong
+ * @date 2018/12/23
  */
-public abstract class SparkAdapter {
+public abstract class BaseSparkAdapter {
     private final DataSetObservable observable = new DataSetObservable();
 
     /**
@@ -68,12 +71,14 @@ public abstract class SparkAdapter {
      * @return a RectF of the bounds desired around this adapter's data.
      */
     public RectF getDataBounds() {
-        final int count = getMax(); //GC20181227
+//        final int count = getMax(); //GC20181227
+        final int count = getCount();
         final boolean hasBaseLine = hasBaseLine();
         float minY = hasBaseLine ? getBaseLine() : 0;
         float maxY = hasBaseLine ? minY : 255;
         float minX = 0;
-        float maxX = getMax();  //GC20181227
+//        float maxX = getMax();  //GC20181227
+        float maxX = 510;
         for (int i = 0; i < count; i++) {
             final float x = getX(i);
             minX = Math.min(minX, x);
@@ -146,12 +151,16 @@ public abstract class SparkAdapter {
         observable.unregisterObserver(observer);
     }
 
-    /*返回是否显示比较多数据*/
+    /**
+     * @return  返回是否显示比较的数据
+     */
     public final boolean getIsShowCompare() {
         return false;
     }
 
-    /*返回第二条线的数据*/
+    /**
+     * @return  返回第二条线的数据
+     */
     public final List<Integer> getLine2Data() {
         return null;
     }

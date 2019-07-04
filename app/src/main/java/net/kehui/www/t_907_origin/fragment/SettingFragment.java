@@ -17,16 +17,14 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 /**
- *
  * @author IF
  * @date 2018/3/26
  */
-
 public class SettingFragment extends Fragment {
     @BindView(R.id.btn_zero)
-    Button       btnZero;
+    Button  btnZero;
     @BindView(R.id.btn_lang)
-    Button       btnLang;
+    Button  btnLang;
     Unbinder unbinder;
 
     @Override
