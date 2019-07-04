@@ -49,6 +49,8 @@ public class WaveFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         //GC20190705 操作栏fragment初始化——没有波形选择按钮
+        btnMemory.setVisibility(View.VISIBLE);
+        btnCompare.setVisibility(View.VISIBLE);
         btnWavePrevious.setVisibility(View.INVISIBLE);
         btnWaveNext.setVisibility(View.INVISIBLE);
         //初始化按键无效

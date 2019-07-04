@@ -203,6 +203,9 @@ public class MainActivity extends BaseActivity {
      */
     public void initFrame() {
         fragmentManager = getFragmentManager();
+        //GC201907052  先初始化（fragment切换bug修改）
+        setTabSelection(2);
+        setTabSelection(3);
         //第一次启动时选中第0个tab
         setTabSelection(0);
         btnMtd.setEnabled(false);
@@ -556,6 +559,9 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    /**
+     * 操作（波形）fragment
+     */
     private void clickOption() {
         setTabSelection(3);
         btnMtd.setEnabled(true);
@@ -1098,6 +1104,9 @@ public class MainActivity extends BaseActivity {
                 myChartAdapterMainWave.setmCompareArray(waveCompare);
                 myChartAdapterFullWave.setmCompareArray(waveCompare);
                 isDrawSim = true;
+                //GC201907052 优化SIM显示
+                waveFragment.btnWavePrevious.setEnabled(true);
+                waveFragment.btnWaveNext.setEnabled(true);
             }
         } else {
             isDrawSim = false;
