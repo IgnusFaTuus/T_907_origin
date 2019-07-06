@@ -30,12 +30,11 @@ import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.Toast;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.application.MyApplication;
@@ -243,8 +242,6 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         //画第二条线
         Log.e("QQQ", "adapter" + ".getIsShowCompare()" + adapter.getCompare());
         if (adapter.getCompare()) {
-            Toast.makeText(MyApplication.getInstances().getApplicationContext(), "adapter" +
-                    ".getIsShowCompare()=true", Toast.LENGTH_SHORT);
             sparkPath2.reset();
             for (int i = 0; i < adapterCount; i++) {
                 final float x = scaleHelper.getX(adapter.getX(i));

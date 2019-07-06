@@ -1,7 +1,7 @@
 package net.kehui.www.t_907_origin.base;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import net.kehui.www.t_907_origin.adpter.MyChartAdapterBase;
@@ -62,8 +62,8 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * 不同范围和方式下，波形数据的点数、需要去掉的冗余点数、比例值
      */
-    public int[]    readTdrSim   = {  540, 1052, 2076,  4124,  8220, 16412, 32796, 65556 };
-    public int[]    readIcmDecay = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };
+    public final static int[] READ_TDR_SIM      = {  540, 1052, 2076,  4124,  8220, 16412, 32796, 65556 };
+    public final static int[] READ_ICM_DECAY    = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };
     public int[]    removeTdrSim    = {30,32,36,44, 60, 92,156,276};
     public int[]    removeIcmDecay  = {28,36,52,84,148,276,148,276};
     public int[]    densityMaxTdrSim    = {1,2, 4, 8,16, 32,64,128};

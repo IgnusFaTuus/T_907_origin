@@ -19,8 +19,7 @@ package net.kehui.www.t_907_origin.ui.SparkView;
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.graphics.RectF;
-import android.support.annotation.VisibleForTesting;
-import android.util.Log;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.List;
 

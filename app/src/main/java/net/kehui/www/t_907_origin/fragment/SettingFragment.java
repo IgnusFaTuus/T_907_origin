@@ -1,7 +1,6 @@
 package net.kehui.www.t_907_origin.fragment;
 
-import android.app.Fragment;
-import android.net.wifi.ScanResult;
+import androidx.fragment.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import net.kehui.www.t_907_origin.R;
-import net.kehui.www.t_907_origin.view.MainActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

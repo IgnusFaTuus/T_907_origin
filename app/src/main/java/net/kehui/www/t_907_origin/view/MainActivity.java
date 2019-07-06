@@ -1,7 +1,7 @@
 package net.kehui.www.t_907_origin.view;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -58,7 +58,6 @@ import butterknife.OnClick;
  * @author IF
  * @date 2018/3/26
  */
-
 public class MainActivity extends BaseActivity {
 
     @BindView(R.id.mainWave)
@@ -105,13 +104,13 @@ public class MainActivity extends BaseActivity {
     /**
      * 用于展示Fragment
      */
-    private ModeFragment modeFragment;
+    private FragmentManager fragmentManager;
+    private ModeFragment    modeFragment;
     private RangeFragment   rangeFragment;
     private AdjustFragment  adjustFragment;
-    private WaveFragment waveFragment;
+    private WaveFragment    waveFragment;
     private FileFragment    fileFragment;
     private SettingFragment settingFragment;
-    private FragmentManager fragmentManager;
 
     /**
      * APP下发命令 指令内容command/传输数据data
@@ -156,28 +155,13 @@ public class MainActivity extends BaseActivity {
                     wifiStream = msg.getData().getIntArray("DATA");
                     assert wifiStream != null;
                     streamLen = wifiStream.length;
-                    Log.e("DATA", "max: " + dataMax);
                     setWaveParameter();
+                    Log.e("DATA", "dataMax: " + dataMax);
                     doWifiWave(wifiStream);
                     break;
                 case WHAT_REFRESH:
                     organizeWaveData();
                     displayWave();
-                    break;
-                case GET_STREAM:
-                    if (!isSuccessful) {
-                        Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
-                        isSuccessful = true;
-                    }
-                    //GC20190103
-                    //接收WIFI数据流
-                    wifiStream = msg.getData().getIntArray("STM");
-                    assert wifiStream != null;
-                    streamLen = wifiStream.length;
-                    Log.e("STM", "streamLen: " + streamLen);
-                    Log.e("STM", "hasLeft: " + hasLeft);
-                    Log.e("STM", "dataMax: " + dataMax);
-                    doWifiArray(wifiStream, streamLen);
                     break;
                 default:
                     break;
@@ -202,7 +186,7 @@ public class MainActivity extends BaseActivity {
      * 初始化界面框架
      */
     public void initFrame() {
-        fragmentManager = getFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         //GC201907052  先初始化（fragment切换bug修改）
         setTabSelection(2);
         setTabSelection(3);
@@ -1016,21 +1000,21 @@ public class MainActivity extends BaseActivity {
     private void setWaveParameter() {
         if (mode == TDR) {
             //GC20190702 绘制波形数组准备
-            dataMax = readTdrSim[rangeParameter];
+            dataMax = READ_TDR_SIM[rangeParameter];
             waveArray = new int[dataMax];
             isCom = false;
 
             densityMax = densityMaxTdrSim[rangeParameter];
             parameterDensity = densityMax;
         } else if ((mode == ICM) || (mode == DECAY)) {
-            dataMax = readIcmDecay[rangeParameter];
+            dataMax = READ_ICM_DECAY[rangeParameter];
             waveArray = new int[dataMax];
             isCom = false;
 
             densityMax = densityMaxIcmDecay[rangeParameter];
             parameterDensity = densityMax;
         } else if (mode == SIM) {
-            dataMax = readTdrSim[rangeParameter];
+            dataMax = READ_TDR_SIM[rangeParameter];
             waveArray = new int[dataMax];
             //GC20190702 SIM绘制波形数组准备
             simArray1 = new int[dataMax];
@@ -1052,8 +1036,103 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 组织需要绘制的波形数组  最终得到waveDraw和waveCompare
+     * ICM自动定位
      */
+    /*void ICM_auto_cursor(void) {
+        int i = 1, first = 0, second = 0;
+        int[] min_data = new int[255];
+        int first_byte = 3, first_min = 255, k = 0, sk = 1, j = 0;
+        int second_start = 0, second_end = 0, num = 0, derivative_max = 0, max = 0;
+        int[] derivative_first  = new int[255];
+        int[] derivative_second = new int[255];
+
+
+        *//*寻找极小值，只记录255个极小值的位置 *//*
+        while((j < 255) && (i < (dataMax - 5)))
+        {
+            if((waveArray[i] < waveArray[i - 1]) && (waveArray[i] <= waveArray[i + 1]))
+            {
+                if((i > 5) && (waveArray[i - 1] < waveArray[i - 2]))
+                {
+                    if(waveArray[i - 2] < waveArray[i - 3])
+                    {
+                        if(waveArray[i - 3] < waveArray[i - 4])
+                        {
+                            if(waveArray[i - 4] < waveArray[i - 5])
+                            {
+                                min_data[j] = i;
+                                j++;
+                            }
+                        }
+                    }
+                }
+            }
+            i++;
+        }
+        if(j >= 1)
+        {
+            j = j - 1;
+        }
+        *//* 找出第1个极小值在原始数组中的位置First *//*
+        first_min = 255;//sc
+        first = 0;//sc
+        for(k = 0;k < j;k++)
+        {
+            if(waveArray[min_data[k]] < first_min)
+            {
+                first = min_data[k];
+                first_min = waveArray[min_data[k]];
+                sk = k + 1;
+            }
+        }
+        *//* 找出第2个极小值在原始数组中的位置Second *//*
+        first_min = 255;//sc
+        second = 0;//sc
+        for(k = sk;k <= j;k++)
+        {
+            if(waveArray[min_data[k]] < first_min)
+            {
+                second = min_data[k];
+                first_min = waveArray[min_data[k]];
+            }
+        }
+        //printf("second=%d\n",second);
+        i = first;
+        first_byte = 3;  //sc
+        while(first_byte > 0)
+        {
+            while((i > 0) && (waveArray[i] <= waveArray[i - 1]))
+            {
+                i--;
+            }
+            while((i < first) && (waveArray[i] < (waveArray[i + 1]  + first_byte)))
+            {
+                i++;
+            }
+            if(i == first)
+            {
+                first_byte--;
+            }
+            else
+            {
+                break;
+            }
+        }
+        zero = i;
+
+        point_distance = zero + fault_result; // jkj
+
+        if(point_distance >= dataMax)
+        {
+            point_distance = dataMax / 2;
+        }
+        printf("point_distance=%d\n",point_distance);
+    }*/
+    /*
+
+        /**
+         * 组织需要绘制的波形数组  最终得到waveDraw和waveCompare
+         */
     private void organizeWaveData() {
         int start = 0,k;
         //k=(MainPaintBox->Width/2)*Density;
@@ -1062,7 +1141,6 @@ public class MainActivity extends BaseActivity {
         if(positionVirtual < k) {
             start = 0;
         } else if( (dataMax - positionVirtual) < k) {
-            //i=Data_Max - 2*k;
             if ((mode == TDR) || (mode == SIM)) {
                 start = dataMax - 2 * k - removeTdrSim[rangeParameter];
             } else if ((mode == ICM) || (mode == DECAY)) {
@@ -1146,123 +1224,6 @@ public class MainActivity extends BaseActivity {
     /**
      * ##############################以下为测试代码，留作参考##############################
      *
-     * 处理APP接收的数据（旧的方式）
-     */
-    private void doWifiArray(int[] wifiArray, int length) {
-        //command临时数组
-        int[] tempCommand = new int[8];
-
-        if ( (length == 8) && (wifiArray[3] == COMMAND) ) {
-            boolean isCommand = doCommandCrc(wifiArray);
-            //校验成功：APP接收的是命令
-            if (isCommand) {
-                //仪器触发时：APP发送接收数据命令
-                if ( (wifiArray[5] == COMMAND_TRIGGER) && (wifiArray[6] == COMMAND_RECEIVE_RIGHT) ) {
-                    command = COMMAND_RECEIVE_DATA;
-                    dataTransfer = RECEIVING_DATA;
-                    sendCommand();
-                    if (tDialog != null) {
-                        tDialog.dismiss();
-                    }
-                    tDialog = new TDialog.Builder(getSupportFragmentManager())
-                            .setLayoutRes(R.layout.receiving_data)
-                            .setScreenWidthAspect(this, 0.25f)
-                            .setCancelableOutside(false)
-                            .create()
-                            .show();
-                    Log.e("DIA", " 正在接受数据显示" + " ICM/SIM/DECAY");
-                }
-
-            }
-
-        } else if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
-            //数组长度不够wave,拼接处理
-            if (hasLeft) {
-                for (int i = leftLen, j = 0; j < length; i++, j++) {
-                    //与剩余数据进行拼接
-                    leftArray[i] = wifiArray[j];
-                }
-                leftLen = leftLen + length;
-                if (leftLen == (dataMax + 9)) {
-                    for (int i = 8, j = 0; i < leftLen - 1; i++, j++) {
-                        //取wave长度的数组
-                        waveArray[j] = leftArray[i];
-                    }
-                    hasLeft = false;
-                    leftLen = 0;
-                    setWaveParameter();
-                    organizeWaveData();
-                    displayWave();
-                }
-
-            } else {
-                //取command长度的数组(?ICM夹杂命令）
-                System.arraycopy(wifiArray, 0, tempCommand, 0, 8);
-                boolean isCommand = doCommandCrc(tempCommand);
-                //sum校验成功，包含command
-                if (isCommand) {
-                    if (length == (dataMax + 9 + 8)) {
-                        // 去掉command   GC20190126
-                        for (int i = 16, j = 0; i < length - 1; i++, j++) {
-                            waveArray[j] = wifiArray[i];
-                        }
-                        setWaveParameter();
-                        organizeWaveData();
-                        displayWave();
-
-                    } else {  //数组长度不够wave,准备拼接处理  GC20190126
-                        for (int i = leftLen, j = 8; j < length; i++, j++) {
-                            // 去掉command
-                            leftArray[i] = wifiArray[j];
-                        }
-                        hasLeft = true;
-                        leftLen = leftLen + length - 8;
-                    }
-                } else {
-                    if (length == (dataMax + 9)) {
-                        for (int i = 8, j = 0; i < length - 1; i++, j++) {
-                            waveArray[j] = wifiArray[i];
-                        }
-                        setWaveParameter();
-                        organizeWaveData();
-                        displayWave();
-
-                    } else {
-                        //数组长度不够wave,准备拼接处理
-                        for (int i = leftLen, j = 0; j < length; i++, j++) {
-                            leftArray[i] = wifiArray[j];
-                        }
-                        hasLeft = true;
-                        leftLen = leftLen + length;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 控制命令sum校验
-     */
-    private boolean doCommandCrc(int[] tempCommand) {
-        int sum = tempCommand[4] + tempCommand[5] + tempCommand[6];
-        return tempCommand[7] == sum;
-    }
-
-    /**
-     * 波形数据sum校验
-     */
-    private boolean doTempCrc(int[] tempWave) {
-        int dataLen = tempWave.length;
-        int a;
-        int sum = 0;
-        for (int i = 4; i < dataLen; i++) {
-            a = tempWave[i];
-            sum = sum + a;
-        }
-        return tempWave[dataMax + 8] == sum;
-    }
-
-    /**
      * GT 测试绘制效果    //GC20181227
      */
     public void testWaveData() {

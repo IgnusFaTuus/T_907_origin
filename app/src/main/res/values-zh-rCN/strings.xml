@@ -1,51 +1,52 @@
 <resources>
-    <string name="app_name" translatable="true">T-907-ORIGIN</string>
-    <string name="btn_mtd" translatable="true">方式</string>
-    <string name="btn_range" translatable="true">范围</string>
-    <string name="btn_adj" translatable="true">调节</string>
-    <string name="btn_opt" translatable="true">操作</string>
-    <string name="btn_file" translatable="true">文档</string>
-    <string name="btn_setting" translatable="true">设置</string>
-    <string name="btn_test" translatable="true">测试</string>
-    <string name="btn_tdr" translatable="true">低压脉冲</string>
-    <string name="btn_icm" translatable="true">脉冲电流</string>
-    <string name="btn_sim" translatable="true">二次脉冲</string>
-    <string name="btn_decay" translatable="true">DECAY</string>
-    <string name="btn_500m" translatable="true">500m</string>
-    <string name="btn_1km" translatable="true">1km</string>
-    <string name="btn_2km" translatable="true">2km</string>
-    <string name="btn_4km" translatable="true">4km</string>
-    <string name="btn_8km" translatable="true">8km</string>
-    <string name="btn_16km" translatable="true">16km</string>
-    <string name="btn_32km" translatable="true">32km</string>
-    <string name="btn_64km" translatable="true">64km</string>
-    <string name="btn_gain_plus" translatable="true">增益+</string>
-    <string name="btn_gain_minus" translatable="true">增益-</string>
-    <string name="btn_balance_plus" translatable="true">平衡+</string>
-    <string name="btn_balance_minus" translatable="true">平衡-</string>
-    <string name="btn_vel_plus" translatable="true">波速+</string>
-    <string name="btn_vel_minus" translatable="true">波速-</string>
-    <string name="btn_zoom_in" translatable="true">放大</string>
-    <string name="btn_zoom_out" translatable="true">缩小</string>
-    <string name="btn_res" translatable="true">还原</string>
-    <string name="btn_memory" translatable="true">记忆</string>
-    <string name="btn_compare" translatable="true">比较</string>
-    <string name="btn_save" translatable="true">存储</string>
-    <string name="btn_browse" translatable="true">浏览</string>
-    <string name="btn_display" translatable="true">显示</string>
-    <string name="btn_dele" translatable="true">删除</string>
-    <string name="btn_zero" translatable="true">光标零点</string>
-    <string name="btn_lang" translatable="true">语言切换</string>
+    <string name="app_name" >T-907-ORIGIN</string>
+    <string name="btn_mtd" >方式</string>
+    <string name="btn_range">范围</string>
+    <string name="btn_adj">调节</string>
+    <string name="btn_opt">操作</string>
+    <string name="btn_file">文档</string>
+    <string name="btn_setting">设置</string>
+    <string name="btn_test">测试</string>
+    <string name="btn_tdr">低压脉冲</string>
+    <string name="btn_icm">脉冲电流</string>
+    <string name="btn_sim">二次脉冲</string>
+    <string name="btn_decay">DECAY</string>
+    <string name="btn_500m">500m</string>
+    <string name="btn_1km">1km</string>
+    <string name="btn_2km">2km</string>
+    <string name="btn_4km">4km</string>
+    <string name="btn_8km">8km</string>
+    <string name="btn_16km">16km</string>
+    <string name="btn_32km">32km</string>
+    <string name="btn_64km">64km</string>
+    <string name="btn_gain_plus">增益+</string>
+    <string name="btn_gain_minus">增益-</string>
+    <string name="btn_balance_plus">平衡+</string>
+    <string name="btn_balance_minus">平衡-</string>
+    <string name="btn_vel_plus">波速+</string>
+    <string name="btn_vel_minus">波速-</string>
+    <string name="btn_zoom_in">放大</string>
+    <string name="btn_zoom_out">缩小</string>
+    <string name="btn_res">还原</string>
+    <string name="btn_memory">记忆</string>
+    <string name="btn_compare">比较</string>
+    <string name="btn_save">存储</string>
+    <string name="btn_browse">浏览</string>
+    <string name="btn_display">显示</string>
+    <string name="btn_search">查找</string>
+    <string name="btn_dele">删除</string>
+    <string name="btn_zero">光标零点</string>
+    <string name="btn_lang">语言切换</string>
     <drawable name="clr_normal">#FF303F9F</drawable>
     <drawable name="clr_pressed">#9501f9</drawable>
-    <string name="title_activity_base" translatable="true">BaseActivity</string>
-    <string name="fault_distance" translatable="true">"距离:  "</string>
-    <string name="btn_cursor" translatable="true">光标</string>
-    <string name="tv_method" translatable="true">方式:</string>
-    <string name="tv_gain" translatable="true">增益: </string>
-    <string name="tv_vel" translatable="true">波速: </string>
-    <string name="tv_range" translatable="true">范围: </string>
-    <string name="btn_cancel" translatable="true">取消测试</string>
+    <string name="title_activity_base">BaseActivity</string>
+    <string name="fault_distance">"距离:  "</string>
+    <string name="btn_cursor">光标</string>
+    <string name="tv_method">方式:</string>
+    <string name="tv_gain">增益: </string>
+    <string name="tv_vel">波速: </string>
+    <string name="tv_range">范围: </string>
+    <string name="btn_cancel">取消测试</string>
     <string name="wait_trigger">等待触发…</string>
     <string name="tv_balance">平衡:</string>
     <string name="receive_data">正在接收数据…</string>
@@ -53,10 +54,10 @@
     <string name="connecting_hw">等待硬件连接…</string>
     <string name="btn_delay_plus">延时+</string>
     <string name="btn_delay_minus">延时-</string>
-    <string name="distance">%1$fm</string>
     <string name="You_have_no_memory_data_can_not_compare">你还没有记忆数据，无法比较</string>
     <string name="btn_wave_next">波形下翻</string>
     <string name="btn_wave_previous">波形上翻</string>
     <string name="tv_delay">延时:</string>
     <string name="tv_density">比例:</string>
+
 </resources>

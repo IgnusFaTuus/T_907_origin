@@ -1,10 +1,9 @@
 package net.kehui.www.t_907_origin.fragment;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 
@@ -58,32 +57,32 @@ public class ModeFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_tdr:
+                ((MainActivity)getActivity()).setMode(0x11);
                 btnTdr.setEnabled(false);
                 btnIcm.setEnabled(true);
                 btnSim.setEnabled(true);
                 btnDecay.setEnabled(true);
-                ((MainActivity)getActivity()).setMode(0x11);
                 break;
             case R.id.btn_icm:
+                ((MainActivity)getActivity()).setMode(0x22);
                 btnTdr.setEnabled(true);
                 btnIcm.setEnabled(false);
                 btnSim.setEnabled(true);
                 btnDecay.setEnabled(true);
-                ((MainActivity)getActivity()).setMode(0x22);
                 break;
             case R.id.btn_sim:
+                ((MainActivity)getActivity()).setMode(0x33);
                 btnTdr.setEnabled(true);
                 btnIcm.setEnabled(true);
                 btnSim.setEnabled(false);
                 btnDecay.setEnabled(true);
-                ((MainActivity)getActivity()).setMode(0x33);
                 break;
             case R.id.btn_decay:
+                ((MainActivity)getActivity()).setMode(0x44);
                 btnTdr.setEnabled(true);
                 btnIcm.setEnabled(true);
                 btnSim.setEnabled(true);
                 btnDecay.setEnabled(false);
-                ((MainActivity)getActivity()).setMode(0x44);
                 break;
             default:
                 break;
