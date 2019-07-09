@@ -10,6 +10,8 @@ import android.widget.Button;
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.view.MainActivity;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -71,14 +73,15 @@ public class ModeFragment extends Fragment {
                 btnDecay.setEnabled(true);
                 break;
             case R.id.btn_sim:
-                ((MainActivity)getActivity()).setMode(0x33);
+                ((MainActivity) Objects.requireNonNull(getActivity())).setMode(0x33);
                 btnTdr.setEnabled(true);
                 btnIcm.setEnabled(true);
                 btnSim.setEnabled(false);
                 btnDecay.setEnabled(true);
                 break;
             case R.id.btn_decay:
-                ((MainActivity)getActivity()).setMode(0x44);
+                //G?  方法报警告作用
+                ((MainActivity) Objects.requireNonNull(getActivity())).setMode(0x44);
                 btnTdr.setEnabled(true);
                 btnIcm.setEnabled(true);
                 btnSim.setEnabled(true);

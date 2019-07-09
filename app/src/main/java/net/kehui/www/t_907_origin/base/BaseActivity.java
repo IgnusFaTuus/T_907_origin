@@ -20,26 +20,44 @@ public class BaseActivity extends AppCompatActivity {
      */
     public MyChartAdapterBase myChartAdapterMainWave;
     public MyChartAdapterBase myChartAdapterFullWave;
-
     /**
      * 波形参数
      */
     public int  mode;
+    public int  modeBefore;
     public int  range;
-    public int  rangeParameter;
+    public int  rangeBefore;
+    public int  rangeState;
     public int  gain;
-    public float    velocity;
+    public int  velocity;
     public int  density;
+    public int  densityMax;
     public int  balance;
     public int  delay;
     public int  selectSim;
-
     public int  dataMax;
+    /**
+     * 光标位置（变化范围0-509）
+     */
     public int  positionReal;
     public int  positionVirtual;
-    public int  parameterDensity;
-    public int  densityMax;
-
+    public int  zero;
+    public int  pointDistance;
+    /**
+     * 光标状态
+     */
+    public boolean  cursorState;
+    /**
+     * ICM自动测距参数
+     */
+    public int  gainState;
+    public int  breakdownPosition;
+    public int  break_bk;
+    public int  icmInductor;
+    public int  faultResult;
+    /**
+     * 波形数据原始数组
+     */
     public int[]    waveArray;
     public int[]    simArray1;
     public int[]    simArray2;
@@ -49,7 +67,11 @@ public class BaseActivity extends AppCompatActivity {
     public int[]    simArray6;
     public int[]    simArray7;
     public int[]    simArray8;
+    /**
+     * 波形数据绘制数组（510个点）
+     */
     public int[]    waveDraw;
+    public int[]    waveCompare;
     public int[]    simDraw1;
     public int[]    simDraw2;
     public int[]    simDraw3;
@@ -58,7 +80,6 @@ public class BaseActivity extends AppCompatActivity {
     public int[]    simDraw6;
     public int[]    simDraw7;
     public int[]    simDraw8;
-    public int[]    waveCompare;
     /**
      * 不同范围和方式下，波形数据的点数、需要去掉的冗余点数、比例值
      */
@@ -72,9 +93,7 @@ public class BaseActivity extends AppCompatActivity {
      * 是否比较波形的标志
      */
     public boolean  isCom;
-    public boolean  isDrawSim;
     public boolean  clickMemory;
-    public boolean  clickCursor;
 
 
     /**
@@ -83,23 +102,10 @@ public class BaseActivity extends AppCompatActivity {
     public ConnectThread  connectThread;
     public BufferedReader br;
     public static final int PORT = 9000;
-    public static final int MIN_DELAY_TIME = 400;
-    public static long lastClickTime;
     public boolean  isSuccessful;
     public boolean  netBoolean;
     public boolean  isFirst = true;
-
-
-    /**
-     * WIFI数据处理部分
-     *
-     * 接收到的WIFI数据数组和处理过后的剩余数据数组
-     */
-    public int  streamLen;
-    public int  leftLen;
     public int[]    wifiStream;
-    public int[]    leftArray;
-    public boolean  hasLeft;
 
 
     /**
@@ -134,54 +140,25 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * APP接收部分
      */
-    /**
-     * 数据头
-     */
     public final static int COMMAND = 0x55;
     public final static int WAVE_TDR_ICM_DECAY = 0x66;
-    public final static int WAVE_SIM0 = 0x77;
-    public final static int WAVE_SIM1 = 0x88;
-    public final static int WAVE_SIM2 = 0x99;
-    public final static int WAVE_SIM3 = 0xaa;
-    public final static int WAVE_SIM4 = 0xbb;
-    public final static int WAVE_SIM5 = 0xcc;
-    public final static int WAVE_SIM6 = 0xdd;
-    public final static int WAVE_SIM7 = 0xee;
-    public final static int WAVE_SIM8 = 0xff;
-
+    public final static int WAVE_SIM = 0x77;
     public final static int TRIGGERED = 0x11;
     public final static int COMMAND_RECEIVE_RIGHT = 0x33;
     public final static int COMMAND_RECEIVE_WRONG = 0x44;
     /**
-     * 接收波形
-     * 数据头      数据长度    传输数据    校验和
-     * eb90aaxx    aabbccdd       X         xx
      *
      * 发送命令(16进制显示)
      * 数据头   数据长度  指令  传输数据  校验和
      * eb90aa55     03      01      11       15
-     * eb90aa55 03 01 11 15	    测试0x11
-     * eb90aa55 03 01 22 26	    取消测试0x22
-     * eb90aa55 03 02 11 16		TDR低压脉冲方式
-     * eb90aa55 03 02 22 27		ICM脉冲电流方式
-     * eb90aa55 03 02 33 38		SIM二次脉冲方式
-     * eb90aa55 03 03 11 17		范围500m
-     * eb90aa55 03 03 22 28
-     * eb90aa55 03 03 33 39
-     * eb90aa55 03 03 44 4a
-     * eb90aa55 03 03 55 5b
-     * eb90aa55 03 03 66 6c
-     * eb90aa55 03 03 77 7d
-     * eb90aa55 03 03 88 8e		范围64km
-     * eb90aa55 03 04 11 18		增益+
-     * eb90aa55 03 04 22 29		增益-
-     * eb90aa55 03 05 11 19		延时+
-     * eb90aa55 03 05 22 2a		延时-
-     * eb90aa55 03 07 11 1b  	平衡+
-     * eb90aa55 03 07 22 2c		平衡-
-     * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
+     *
      * eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
-     * eb90aa55 03 0a 11 1e		//G后续添加 关机重连
+     *
+     * 接收波形
+     * 数据头      数据长度    传输数据    校验和
+     * eb90aaxx    aabbccdd       X         xx
+     *
+     * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
      */
 
 
@@ -210,48 +187,39 @@ public class BaseActivity extends AppCompatActivity {
         simDraw8 = new int[510];
         waveCompare = new int[510];
 
-        leftArray   = new int[65565];
-
         mode = 0x11;
         range = 0x11;
-        rangeParameter = 0;
+        rangeState = 0;
         gain = 13;
         velocity = 172;
         density = 1;
-        parameterDensity = 1;
         balance = 5;
         delay = 0;
         selectSim = 1;
 
         positionReal = 0;
-        positionVirtual = 0;
-        streamLen = 0;
-        leftLen = 0;
+        positionVirtual = 255;
 
-    }
+        //增益大小状态
+        gainState = 0;
+        //故障击穿时刻对应的那一点
+        breakdownPosition = 0;
 
-    public static boolean isFastClick() {
-        boolean flag = true;
-        long currentClickTime = System.currentTimeMillis();
-        if ((currentClickTime - lastClickTime) >= MIN_DELAY_TIME) {
-            flag = false;
-        }
-        lastClickTime = currentClickTime;
-        return flag;
     }
 
 }
 
 /*更改记录*/
 //GT 工作信息测试
-//GC20181223 光标切换
-//GC20181224 监听并绘制光标位置
-//GC20181227 不同方式范围sparkView点数选择（旧有方式去掉）
-//GC20190103 WIFI数据流接收处理(旧有手动收全方式)
+//GC20181223 实、虚光标切换绘制
+//GC20181227 不同方式范围sparkView点数选择（旧有方式弃用）
 
 //GC20190628 光标虚化和限制范围
 //GC20190629 光标使用优化
-//GC20190702 波形绘制准备工作
+//GC20190702 波形绘制参数准备工作
 //GC20190703 记忆比较功能
 //GC20190704 增益、平衡、延时命令调节
 //GC20190705 fragment切换显示优化
+//GC20190706 数据处理优化
+//GC20190708 ICM自动测距
+//GC20190709 距离计算，比例选择

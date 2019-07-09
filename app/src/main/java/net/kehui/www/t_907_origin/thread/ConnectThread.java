@@ -16,8 +16,10 @@ import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_MODE;
 import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RANGE;
 import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_DATA;
 import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_RIGHT;
-import static net.kehui.www.t_907_origin.base.BaseActivity.DECAY;
+import static net.kehui.www.t_907_origin.base.BaseActivity.TDR;
 import static net.kehui.www.t_907_origin.base.BaseActivity.ICM;
+import static net.kehui.www.t_907_origin.base.BaseActivity.DECAY;
+import static net.kehui.www.t_907_origin.base.BaseActivity.SIM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_16_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_1_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_2_KM;
@@ -27,8 +29,6 @@ import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_500;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_64_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_8_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_ICM_DECAY;
-import static net.kehui.www.t_907_origin.base.BaseActivity.SIM;
-import static net.kehui.www.t_907_origin.base.BaseActivity.TDR;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_TDR_SIM;
 
 /**
@@ -41,11 +41,10 @@ public class ConnectThread extends Thread {
     private Handler handler;
     private OutputStream outputStream;
 
-    public int mode     = TDR;
-    public int range    = 0;
-    public int wifiStreamLen    = 549;
-    public int readCount    = 0;
-    private boolean isCommand = true;
+    private int mode   = TDR;
+    private int range  = 0;
+    private int wifiStreamLen   = 549;
+    private boolean isCommand   = true;
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
@@ -65,10 +64,12 @@ public class ConnectThread extends Thread {
             InputStream inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
+            int bytes;
+            byte[] buffer = new byte[1024*20];
+
             while (true) {
                 if (isCommand) {
-                    byte[] buffer = new byte[65565*9];
-                    int bytes;
+                    //每次收取的wifi数据流长度
                     bytes = inputStream.read(buffer);
                     if (bytes > 0) {
                         byte[] data = new byte[bytes];
@@ -88,61 +89,39 @@ public class ConnectThread extends Thread {
                         bundle.putIntArray("CMD", wifiStream);
                         message.setData(bundle);
                         handler.sendMessage(message);
-                        Log.e("CMD", " 读取到数据:" + wifiStream.length);
                         Log.e("CMD", " 指令：" + wifiStream[5] + " 传输数据：" + wifiStream[6]);
                     }
                 }else {
-                    byte[] buffer = new byte[65565*9];
-                    int bytes;
-
-//                    // 已经成功读取的字节的个数
-//                    int readCount = 0;
-//
-//                    if (readCount == wifiStreamLen) {
-//                        continue;
-//                    } else {
-//                        readCount = inputStream.available();
-//                        Log.e("DATA1", " 实际收取:" + readCount);
-//                        try {
-//                            Thread.sleep(50);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-
-                    while (readCount < wifiStreamLen) {
-                        readCount = inputStream.available();
-                        Log.e("DATA1", " 实际收取:" + readCount);
-                        if (readCount == wifiStreamLen) {
-                            break;
-                        } else {
-                            try {
-                                Thread.sleep(50);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                    //读取长度计数
+                    int readCount   = 0;
+                    byte[] data = new byte[wifiStreamLen];
+                    //GC20190706 数据处理优化
+                    do {
+                        //每次收取的wifi数据流长度
+                        bytes = inputStream.read(buffer);
+                        //先缓存wifi数据流至data（避免数据过多时缓存不够大造成SIM64Km收数不全）
+                        if (bytes > 0) {
+//                            Log.e("WAVE", " 实际收取:" + bytes);
+                            System.arraycopy(buffer, 0, data, readCount, bytes);
+                            readCount += bytes;
                         }
+                    } while (readCount != wifiStreamLen);
+
+                    //需要传递的int型波形数据
+                    int[] wifiStream = new int[wifiStreamLen];
+                    //将传过来的字节数组转变为int数组
+                    for (int i = 0; i < wifiStreamLen; i++) {
+                        wifiStream[i] = data[i] & 0xff;
                     }
 
-                    bytes = inputStream.read(buffer);
-                    if (bytes > 0) {
-                        byte[] data = new byte[bytes];
-                        System.arraycopy(buffer, 0, data, 0, bytes);
-                        int[] wifiStream = new int[bytes];
-                        //将传过来的字节数组转变为int数组
-                        for (int i = 0; i < bytes; i++) {
-                            wifiStream[i] = data[i] & 0xff;
-                        }
-                        Message message = Message.obtain();
-                        message.what = MainActivity.GET_WAVE;
-                        Bundle bundle = new Bundle();
-                        bundle.putIntArray("DATA", wifiStream);
-                        message.setData(bundle);
-                        handler.sendMessage(message);
-                        Log.e("DATA", " 读取到数据:" + wifiStream.length);
-                        isCommand = true;
-                        readCount = 0;
-                    }
+                    Message message = Message.obtain();
+                    message.what = MainActivity.GET_WAVE;
+                    Bundle bundle = new Bundle();
+                    bundle.putIntArray("WAVE", wifiStream);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                    //波形数据收取完成，准备收取command
+                    isCommand = true;
                 }
             }
         } catch (IOException e) {
@@ -170,11 +149,13 @@ public class ConnectThread extends Thread {
                             mode = SIM;
                             break;
                         case (byte) DECAY :
-                            mode = SIM;
+                            mode = DECAY;
                             break;
                         default:
                             break;
                     }
+                    //接收数据个数选择
+                    selectWifiStreamLength();
                 } else if (request[5] == COMMAND_RANGE){
                     switch (request[6]) {
                         case (byte) RANGE_500 :
@@ -204,9 +185,9 @@ public class ConnectThread extends Thread {
                         default:
                             break;
                     }
+                    //接收数据个数选择
+                    selectWifiStreamLength();
                 }
-                //接收数据个数选择
-                selectWifiStreamLength();
                 Message message = Message.obtain();
                 message.what = MainActivity.SEND_SUCCESS;
                 handler.sendMessage(message);
@@ -220,7 +201,7 @@ public class ConnectThread extends Thread {
     }
 
     /**
-     * 根据方式范围选取判断收取数据的点数
+     * 根据方式、范围选取判断收取波形数据的点数
      */
     private void selectWifiStreamLength() {
         if (mode == TDR) {
@@ -230,7 +211,7 @@ public class ConnectThread extends Thread {
         } else if (mode == SIM) {
             wifiStreamLen = ( READ_TDR_SIM[range] + 9 ) * 9;
         }
-        Log.e("DATA1", " 需要绘制:" + wifiStreamLen);
+        Log.e("WAVE", " 需要绘制:" + wifiStreamLen);
     }
 
 }

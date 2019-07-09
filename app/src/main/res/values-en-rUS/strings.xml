@@ -54,10 +54,11 @@
     <string name="connecting_hw">Wait For Hardware Connection…</string>
     <string name="btn_delay_plus">DELAY+</string>
     <string name="btn_delay_minus">DELAY-</string>
-    <string name="You_have_no_memory_data_can_not_compare">You have no memory data, can not compare</string>
+    <string name="You_have_no_memory_data_can_not_compare">You have no memory wave, can not compare</string>
     <string name="btn_wave_previous">PRE.</string>
     <string name="tv_delay">DELAY:</string>
     <string name="tv_density">ZOOM:</string>
     <string name="btn_wave_next">NEXT</string>
+    <string name="You_can_not_compare">You can not compare with different mode or range</string>
 
 </resources>

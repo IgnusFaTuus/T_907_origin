@@ -42,7 +42,7 @@ public class SplashActivity extends AppCompatActivity {
 
         WifiUtil wifiUtil = new WifiUtil(this);
         wifiUtil.openWifi();
-        wifiUtil.addNetwork(wifiUtil.createWifiInfo("T-907", "123456789", 3));
+        wifiUtil.addNetwork(wifiUtil.createWifiInfo("T-9071", "123456789", 3));
         //隐藏状态栏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);

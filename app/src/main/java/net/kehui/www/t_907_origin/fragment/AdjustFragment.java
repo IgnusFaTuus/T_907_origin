@@ -142,7 +142,7 @@ public class AdjustFragment extends Fragment {
                 }
                 break;
             case R.id.btn_vel_plus:
-                float velocity = ((MainActivity) getActivity()).getVelocity();
+                int velocity = ((MainActivity) getActivity()).getVelocity();
                 if (velocity < 250) {
                     velocity++;
                     ((MainActivity) getActivity()).setVelocity(velocity);

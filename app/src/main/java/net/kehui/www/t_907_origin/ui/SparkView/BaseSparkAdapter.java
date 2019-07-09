@@ -171,7 +171,7 @@ public abstract class BaseSparkAdapter {
 
     public abstract boolean getCompare();
 
-    public abstract boolean getCursorState();   //GC20181223
+    public abstract boolean getCursorState();
 
     public abstract int getMax();   //GC20181227
 

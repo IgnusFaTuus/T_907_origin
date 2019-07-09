@@ -389,11 +389,9 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         canvas.drawPath(scrubLinePath2, scrubLinePaint2);
         canvas.drawPath(scrubLinePath, scrubLinePaint);
 
-        if(scrubEnabled) {
+        if(!startMove) {
             setScrubLineReal(0);
-        }
-        if(!startMove && scrubEnabled) {
-            setScrubLineVirtualMove(283);
+            setScrubLineVirtual(255);
         }
 
         //setScrubLineReal(0);
@@ -858,6 +856,8 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
 
     @Override
     public void onScrubbed(float x, float y) {
+        //GC2019629
+        startMove = true;
         scX = x;
         //GC20181227
 //        if (adapter == null || adapter.getMax()== 0) {
@@ -874,7 +874,7 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         //GC20181223 光标切换
         Log.i("QQQ", "adapter" + ".selectCursor()" + adapter.getCursorState());
         //GC20190628 光标位置限制，触摸有效范围
-        if(x >= 8.992974 & x <= 1111.1304) {
+        if(x >= 8.9929 & x <= 1111.1304) {
             if (adapter.getCursorState()){
                 setScrubLineRealMove(x);
             }else{

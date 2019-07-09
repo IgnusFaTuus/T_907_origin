@@ -54,10 +54,11 @@
     <string name="connecting_hw">等待硬件连接…</string>
     <string name="btn_delay_plus">延时+</string>
     <string name="btn_delay_minus">延时-</string>
-    <string name="You_have_no_memory_data_can_not_compare">你还没有记忆数据，无法比较</string>
+    <string name="You_have_no_memory_data_can_not_compare">你还没有记忆波形，无法比较</string>
     <string name="btn_wave_next">波形下翻</string>
     <string name="btn_wave_previous">波形上翻</string>
     <string name="tv_delay">延时:</string>
     <string name="tv_density">比例:</string>
+    <string name="You_can_not_compare">方式或范围不同，无法比较</string>
 
 </resources>
