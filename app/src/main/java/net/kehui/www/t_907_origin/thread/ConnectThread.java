@@ -29,6 +29,8 @@ import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_500;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_64_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_8_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_ICM_DECAY;
+import static net.kehui.www.t_907_origin.base.BaseActivity.SIM;
+import static net.kehui.www.t_907_origin.base.BaseActivity.TDR;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_TDR_SIM;
 
 /**
@@ -41,10 +43,11 @@ public class ConnectThread extends Thread {
     private Handler handler;
     private OutputStream outputStream;
 
-    private int mode   = TDR;
-    private int range  = 0;
-    private int wifiStreamLen   = 549;
-    private boolean isCommand   = true;
+    public int mode     = TDR;
+    public int range    = 0;
+    public int wifiStreamLen    = 549;
+    public int readCount    = 0;
+    private boolean isCommand = true;
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");

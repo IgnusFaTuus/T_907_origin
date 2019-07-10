@@ -4,15 +4,20 @@ import android.app.Application;
 
 import android.content.res.Configuration;
 
+
 /**
  * @author IF
  */
 public class MyApplication extends Application {
+
     public static MyApplication instances;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instances = this;
+
     }
 
     @Override
@@ -23,5 +28,9 @@ public class MyApplication extends Application {
     public static MyApplication getInstances() {
         return instances;
     }
+
+
+
+
 
 }

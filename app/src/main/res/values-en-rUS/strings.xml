@@ -47,11 +47,11 @@
     <string name="btn_cancel">CANCEL</string>
     <string name="btn_adj">ADJ</string>
     <string name="btn_test">TEST</string>
-    <string name="wait_trigger">Wait For Trigger…</string>
+    <string name="wait_trigger">Waiting For Trigger…</string>
     <string name="tv_balance">BAL:</string>
     <string name="receive_data">Receiving Data…</string>
-    <string name="connecting_wifi">Wait For WiFi Connection…</string>
-    <string name="connecting_hw">Wait For Hardware Connection…</string>
+    <string name="connecting_wifi">Waiting For WiFi Connection…</string>
+    <string name="connecting_hw">Waiting For Device Connection…</string>
     <string name="btn_delay_plus">DELAY+</string>
     <string name="btn_delay_minus">DELAY-</string>
     <string name="You_have_no_memory_data_can_not_compare">You have no memory wave, can not compare</string>
@@ -59,6 +59,28 @@
     <string name="tv_delay">DELAY:</string>
     <string name="tv_density">ZOOM:</string>
     <string name="btn_wave_next">NEXT</string>
+    <string name="tv_testdate">"DATE :  "</string>
+    <string name="tv_testtime">"TIME :  "</string>
+    <string name="tv_testmode">"MODE :  "</string>
+    <string name="tv_testrange">"RANGE :  "</string>
+    <string name="tv_testphase">"PHASE :  "</string>
+    <string name="tv_tester">"TESTER :  "</string>
+    <string name="tv_testlocation">"LOCATION :  "</string>
+    <string name="tv_testline">"LINE :  "</string>
+    <string name="btn_Confirm">Confirm</string>
+    <string name="year">Year</string>
+    <string name="month">Month</string>
+    <string name="day">Day</string>
+    <string name="phaseA">PHASE&#160;A</string>
+    <string name="phaseB">PHASE&#160;B</string>
+    <string name="phaseC">PHASE&#160;C</string>
+    <string name="btn_view">LOOK  UP</string>
+    <string name="title_date">DATE</string>
+    <string name="title_time">TIME</string>
+    <string name="title_mode">MODE</string>
+    <string name="title_range">RANGE</string>
+    <string name="oneSpace">&#160;</string>
+    <string name="twoSpace">&#160;&#160;</string>
     <string name="You_can_not_compare">You can not compare with different mode or range</string>
 
 </resources>

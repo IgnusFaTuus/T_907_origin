@@ -1,6 +1,6 @@
 package net.kehui.www.t_907_origin.fragment;
 
-import androidx.fragment.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import androidx.fragment.app.Fragment;
+
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.view.ListActivity;
 import net.kehui.www.t_907_origin.view.MainActivity;
+import net.kehui.www.t_907_origin.view.SaveActivity;
+import net.kehui.www.t_907_origin.view.SearchActivity;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,13 +29,11 @@ import butterknife.Unbinder;
  */
 public class FileFragment extends Fragment {
     @BindView(R.id.btn_save)
-    Button btnSave;
+    Button       btnSave;
     @BindView(R.id.btn_browse)
-    Button btnBrowse;
-    @BindView(R.id.btn_display)
-    Button btnDisplay;
-    @BindView(R.id.btn_dele)
-    Button btnDele;
+    Button       btnBrowse;
+    @BindView(R.id.btn_search)
+    Button       btnDisplay;
     @BindView(R.id.file_sidebar)
     LinearLayout fileSidebar;
     Unbinder unbinder;
@@ -47,22 +52,26 @@ public class FileFragment extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_browse, R.id.btn_display, R.id.btn_dele})
+    @OnClick({R.id.btn_save, R.id.btn_browse, R.id.btn_search})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_save:
+                Intent intentSave = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(),SaveActivity.class);
+                startActivity(intentSave);
                 break;
             case R.id.btn_browse:
-                ((MainActivity)getActivity()).getTxtWaveData();
+                Intent it = new Intent(
+                        Objects.requireNonNull(getActivity()).getApplicationContext(),
+                        ListActivity.class);
+                startActivity(it);
                 break;
-            case R.id.btn_display:
-                ((MainActivity)getActivity()).testWaveData();
+            case R.id.btn_search:
+                Intent intentSearch =
+                        new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), SearchActivity.class);
+                startActivity(intentSearch);
                 break;
-            case R.id.btn_dele:
-                ((MainActivity)getActivity()).initSparkView();
+            default:
                 break;
-                default:
-                    break;
         }
     }
 }

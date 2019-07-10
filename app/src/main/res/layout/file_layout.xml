@@ -27,22 +27,13 @@
             android:textColor="@android:color/black"/>
 
 
-
         <Button
-            android:id="@+id/btn_display"
+            android:id="@+id/btn_search"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="@string/btn_display"
-            android:textColor="@android:color/black"/>
-
-        <Button
-            android:id="@+id/btn_dele"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="@string/btn_dele"
-            android:textColor="@android:color/black"/>
+            android:text="@string/btn_search"
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 

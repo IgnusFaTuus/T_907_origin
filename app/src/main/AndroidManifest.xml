@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="net.kehui.www.t_907_origin">
 
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -17,20 +18,35 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".view.ListActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/AlertNoActionBar">
+
+        </activity>
+        <activity
+            android:name=".view.SearchActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation"
+            android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name=".view.SaveActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation"
+            android:screenOrientation="sensorLandscape" />
+        <activity
             android:name=".view.SplashActivity"
             android:configChanges="screenSize|keyboardHidden|orientation"
             android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".view.MainActivity"
             android:configChanges="screenSize|keyboardHidden|orientation"
-            android:screenOrientation="sensorLandscape">
-        </activity>
+            android:screenOrientation="sensorLandscape" />
         <activity android:name=".base.BaseActivity" />
     </application>
 
