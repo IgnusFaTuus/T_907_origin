@@ -23,6 +23,8 @@
     <string name="btn_gain_minus">增益-</string>
     <string name="btn_balance_plus">平衡+</string>
     <string name="btn_balance_minus">平衡-</string>
+    <string name="btn_delay_plus">延时+</string>
+    <string name="btn_delay_minus">延时-</string>
     <string name="btn_vel_plus">波速+</string>
     <string name="btn_vel_minus">波速-</string>
     <string name="btn_zoom_in">放大</string>
@@ -52,8 +54,6 @@
     <string name="receive_data">正在接收数据…</string>
     <string name="connecting_wifi">等待WiFi连接…</string>
     <string name="connecting_hw">等待设备连接…</string>
-    <string name="btn_delay_plus">延时+</string>
-    <string name="btn_delay_minus">延时-</string>
     <string name="You_have_no_memory_data_can_not_compare">你还没有记忆数据，无法比较</string>
     <string name="btn_wave_next">波形下翻</string>
     <string name="btn_wave_previous">波形上翻</string>

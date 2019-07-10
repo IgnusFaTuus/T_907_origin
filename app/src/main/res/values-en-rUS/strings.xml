@@ -21,6 +21,8 @@
     <string name="btn_gain_minus">GAIN-</string>
     <string name="btn_balance_plus">BAL+</string>
     <string name="btn_balance_minus">BAL-</string>
+    <string name="btn_delay_plus">DELAY+</string>
+    <string name="btn_delay_minus">DELAY-</string>
     <string name="btn_vel_plus">VEL+</string>
     <string name="btn_vel_minus">VEL-</string>
     <string name="btn_zoom_in">ZOOM+</string>
@@ -52,8 +54,6 @@
     <string name="receive_data">Receiving Data…</string>
     <string name="connecting_wifi">Waiting For WiFi Connection…</string>
     <string name="connecting_hw">Waiting For Device Connection…</string>
-    <string name="btn_delay_plus">DELAY+</string>
-    <string name="btn_delay_minus">DELAY-</string>
     <string name="You_have_no_memory_data_can_not_compare">You have no memory wave, can not compare</string>
     <string name="btn_wave_previous">PRE.</string>
     <string name="tv_delay">DELAY:</string>

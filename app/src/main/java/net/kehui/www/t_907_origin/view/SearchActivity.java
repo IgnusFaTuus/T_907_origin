@@ -53,14 +53,10 @@ public class SearchActivity extends BaseActivity {
     @BindView(R.id.btn_Confirm_Search)
     Button  btnConfirmSearch;
 
-    MainActivity obj = new MainActivity();
-
     private List<String> modeList  = new ArrayList<>();
     private List<String> rangeList = new ArrayList<>();
     private List<String> phaseList = new ArrayList<>();
 
-    public static final String ACTION = "jason.broadcast.ACTION";
-    //private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

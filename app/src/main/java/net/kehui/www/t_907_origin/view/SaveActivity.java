@@ -80,7 +80,6 @@ public class SaveActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_save);
         ButterKnife.bind(this);
-        Log.e("data", "line: " + time);
         initFrame();
     }
 
@@ -119,22 +118,18 @@ public class SaveActivity extends BaseActivity {
             case TDR:
                 etMode.setText(getResources().getString(R.string.btn_tdr));
                 Constant.Mode = getResources().getString(R.string.btn_tdr);
-                Constant.ModeValue = TDR;
                 break;
             case ICM:
                 etMode.setText(getResources().getString(R.string.btn_icm));
                 Constant.Mode = getResources().getString(R.string.btn_icm);
-                Constant.ModeValue = ICM;
                 break;
             case SIM:
                 etMode.setText(getResources().getString(R.string.btn_sim));
                 Constant.Mode = getResources().getString(R.string.btn_sim);
-                Constant.ModeValue = SIM;
                 break;
             case DECAY:
                 etMode.setText(getResources().getString(R.string.btn_decay));
                 Constant.Mode = getResources().getString(R.string.btn_decay);
-                Constant.RangeValue = DECAY;
                 break;
             default:
                 break;
@@ -148,42 +143,34 @@ public class SaveActivity extends BaseActivity {
             case RANGE_500:
                 etRange.setText(getResources().getString(R.string.btn_500m));
                 Constant.Range = getResources().getString(R.string.btn_500m);
-                Constant.RangeValue = RANGE_500;
                 break;
             case RANGE_1_KM:
                 etRange.setText(getResources().getString(R.string.btn_1km));
                 Constant.Range = getResources().getString(R.string.btn_1km);
-                Constant.RangeValue = RANGE_1_KM;
                 break;
             case RANGE_2_KM:
                 etRange.setText(getResources().getString(R.string.btn_2km));
                 Constant.Range = getResources().getString(R.string.btn_2km);
-                Constant.RangeValue = RANGE_2_KM;
                 break;
             case RANGE_4_KM:
                 etRange.setText(getResources().getString(R.string.btn_4km));
                 Constant.Range = getResources().getString(R.string.btn_4km);
-                Constant.RangeValue = RANGE_4_KM;
                 break;
             case RANGE_8_KM:
                 etRange.setText(getResources().getString(R.string.btn_8km));
                 Constant.Range = getResources().getString(R.string.btn_8km);
-                Constant.RangeValue = RANGE_8_KM;
                 break;
             case RANGE_16_KM:
                 etRange.setText(getResources().getString(R.string.btn_16km));
                 Constant.Range = getResources().getString(R.string.btn_16km);
-                Constant.RangeValue = RANGE_16_KM;
                 break;
             case RANGE_32_KM:
                 etRange.setText(getResources().getString(R.string.btn_32km));
                 Constant.Range = getResources().getString(R.string.btn_32km);
-                Constant.RangeValue = RANGE_32_KM;
                 break;
             case RANGE_64_KM:
                 etRange.setText(getResources().getString(R.string.btn_64km));
                 Constant.Range = getResources().getString(R.string.btn_64km);
-                Constant.RangeValue = RANGE_64_KM;
                 break;
             default:
                 break;
@@ -197,7 +184,6 @@ public class SaveActivity extends BaseActivity {
                 this, android.R.layout.simple_dropdown_item_1line, line);
         etLine.setAdapter(adapter);
         Constant.Line = Constant.Line + etLine.getText().toString();
-        Log.e("dd", "line: " + Constant.Line);
     }
 
     private void setSpPhase() {
@@ -286,16 +272,11 @@ public class SaveActivity extends BaseActivity {
         data.time = Constant.Time.trim();
         data.mode = Constant.Mode.trim();
         data.range = Constant.Range.trim();
-        data.line = Constant.Line.trim();
+        data.line = etLine.getText().toString().trim();
         data.phase = Constant.Phase.trim();
         data.tester = etTester.getText().toString().trim();
-        data.location = Constant.Location.trim();
-        if (Constant.WaveData != null) {
-            System.arraycopy(Constant.WaveData,0,data.waveData,0,Constant.WaveData.length);
-        }
-        if (Constant.SimData != null) {
-            System.arraycopy(Constant.SimData,0,data.waveDataSim,0,Constant.SimData.length);
-        }
+        data.location = etLocation.getText().toString().trim();
+        data.waveData = Constant.WaveData;
         //参数数据 方式  范围 增益 波速度
         data.para = new int[]{Constant.ModeValue, Constant.RangeValue, Constant.Gain,
                 Constant.Velocity};
