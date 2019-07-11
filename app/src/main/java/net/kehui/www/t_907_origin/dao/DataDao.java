@@ -9,6 +9,10 @@ import androidx.room.Update;
 
 import net.kehui.www.t_907_origin.entity.Data;
 
+import java.util.List;
+
+import io.reactivex.Flowable;
+
 /**
  * @author li.md
  * @date 2019/7/4
@@ -52,5 +56,4 @@ public interface DataDao {
 
     @Query("SELECT * FROM data WHERE location LIKE :location")
     Data[] queryLocation(String location);
-
 }

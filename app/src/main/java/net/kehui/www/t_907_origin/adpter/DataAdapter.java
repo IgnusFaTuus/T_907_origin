@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.application.Constant;
 import net.kehui.www.t_907_origin.entity.Data;
 
 import java.util.List;
@@ -16,10 +17,11 @@ import java.util.List;
  * @date 2019/7/9
  */
 public class DataAdapter extends RecyclerView.Adapter {
-    public  List<Data>                      datas;
+
     private DataAdapter.OnItemClickListener onItemClickListener;
 
-    private int selected = 0;
+    public  List<Data> datas;
+    private int        selected = 0;
 
     @NonNull
     @Override
@@ -37,6 +39,8 @@ public class DataAdapter extends RecyclerView.Adapter {
         holder.time.setText(data.time);
         holder.mode.setText(data.mode);
         holder.range.setText(data.range);
+        int[]selectedWave = data.waveData;
+        int[]selectedSim = data.waveDataSim;
         int selectedId = data.dataId;
         if (selected == position) {
             viewHolder.itemView.setBackgroundResource(R.color.T_99);
@@ -46,8 +50,8 @@ public class DataAdapter extends RecyclerView.Adapter {
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
                 int pos = holder.getLayoutPosition();
-                onItemClickListener.onItemClick(holder.itemView,selectedId, pos);
-
+                onItemClickListener.onItemClick(holder.itemView, selectedId, selectedWave,
+                        selectedSim, pos);
             }
         });
     }
@@ -93,6 +97,6 @@ public class DataAdapter extends RecyclerView.Adapter {
          * @param view
          * @param position
          */
-        void onItemClick(View view,int dataId,int position);
+        void onItemClick(View view, int dataId, int[]waveData,int[]simData, int position);
     }
 }

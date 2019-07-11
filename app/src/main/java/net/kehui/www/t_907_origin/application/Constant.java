@@ -21,4 +21,12 @@ public class Constant {
     public static String Location;
     public static int[]  WaveData;
     public static int[]  SimData;
+    public static int[]  TempData1;
+    public static int[]  TempData2;
+    public static int[]  TempData3;
+    public static int[]  TempData4;
+    public static int[]  TempData5;
+    public static int[]  TempData6;
+    public static int[]  TempData7;
+    public static int[]  TempData8;
 }

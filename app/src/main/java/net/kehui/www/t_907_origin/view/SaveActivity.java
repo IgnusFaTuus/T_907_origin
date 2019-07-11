@@ -1,7 +1,6 @@
 package net.kehui.www.t_907_origin.view;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -9,8 +8,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-
-import androidx.room.Delete;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.application.Constant;
@@ -71,9 +68,14 @@ public class SaveActivity extends BaseActivity {
 
 
     private List<String> phaseList = new ArrayList<>();
-    private String[]     line      = new String[]{"1号线路", "2号线路", "3号线路"};
-    private String[]     tester    = new String[]{Constant.Tester};
-    private String[]     location  = new String[]{Constant.Location};
+    private String[]     line      = new String[100];
+    private String[]     tester    = new String[100];
+    private String[]     location  = new String[100];
+
+
+    public List<String> lineList = new ArrayList<>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +86,9 @@ public class SaveActivity extends BaseActivity {
     }
 
     private void initFrame() {
+        //Data data = datas.get(2);
+
+        //lineList.add(data.line);
 
         setEtDate();
         setEtTime();
@@ -277,6 +282,7 @@ public class SaveActivity extends BaseActivity {
         data.tester = etTester.getText().toString().trim();
         data.location = etLocation.getText().toString().trim();
         data.waveData = Constant.WaveData;
+        data.waveDataSim = Constant.SimData;
         //参数数据 方式  范围 增益 波速度
         data.para = new int[]{Constant.ModeValue, Constant.RangeValue, Constant.Gain,
                 Constant.Velocity};

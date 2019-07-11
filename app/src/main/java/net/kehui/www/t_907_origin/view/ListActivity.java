@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.adpter.DataAdapter;
+import net.kehui.www.t_907_origin.application.Constant;
 import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.entity.Data;
 
@@ -62,9 +63,11 @@ public class ListActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        adapter.setOnItemClickListener((view, dataId, position) -> {
+        adapter.setOnItemClickListener((view, dataId, selectedWave[],selectedSim[],position) -> {
             adapter.changeSelected(position);
             selectedId = dataId;
+            Constant.WaveData = selectedWave;
+            Constant.SimData = selectedSim;
             pos = position;
         });
 
