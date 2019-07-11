@@ -30,133 +30,130 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * 波形参数
      */
-    public int mode;
-    public int modeBefore;
-    public int range;
-    public int rangeBefore;
-    public int rangeState;
-    public int gain;
-    public int velocity;
-    public int density;
-    public int densityMax;
-    public int balance;
-    public int delay;
-    public int selectSim;
-    public int dataMax;
+    public int  mode;
+    public int  modeBefore;
+    public int  range;
+    public int  rangeBefore;
+    public int  rangeState;
+    public int  gain;
+    public int  velocity;
+    public int  density;
+    public int  densityMax;
+    public int  balance;
+    public int  delay;
+    public int  inductor;
+    public int  dataMax;
+    public int  selectSim;
     /**
      * 光标位置（变化范围0-509）
      */
-    public int positionReal;
-    public int positionVirtual;
-    public int zero;
-    public int pointDistance;
-
+    public int  positionReal;
+    public int  positionVirtual;
     /**
      * 光标状态
      */
-    public boolean cursorState;
+    public boolean  cursorState;
     /**
      * ICM自动测距参数
      */
-    public int     gainState;
-    public int     breakdownPosition;
-    public int     break_bk;
-    public int     icmInductor;
-    public int     faultResult;
+    public int  gainState;
+    public int  breakdownPosition;
+    public int  breakBk;
+    public int  faultResult;
+    public float[] waveArrayFilter      = new float[65560];
+    public float[] waveArrayIntegral    = new float[65560];
+    public float[] s1 = new float[65560];
+    public float[] s2 = new float[65560];
+    public int[] minPeak = new int[255];
     /**
      * 波形数据原始数组
      */
-    public int[]   waveArray;
-    public int[]   simArray1;
-    public int[]   simArray2;
-    public int[]   simArray3;
-    public int[]   simArray4;
-    public int[]   simArray5;
-    public int[]   simArray6;
-    public int[]   simArray7;
-    public int[]   simArray8;
+    public int[]    waveArray;
+    public int[]    simArray1;
+    public int[]    simArray2;
+    public int[]    simArray3;
+    public int[]    simArray4;
+    public int[]    simArray5;
+    public int[]    simArray6;
+    public int[]    simArray7;
+    public int[]    simArray8;
     /**
      * 波形数据绘制数组（510个点）
      */
-    public int[]   waveDraw;
-    public int[]   waveCompare;
-    public int[]   simDraw1;
-    public int[]   simDraw2;
-    public int[]   simDraw3;
-    public int[]   simDraw4;
-    public int[]   simDraw5;
-    public int[]   simDraw6;
-    public int[]   simDraw7;
-    public int[]   simDraw8;
-
+    public int[]    waveDraw;
+    public int[]    waveCompare;
+    public int[]    simDraw1;
+    public int[]    simDraw2;
+    public int[]    simDraw3;
+    public int[]    simDraw4;
+    public int[]    simDraw5;
+    public int[]    simDraw6;
+    public int[]    simDraw7;
+    public int[]    simDraw8;
     /**
      * 不同范围和方式下，波形数据的点数、需要去掉的冗余点数、比例值
      */
-    public final static int[] READ_TDR_SIM       = {540, 1052, 2076, 4124, 8220,
-            16412, 32796, 65556};
-    public final static int[] READ_ICM_DECAY     = {2068, 4116, 8212, 16404, 32788,
-            65556, 32788, 65556};
-    public              int[] removeTdrSim       = {30, 32, 36, 44, 60, 92, 156, 276};
-    public              int[] removeIcmDecay     = {28, 36, 52, 84, 148, 276, 148,
-            276};
-    public              int[] densityMaxTdrSim   = {1, 2, 4, 8, 16, 32, 64, 128};
-    public              int[] densityMaxIcmDecay = {4, 8, 16, 32, 64, 128, 64, 128};
-
+    public final static int[] READ_TDR_SIM      = {  540, 1052, 2076,  4124,  8220, 16412, 32796, 65556 };
+    public final static int[] READ_ICM_DECAY    = { 2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556 };
+    public int[]    removeTdrSim    = {30,32,36,44, 60, 92,156,276};
+    public int[]    removeIcmDecay  = {28,36,52,84,148,276,148,276};
+    public int[]    densityMaxTdrSim    = {1,2, 4, 8,16, 32,64,128};
+    public int[]    densityMaxIcmDecay  = {4,8,16,32,64,128,64,128};
     /**
      * 是否比较波形的标志
      */
-    public boolean isCom;
-    public boolean clickMemory;
+    public boolean  isCom;
+    public boolean  clickMemory;
 
 
     /**
      * WiFi连接部分
      */
-    public              ConnectThread  connectThread;
-    public              BufferedReader br;
-    public static final int            PORT    = 9000;
-    public              boolean        isSuccessful;
-    public              boolean        netBoolean;
-    public              boolean        isFirst = true;
-    public              int[]          wifiStream;
+    public ConnectThread  connectThread;
+    public BufferedReader br;
+    public static final int PORT = 9000;
+    public boolean  isSuccessful;
+    public boolean  netBoolean;
+    public boolean  isFirst = true;
+    public int[]    wifiStream;
 
 
     /**
      * 魔法值定义，改善代码易读性
-     * <p>
+     *
      * APP发送部分
      */
-    public final static int COMMAND_DATA_LENGTH   = 0x03;
-    public final static int COMMAND_TEST          = 0x01;
-    public final static int COMMAND_MODE          = 0x02;
-    public final static int COMMAND_RANGE         = 0x03;
-    public final static int COMMAND_GAIN          = 0x04;
-    public final static int COMMAND_DELAY         = 0x05;
-    public final static int COMMAND_BALANCE       = 0x07;
-    public final static int COMMAND_TRIGGER       = 0x08;
-    public final static int COMMAND_RECEIVE_DATA  = 0x09;
-    public final static int TESTING               = 0x11;
-    public final static int CANCEL_TEST           = 0x22;
-    public final static int TDR                   = 0x11;
-    public final static int ICM                   = 0x22;
-    public final static int SIM                   = 0x33;
-    public final static int DECAY                 = 0x44;
-    public final static int RANGE_500             = 0x11;
-    public final static int RANGE_1_KM            = 0x22;
-    public final static int RANGE_2_KM            = 0x33;
-    public final static int RANGE_4_KM            = 0x44;
-    public final static int RANGE_8_KM            = 0x55;
-    public final static int RANGE_16_KM           = 0x66;
-    public final static int RANGE_32_KM           = 0x77;
-    public final static int RANGE_64_KM           = 0x88;
-    public final static int RECEIVING_DATA        = 0x11;
+    public final static int COMMAND_DATA_LENGTH = 0x03;
+    public final static int COMMAND_TEST            = 0x01;
+    public final static int COMMAND_MODE            = 0x02;
+    public final static int COMMAND_RANGE           = 0x03;
+    public final static int COMMAND_GAIN            = 0x04;
+    public final static int COMMAND_DELAY           = 0x05;
+    public final static int COMMAND_BALANCE         = 0x07;
+    public final static int COMMAND_TRIGGER         = 0x08;
+    public final static int COMMAND_RECEIVE_DATA    = 0x09;
+    public final static int TESTING     = 0x11;
+    public final static int CANCEL_TEST = 0x22;
+    public final static int TDR      = 0x11;
+    public final static int ICM      = 0x22;
+    public final static int SIM      = 0x33;
+    public final static int DECAY    = 0x44;
+    public final static int RANGE_500   = 0x11;
+    public final static int RANGE_1_KM  = 0x22;
+    public final static int RANGE_2_KM  = 0x33;
+    public final static int RANGE_4_KM  = 0x44;
+    public final static int RANGE_8_KM  = 0x55;
+    public final static int RANGE_16_KM = 0x66;
+    public final static int RANGE_32_KM = 0x77;
+    public final static int RANGE_64_KM = 0x88;
+    public final static int RECEIVING_DATA  = 0x11;
     /**
      * APP接收部分
      */
-    public final static int COMMAND               = 0x55;
-    public final static int WAVE_TDR_ICM_DECAY    = 0x66;
-    public final static int WAVE_SIM              = 0x77;
-    public final static int TRIGGERED             = 0x11;
+    public final static int COMMAND = 0x55;
+    public final static int WAVE_TDR_ICM_DECAY = 0x66;
+    public final static int WAVE_SIM = 0x77;
+    public final static int TRIGGERED = 0x11;
     public final static int COMMAND_RECEIVE_RIGHT = 0x33;
     public final static int COMMAND_RECEIVE_WRONG = 0x44;
 
@@ -165,16 +162,17 @@ public class BaseActivity extends AppCompatActivity {
     public int         selectedId;
 
     /**
+     *
      * 发送命令(16进制显示)
      * 数据头   数据长度  指令  传输数据  校验和
      * eb90aa55     03      01      11       15
-     * <p>
+     *
      * eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
-     * <p>
+     *
      * 接收波形
      * 数据头      数据长度    传输数据    校验和
      * eb90aaxx    aabbccdd       X         xx
-     * <p>
+     *
      * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
      */
 
@@ -191,7 +189,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private void initData() {
         dataMax = 540;
-        waveArray = new int[540];
+        waveArray   = new int[540];
         //sparkView需要绘制的波形数组初始化
         waveDraw = new int[510];
         simDraw1 = new int[510];
@@ -212,6 +210,7 @@ public class BaseActivity extends AppCompatActivity {
         density = 1;
         balance = 5;
         delay = 0;
+        inductor = 3;
         selectSim = 1;
 
         positionReal = 0;

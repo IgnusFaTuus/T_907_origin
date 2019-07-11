@@ -82,5 +82,13 @@
     <string name="oneSpace">&#160;</string>
     <string name="twoSpace">&#160;&#160;</string>
     <string name="You_can_not_compare">方式或范围不同，无法比较</string>
+    <string name="tv_inductor">电感:</string>
+    <string name="btn_inductor_plus">电感+</string>
+    <string name="btn_inductor_minus">电感-</string>
+    <string name="auto_fault_distance">自动测距：</string>
+    <string name="break_down">击穿！</string>
+    <string name="gain_too_high">增益过大</string>
+    <string name="not_break_down">不击穿！</string>
+    <string name="gain_too_low">增益过小</string>
 
 </resources>

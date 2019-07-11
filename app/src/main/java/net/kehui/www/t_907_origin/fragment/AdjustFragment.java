@@ -36,6 +36,10 @@ public class AdjustFragment extends Fragment {
     Button btnVelPlus;
     @BindView(R.id.btn_vel_minus)
     Button btnVelMinus;
+    @BindView(R.id.btn_inductor_plus)
+    public Button btnInductorPlus;
+    @BindView(R.id.btn_inductor_minus)
+    public Button btnInductorMinus;
     Unbinder unbinder;
 
     @Override
@@ -55,8 +59,11 @@ public class AdjustFragment extends Fragment {
         btnBalanceMinus.setVisibility(View.VISIBLE);
         btnDelayPlus.setVisibility(View.GONE);
         btnDelayMinus.setVisibility(View.GONE);
+        btnInductorPlus.setVisibility(View.GONE);
+        btnInductorMinus.setVisibility(View.GONE);
         //初始化按键无效
         btnDelayMinus.setEnabled(false);
+        btnInductorMinus.setEnabled(false);
 
     }
 
@@ -67,7 +74,7 @@ public class AdjustFragment extends Fragment {
     }
 
     @OnClick({R.id.btn_gain_plus, R.id.btn_gain_minus, R.id.btn_balance_plus,R.id.btn_delay_plus,R.id.btn_delay_minus,
-            R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus})
+            R.id.btn_balance_minus, R.id.btn_vel_plus, R.id.btn_vel_minus,R.id.btn_inductor_plus,R.id.btn_inductor_minus})
     public void onViewClicked(View view) {
 
         switch (view.getId()) {
@@ -143,16 +150,39 @@ public class AdjustFragment extends Fragment {
                 break;
             case R.id.btn_vel_plus:
                 int velocity = ((MainActivity) getActivity()).getVelocity();
-                if (velocity < 250) {
+                if (velocity < 300) {
                     velocity++;
                     ((MainActivity) getActivity()).setVelocity(velocity);
                 }
                 break;
             case R.id.btn_vel_minus:
                 velocity = ((MainActivity) getActivity()).getVelocity();
-                if (velocity > 0) {
+                if (velocity > 90) {
                     velocity--;
                     ((MainActivity) getActivity()).setVelocity(velocity);
+                }
+                break;
+            case R.id.btn_inductor_plus:
+                int inductor = ((MainActivity) getActivity()).getInductor();
+                if (inductor < 10) {
+                    inductor++;
+                    //GC20190710   (电感从3到10)
+                    ((MainActivity) getActivity()).setInductor(inductor);
+                    btnInductorMinus.setEnabled(true);
+                }
+                if (inductor == 10) {
+                    btnInductorPlus.setEnabled(false);
+                }
+                break;
+            case R.id.btn_inductor_minus:
+                inductor = ((MainActivity) getActivity()).getInductor();
+                if (inductor > 3) {
+                    inductor--;
+                    ((MainActivity) getActivity()).setInductor(inductor);
+                    btnInductorPlus.setEnabled(true);
+                }
+                if (inductor == 3) {
+                    btnInductorMinus.setEnabled(false);
                 }
                 break;
             default:

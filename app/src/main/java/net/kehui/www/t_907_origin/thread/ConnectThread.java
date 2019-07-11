@@ -29,8 +29,6 @@ import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_500;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_64_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.RANGE_8_KM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_ICM_DECAY;
-import static net.kehui.www.t_907_origin.base.BaseActivity.SIM;
-import static net.kehui.www.t_907_origin.base.BaseActivity.TDR;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_TDR_SIM;
 
 /**
@@ -43,11 +41,14 @@ public class ConnectThread extends Thread {
     private Handler handler;
     private OutputStream outputStream;
 
-    public int mode     = TDR;
-    public int range    = 0;
-    public int wifiStreamLen    = 549;
-    public int readCount    = 0;
-    private boolean isCommand = true;
+    private int mode   = TDR;
+    private int range  = 0;
+    private int wifiStreamLen   = 549;
+    private boolean isCommand   = true;
+    private int readCount = 0;
+    private int num = 0;
+    private int dataComplete = 0;
+
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
@@ -68,50 +69,133 @@ public class ConnectThread extends Thread {
             outputStream = socket.getOutputStream();
 
             int bytes;
-            byte[] buffer = new byte[1024*20];
+            byte[] buffer = new byte[65565*9];
+            byte[] data1 = new byte[65565*9];
+            byte[] data = new byte[65565*9];
+            int[] wifiTemp = new int[65565*9];
+
+            //需要传递的int型波形数据
+            int[] wifiStream = new int[wifiStreamLen];
 
             while (true) {
                 if (isCommand) {
-                    //每次收取的wifi数据流长度
-                    bytes = inputStream.read(buffer);
+
+                    /*byte[] data = new byte[wifiStreamLen];
+                    readCount = 0;
+                    while(true) {
+                        bytes = inputStream.read(buffer);
+                        if (bytes > 0) {
+                            //先缓存wifi数据流至data
+                            System.arraycopy(buffer, 0, data, 0, bytes);
+                            //需要传递的int型命令数据
+                            int[] wifiTemp = new int[bytes];
+                            //将传过来的字节数组转变为int数组
+                            for (int i = 0; i < bytes; i++) {
+                                wifiTemp[i] = data[i] & 0xff;
+                            }
+                            Log.e("CMD", " 去除命令1:" + readCount);
+                            if (bytes == 8) {
+                                if ( (wifiTemp[5] == COMMAND_RECEIVE_DATA) && (wifiTemp[6] == COMMAND_RECEIVE_RIGHT) ) {
+                                    isCommand = false;
+                                }
+                                Message message = Message.obtain();
+                                message.what = MainActivity.GET_COMMAND;
+                                Bundle bundle = new Bundle();
+                                bundle.putIntArray("CMD", wifiTemp);
+                                message.setData(bundle);
+                                handler.sendMessage(message);
+                                Log.e("CMD", " 指令：" + wifiTemp[5] + " 传输数据：" + wifiTemp[6]);
+                            }
+//                            while (dataComplete != bytes) {
+//                                if ( (wifiTemp[readCount + 5] == COMMAND_RECEIVE_DATA) && (wifiTemp[readCount + 6] == COMMAND_RECEIVE_RIGHT) ) {
+//                                    isCommand = false;
+//                                    Log.e("CMD", " 实际收取:" + bytes);
+//                                    //需要传递的int型波形数据
+//                                    wifiStream = new int[wifiStreamLen];
+//                                    System.arraycopy(wifiTemp, readCount, wifiStream, 0, bytes - readCount);
+//                                    readCount = bytes - readCount;
+//                                    dataComplete = bytes;
+//                                    Log.e("CMD", " 去除命令2:" + readCount);
+//                                    break;
+//                                } else {
+//                                    //需要传递的int型波形数据
+//                                    int[] wifiCommand = new int[8];
+//                                    System.arraycopy(wifiTemp, readCount, wifiCommand, 0, 8);
+//                                    Message message = Message.obtain();
+//                                    message.what = MainActivity.GET_COMMAND;
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putIntArray("CMD", wifiCommand);
+//                                    message.setData(bundle);
+//                                    handler.sendMessage(message);
+//                                    readCount += 8;
+//                                }
+//                            }
+
+
+                        }
+
+                    }*/
+
+
+                    num = 0;
+                    while(true) {
+                        bytes = inputStream.read(buffer);
+                        Log.e("CMD", "bytes：" + bytes );
+                        System.arraycopy(buffer, 0, data1, 0, bytes);
+                        if (bytes > 8) {
+                            //将传过来的字节数组转变为int数组
+                            for (int i = 0; i < bytes; i++) {
+                                wifiTemp[i] = data1[i] & 0xff;
+                            }
+                            isCommand = false;
+                            System.arraycopy(data1, 8, data, 0, bytes - 8);
+                            readCount = bytes - 8;
+                            Log.e("CMD", " 实际收取:" + bytes);
+                            break;
+                        }
+                        if(bytes == 8){
+                            break;
+                        }
+
+                    }
                     if (bytes > 0) {
-                        byte[] data = new byte[bytes];
-                        System.arraycopy(buffer, 0, data, 0, bytes);
-                        int[] wifiStream = new int[bytes];
+                        byte[] dataCommand = new byte[8];
+                        System.arraycopy(data1, 0, dataCommand, 0, 8);
+                        int[] wifiCommand = new int[8];
                         //将传过来的字节数组转变为int数组
-                        for (int i = 0; i < bytes; i++) {
-                            wifiStream[i] = data[i] & 0xff;
+                        for (int i = 0; i < 8; i++) {
+                            wifiCommand[i] = dataCommand[i] & 0xff;
                         }
                         //收到返回的“收取数据”命令后，准备接受波形数据
-                        if ( (wifiStream[5] == COMMAND_RECEIVE_DATA) && (wifiStream[6] == COMMAND_RECEIVE_RIGHT) ) {
+                        if ( (wifiCommand[5] == COMMAND_RECEIVE_DATA) && (wifiCommand[6] == COMMAND_RECEIVE_RIGHT) ) {
                             isCommand = false;
                         }
                         Message message = Message.obtain();
                         message.what = MainActivity.GET_COMMAND;
                         Bundle bundle = new Bundle();
-                        bundle.putIntArray("CMD", wifiStream);
+                        bundle.putIntArray("CMD", wifiCommand);
                         message.setData(bundle);
                         handler.sendMessage(message);
-                        Log.e("CMD", " 指令：" + wifiStream[5] + " 传输数据：" + wifiStream[6]);
+                        Log.e("CMD", " 指令：" + wifiCommand[5] + " 传输数据：" + wifiCommand[6]);
                     }
+
                 }else {
-                    //读取长度计数
-                    int readCount   = 0;
-                    byte[] data = new byte[wifiStreamLen];
+//                    byte[] data = new byte[wifiStreamLen];
                     //GC20190706 数据处理优化
                     do {
                         //每次收取的wifi数据流长度
                         bytes = inputStream.read(buffer);
                         //先缓存wifi数据流至data（避免数据过多时缓存不够大造成SIM64Km收数不全）
                         if (bytes > 0) {
-//                            Log.e("WAVE", " 实际收取:" + bytes);
+                            Log.e("WAVE", " 实际收取:" + bytes);
                             System.arraycopy(buffer, 0, data, readCount, bytes);
                             readCount += bytes;
                         }
                     } while (readCount != wifiStreamLen);
 
-                    //需要传递的int型波形数据
-                    int[] wifiStream = new int[wifiStreamLen];
+                    //读取长度清零
+                    readCount = 0;
+                    wifiStream = new int[wifiStreamLen];
                     //将传过来的字节数组转变为int数组
                     for (int i = 0; i < wifiStreamLen; i++) {
                         wifiStream[i] = data[i] & 0xff;
