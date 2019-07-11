@@ -27,6 +27,8 @@
     <string name="btn_delay_minus">延时-</string>
     <string name="btn_vel_plus">波速+</string>
     <string name="btn_vel_minus">波速-</string>
+    <string name="btn_inductor_plus">电感+</string>
+    <string name="btn_inductor_minus">电感-</string>
     <string name="btn_zoom_in">放大</string>
     <string name="btn_zoom_out">缩小</string>
     <string name="btn_res">还原</string>
@@ -60,5 +62,12 @@
     <string name="btn_wave_next">波形下翻</string>
     <string name="tv_delay">延时:</string>
     <string name="tv_density">比例:</string>
+    <string name="tv_inductor">电感:</string>
+    <string name="gain_too_high">增益过大</string>
+    <string name="gain_too_low">增益过小</string>
+    <string name="break_down">击穿！</string>
+    <string name="not_break_down">不击穿！</string>
+    <string name="auto_fault_distance">自动测距：</string>
+
 
 </resources>

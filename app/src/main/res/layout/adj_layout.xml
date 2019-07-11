@@ -77,6 +77,24 @@
             android:text="@string/btn_vel_minus"
             android:textColor="@android:color/black"/>
 
+        <Button
+            android:id="@+id/btn_inductor_plus"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:text="@string/btn_inductor_plus"
+            android:textColor="@android:color/black"
+            tools:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btn_inductor_minus"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:text="@string/btn_inductor_minus"
+            android:textColor="@android:color/black"
+            tools:visibility="gone"/>
+
     </LinearLayout>
 
 </RelativeLayout>

@@ -4,7 +4,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -63,9 +62,14 @@ import butterknife.OnClick;
  * @date 2018/3/26
  */
 public class MainActivity extends BaseActivity {
-
     @BindView(R.id.mainWave)
     SparkView   mainWave;
+    @BindView(R.id.tv_information)
+    TextView    tvInformation;
+    @BindView(R.id.tv_icm)
+    TextView    tvIcm;
+    @BindView(R.id.tv_auto_distance)
+    TextView    tvAutoDistance;
     @BindView(R.id.tv_distance)
     TextView    tvDistance;
     @BindView(R.id.fullWave)
@@ -104,6 +108,10 @@ public class MainActivity extends BaseActivity {
     TextView    tvDelay;
     @BindView(R.id.vl_delay)
     TextView    vlDelay;
+    @BindView(R.id.tv_inductor)
+    TextView    tvInductor;
+    @BindView(R.id.vl_inductor)
+    TextView    vlInductor;
 
     /**
      * 用于展示Fragment
@@ -122,7 +130,6 @@ public class MainActivity extends BaseActivity {
     private int command;
     private int dataTransfer;
     private TDialog tDialog;
-
 
     /**
      * 全局的handler对象用来执行UI更新
@@ -203,13 +210,20 @@ public class MainActivity extends BaseActivity {
         vlGain.setText(String.valueOf(gain));
         vlVel.setText(velocity + "m/μs");
         vlBalance.setText(String.valueOf(balance));
-        vlDelay.setText(delay + "μs");
         vlDensity.setText( "1 : " + density);
-        //初始化信息栏不显示延时
+        vlDelay.setText(delay + "μs");
+        vlInductor.setText(inductor + "μH");
+        //初始化信息栏不显示延时和电感
         tvDelay.setVisibility(View.GONE);
         vlDelay.setVisibility(View.GONE);
+        tvInductor.setVisibility(View.GONE);
+        vlInductor.setVisibility(View.GONE);
         //初始化距离显示
         calculateDistance(Math.abs(positionVirtual - positionReal));
+        //自动测距显示    //GC20190710
+        tvInformation.setVisibility(View.GONE);
+        tvIcm.setVisibility(View.GONE);
+        tvAutoDistance.setVisibility(View.GONE);
     }
 
     /**
@@ -243,6 +257,25 @@ public class MainActivity extends BaseActivity {
         registerReceiver(receiver, intentFilter);
     }
 
+
+    /**
+     * 脉冲电流方式光标自动定位
+     */
+    private void IcmAutoCursor() {
+        positionReal = breakBk / densityMax;
+        positionVirtual = (breakBk + faultResult) / densityMax;
+        //超出范围居中画光标
+        if(positionVirtual > 510)
+        {
+            positionVirtual = 255;
+        }
+        //光标定位
+        mainWave.setScrubLineReal(positionReal);
+        mainWave.setScrubLineVirtual(positionVirtual);
+        fullWave.setScrubLineReal(positionReal);
+        fullWave.setScrubLineVirtual(positionVirtual);
+    }
+    
     /**
      * 监听光标位置 BUG1
      */
@@ -664,36 +697,21 @@ public class MainActivity extends BaseActivity {
 
 
     /**
-     * 脉冲电流方式  计算故障距离并显示
-     *
-     * @param sampling_points   方向脉冲法自动计算-显示故障距离
+     * @param samplingPoints   方向脉冲法自动计算-显示故障距离
      */
-    private void calculate_distance2(int sampling_points) {
-        int Fx1,Fx2;
-        int position_x,position_y;
+    private void calculateDistanceAuto(int samplingPoints) {
+        double distance;
         int k;
-        int[] index = new int[16];
-
         //脉冲电流方式下range=6(32km)和range=7(64km)实时25M采样率，其余方式和范围实时100M采样率，此时相对其它方式采样周期扩大4倍
-        k = 1;
-        //方式选择
         if ((mode == ICM) && (rangeState >= 6)) {
             k = 4;
+        } else {
+            k = 1;
         }
-
-        //算出距离的整数部分
-        Fx1 = ((sampling_points * velocity) * k)/200;
-        //算出距离的小数部分
-        Fx2 = (((sampling_points * velocity) * k)/20)%10;
-
-
-        position_x = 280;
-        position_y = 245;
-        /* 显示距离值 */
-
-        position_x = 450;
-        position_y = 245;
-        /* 显示距离值 */
+        //sc
+        distance = ( ((double)samplingPoints * velocity) * k ) / 2 * 0.01;
+        //距离界面显示
+        tvAutoDistance.setText(new DecimalFormat("0.00").format(distance)  + "m");
 
     }
 
@@ -729,6 +747,18 @@ public class MainActivity extends BaseActivity {
 
     public int getDelay() {
         return delay;
+    }
+
+    /**
+     * @param inductor 响应信息栏延时变化    //GC20190710
+     */
+    public void setInductor(int inductor) {
+        this.inductor = inductor;
+        vlInductor.setText(inductor + "μH");
+    }
+
+    public int getInductor() {
+        return inductor;
     }
 
     /**
@@ -919,8 +949,6 @@ public class MainActivity extends BaseActivity {
             //利用比较功能绘制SIM的第二条波形数据
             isCom = true;
         }
-        zero = positionReal * density;
-        pointDistance = positionVirtual * density;
 
     }
 
@@ -931,6 +959,12 @@ public class MainActivity extends BaseActivity {
         if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
             System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
             handler.sendEmptyMessage(WHAT_REFRESH);
+            //ICM自动测距
+            if (mode == ICM) {
+                ICMAutoTest();
+            } else {
+                handler.sendEmptyMessage(WHAT_REFRESH);
+            }
         } else if (wifiArray[3] == WAVE_SIM) {
             System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
             System.arraycopy(wifiArray, dataMax + 9 + 8, simArray1, 0, dataMax);
@@ -951,14 +985,14 @@ public class MainActivity extends BaseActivity {
     private void organizeWaveData() {
         //起始位置
         int start = 0;
-        //居中位置
+        //波形数据的居中位置
         int k = 510 * density / 2;
-        //寻找波形显示的起始地址在波形数据数组中的所处的位置(变量i即为此位置)
-        if( (dataMax - pointDistance) < k) {
+        //寻找波形显示的起始地址在波形数据数组中的所处的位置  (根据虚光标位置判断)
+        if( positionVirtual > 255) {
             if ((mode == TDR) || (mode == SIM)) {
-                start = dataMax - 2 * k - removeTdrSim[rangeState];
+                start = dataMax - removeTdrSim[rangeState] - 2 * k;
             } else if ((mode == ICM) || (mode == DECAY)) {
-                start = dataMax - 2 * k - removeIcmDecay[rangeState];
+                start = dataMax - removeIcmDecay[rangeState] - 2 * k;
             }
         }
         //波形按比例抽出510个点
@@ -992,7 +1026,7 @@ public class MainActivity extends BaseActivity {
             if (isCom) {
                 myChartAdapterMainWave.setmCompareArray(waveCompare);
                 myChartAdapterFullWave.setmCompareArray(waveCompare);
-                //GC201907052 优化SIM显示
+                //GC201907052 优化SIM显示   //G?    检查显示效果是否正常
                 waveFragment.btnWavePrevious.setEnabled(true);
                 waveFragment.btnWaveNext.setEnabled(true);
             }
@@ -1011,23 +1045,31 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 脉冲电流故障自动计算过程         //GN 如果在波形比较状态，擦除记忆波形，重画当前波形，重画光标
+     * 脉冲电流故障自动计算过程  //GC20190708
      */
-    private void ICMTest() {
+    private void ICMAutoTest() {
         //1.判断增益是否合适
         gainJudgment();
         switch (gainState) {
             case 0:
+                //擦除字符显示  sc
+                tvInformation.setText("    ");
                 break;
             case 1:
                 gainState = 0;
-                //GN组织数据画波形
-                //GN显示增益过大
-                return; //G?
+                //组织数据画波形
+                handler.sendEmptyMessage(WHAT_REFRESH);
+                //显示增益过大    //GC20190710
+                tvInformation.setVisibility(View.VISIBLE);
+                tvInformation.setText(getResources().getString(R.string.gain_too_high));
+                return;     //G?    是否按照设想正常运行
             case 2:
                 gainState = 0;
-                //GN组织数据画波形
-                //GN显示增益过小
+                //组织数据画波形   //GC20190710
+                handler.sendEmptyMessage(WHAT_REFRESH);
+                //显示增益过小
+                tvInformation.setVisibility(View.VISIBLE);
+                tvInformation.setText(getResources().getString(R.string.gain_too_low));
                 return;
             default:
                 break;
@@ -1039,50 +1081,48 @@ public class MainActivity extends BaseActivity {
         //2.击穿放电判断
         breakdownJudgment();
         if( breakdownPosition == 0) {
-            //GN组织数据画波形
-            //GN显示不击穿
+            //组织数据画波形
+            handler.sendEmptyMessage(WHAT_REFRESH);
+            //显示不击穿    //GC20190710
+            tvInformation.setVisibility(View.VISIBLE);
+            tvInformation.setText(getResources().getString(R.string.not_break_down));
             return;
         }
         //计算方向脉冲
         calculatePulse();
-        //计算故障距离
+        //计算并显示故障距离
         correlationSimple();
+        //放电脉冲位置确定
         breakPointCalculate();
         //光标自动定位
-        ICMAutoCursor();
+        IcmAutoCursor();
         //GN组织数据画波形
+        handler.sendEmptyMessage(WHAT_REFRESH);
     }
 
     /**
-     * 添加脉冲电流方式自动测距 //GC20190708
-     *
      * 脉冲电流方式增益自动判断
      */
-    int[] data_buffer_a = new int[65560];   //G? 来源
     private void gainJudgment() {
         int i;
         int max = 0;
         int sub;
 
-        //求取前20个点内的极值
-        for (i = (READ_ICM_DECAY[rangeState] - 20); i < READ_ICM_DECAY[rangeState]; i++) {
-            data_buffer_a[i] = 128;
-        }
-        for (i = 0; i < READ_ICM_DECAY[rangeState]; i++) {
-            sub = data_buffer_a[i]  - 128;
+        //计算波形有效数据的极值
+        for (i = 0; i < dataMax - removeIcmDecay[rangeState]; i++) {
+            sub = waveArray[i]  - 128;
             if(Math.abs(sub) > max) {
                 max = Math.abs(sub);
             }
         }
-        //如果最大值小于 15% 38
         if (max <= 42) {
             //判断增益过小
             gainState = 2;
             return;
         }
-        for (i = 0; i < READ_ICM_DECAY[rangeState]; i++) {
-            if ((data_buffer_a[i] > 242) ||  (data_buffer_a[i] < 13)) {
-                //增益过大
+        for (i = 0; i < dataMax - removeIcmDecay[rangeState]; i++) {
+            if ((waveArray[i] > 242) ||  (waveArray[i] < 13)) {
+                //判断增益过大
                 gainState = 1;
                 return;
             }
@@ -1092,33 +1132,31 @@ public class MainActivity extends BaseActivity {
     /**
      * 脉冲电流方式软件滤波   方向脉冲法自动计算-软件滤波，一阶滞后滤波，低通截止频率约750kHz（两个采样频率都是这个截止频率）
      */
-    float[] dataBuf_filter = new float[65560];
     private void softwareFilter() {
         int i;
-        for (i = 1; i < READ_ICM_DECAY[rangeState]; i++) {
+        for (i = 1; i < dataMax - removeIcmDecay[rangeState]; i++) {
             if(rangeState >= 6) {
-                dataBuf_filter[i] = (float)0.8618 * dataBuf_filter[i - 1] + (float)0.1382 * (float)(data_buffer_a[i] - 128);
+                waveArrayFilter[i] = (float)0.8618 * waveArrayFilter[i - 1] + (float)0.1382 * (float)(waveArray[i] - 128);
             } else {
-                dataBuf_filter[i] = (float)0.9524 * dataBuf_filter[i - 1] + (float)0.0476 * (float)(data_buffer_a[i] - 128);
+                waveArrayFilter[i] = (float)0.9524 * waveArrayFilter[i - 1] + (float)0.0476 * (float)(waveArray[i] - 128);
             }
         }
-        //G??波形位置
-        for( i = 1; i < 2000; i++) {
-            dataBuf_filter[i] = dataBuf_filter[i] + 6;
-        }
+        //只处理波形靠前的位置    //G? 是否需要再加6
+        /*for( i = 1; i < 2000; i++) {
+            waveArrayFilter[i] = waveArrayFilter[i] + 6;
+        }*///sc
     }
 
     /**
      * 脉冲电流方式数字积分   方向脉冲法自动计算-数字积分,反演电流
      */
-    float[] dataBuf_integral = new float[65560];
     private void integral() {
-        for (int i = 1; i < READ_ICM_DECAY[rangeState]; i++) {
+        for (int i = 1; i < dataMax - removeIcmDecay[rangeState]; i++) {
             //25M采样
             if (rangeState >= 6) {
-                dataBuf_integral[i] =  dataBuf_integral[i - 1] + dataBuf_filter[i] * 4;
+                waveArrayIntegral[i] =  waveArrayIntegral[i - 1] + waveArrayFilter[i] * 4;
             } else {
-                dataBuf_integral[i] =  dataBuf_integral[i - 1] + dataBuf_filter[i];
+                waveArrayIntegral[i] =  waveArrayIntegral[i - 1] + waveArrayFilter[i];
             }
         }
     }
@@ -1131,19 +1169,20 @@ public class MainActivity extends BaseActivity {
         int start;
         float min;
         float a;
-        //从触发开始计算初始值   //G?
+        //从触发开始计算初始值(去除ICM前面的直线部分)
         start = 120;
         min = 255;
         for (i = start; i < start + 64; i++) {
-            if ((dataBuf_filter[i] < min) && (dataBuf_filter[i] < 0)) {
-                min = dataBuf_filter[i];
+            if ((waveArrayFilter[i] < min) && (waveArrayFilter[i] < 0)) {
+                min = waveArrayFilter[i];
             }
         }
-        //积分电流  //G?
+        //积分电流
         a = 80 * min;
-        for (i = start + 64; i < (READ_ICM_DECAY[rangeState] - 50); i++) {
+        //G? 数个数修改  sc  64
+        for (i = start + 80; i < (dataMax - removeIcmDecay[rangeState]); i++) {
             //1.8
-            if ( (dataBuf_integral[i] < 0) && (dataBuf_integral[i] < 1.3 * a) ) {
+            if ( (waveArrayIntegral[i] < 0) && (waveArrayIntegral[i] < 1.3 * a) ) {
                 breakdownPosition = i;
                 break;
             } else {
@@ -1152,10 +1191,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    float[] s1 = new float[65560];
-    float[] s2 = new float[65560];
-    float L;
-    float z = 25;
     /**
      * 脉冲电流方式  计算方向脉冲   方向脉冲法自动计算-使用滤波后电流的微分求VL=L * di/dt，滤波后电流*波阻抗
      */
@@ -1163,63 +1198,29 @@ public class MainActivity extends BaseActivity {
         //使用滤波后电流进行微分
         float[] V = new float[65560];
         int i;
+        float L;
+        float z = 25;
 
-        //电感值   //G? 来源
-        L = (float)icmInductor * (float)(1.0e-6);
+        //电感值
+        L = (float) inductor * (float)(1.0e-6);
 
-        for (i = 0; i < READ_ICM_DECAY[rangeState]; i++) {
+        for (i = 0; i < dataMax - removeIcmDecay[rangeState]; i++) {
             //25M采样
             if (rangeState >= 6) {
-                V[i] = (dataBuf_filter[i + 1] - dataBuf_filter[i]) * (float)4.0e8;
+                V[i] = (waveArrayFilter[i + 1] - waveArrayFilter[i]) * (float)4.0e8;
             } else {
-                V[i] = (dataBuf_filter[i + 1] - dataBuf_filter[i]) * (float)1.0e8;
+                V[i] = (waveArrayFilter[i + 1] - waveArrayFilter[i]) * (float)1.0e8;
             }
         }
         //确定击穿点
         //计算VL
-        for (i = 0; i < READ_ICM_DECAY[rangeState]; i++) {
+        for (i = 0; i < dataMax - removeIcmDecay[rangeState]; i++) {
             V[i] =  V[i] * L * (-1.0f);
         }
         //计算方向行波
-        for (i = 0; i < READ_ICM_DECAY[rangeState]; i++) {
-            s1[i] = V[i] +  dataBuf_filter[i] * z;
-            s2[i] = V[i] -  dataBuf_filter[i] * z;
-        }
-    }
-
-    /**
-     * 击穿点判断
-     */
-    private void breakPointCalculate() {
-        int i;
-        int bk_pos;
-        //G?
-        long remainder;
-
-        i = breakdownPosition - min_peak[0];
-
-        if ( (faultResult - (i % faultResult)) < (i % faultResult) ) {
-            remainder = faultResult - (i % faultResult);
-        } else {
-            remainder = (i % faultResult);
-        }
-        int k = 1;
-        //方式选择
-        if ((mode == ICM) && (rangeState >= 6)) {
-            k = 4;
-        }
-
-        if ((float)remainder  <= (float)(0.05* faultResult + (float)(((float)3000/velocity)/(float)k))) {
-            bk_pos = min_peak[0];
-        } else {
-            bk_pos = breakdownPosition;
-        }
-        for (i = bk_pos;i > 100;i--) {
-            if (dataBuf_filter[i-1] < dataBuf_filter[i]) {
-                //时光标
-                break_bk = i;
-                break;
-            }
+        for (i = 0; i < dataMax - removeIcmDecay[rangeState]; i++) {
+            s1[i] = V[i] +  waveArrayFilter[i] * z;
+            s2[i] = V[i] -  waveArrayFilter[i] * z;
         }
     }
 
@@ -1238,44 +1239,39 @@ public class MainActivity extends BaseActivity {
         float[] s1_simple = new float[512];
         float[] s2_simple = new float[512];
 
-        //采用负极大值进行计算
+        //使用极小值点找放电脉冲点——breakdownPosition
         findMinPeak();
         for (i = breakdownPosition; i > 100; i--) {
-            if (dataBuf_filter[i-1] <= dataBuf_filter[i]) {
-                break_bk = i;
+            if (waveArrayFilter[i-1] <= waveArrayFilter[i]) {
+                breakBk = i;
                 break;
             }
         }
         //25M采样
         if (rangeState >= 6) {
             //需要修改，32km和64km采样频率变了，需要调整参数
-            if(break_bk > (50/4)) {
+            if(breakBk > (50/4)) {
                 //相关窗左侧
-                w1 = break_bk - (50/4);
+                w1 = breakBk - (50/4);
             } else {
-                w1 = break_bk;
+                w1 = breakBk;
             }
             //相关窗右侧
-            w2 = break_bk + (350/4);
-            //相关移动大小
-            w3 = READ_ICM_DECAY[rangeState] - w2;
+            w2 = breakBk + (350/4);
         } else {
             //需要修改，32km和64km采样频率变了，需要调整参数
-            if(break_bk > 50) {
+            if(breakBk > 50) {
                 //相关窗左侧
-                w1 = break_bk - 50;
+                w1 = breakBk - 50;
             } else {
-                w1 = break_bk;
+                w1 = breakBk;
             }
             //相关窗右侧
-            w2 = break_bk + 350;
-            //相关移动大小
-            w3 = READ_ICM_DECAY[rangeState] - w2;
+            w2 = breakBk + 350;
         }
 
         //抽点
-        for(i = 0;i < 512;i++)
-        {
+        for (i = 0; i < 512; i++) {
             s1_simple[i] = s1[j];
             s2_simple[i] = s2[j];
             j = j + densityMaxIcmDecay[rangeState];
@@ -1302,85 +1298,83 @@ public class MainActivity extends BaseActivity {
             //将整条波形的相关运算值存入P数组中
             P[i] = p;
         }
+
         //计算P数组中的最大值，并确定位置
         float max = P[0];
-        int max_index = 0;
-
+        int maxIndex = 0;
         for (i = 0; i < w3; i++) {
             if(P[i] > max) {
                 max = P[i];
-                max_index = i;
+                maxIndex = i;
             }
         }
 
         //换算为整条波形数据中的点数
-        max_index = (w1 + max_index)*densityMaxIcmDecay[rangeState];
+        maxIndex = (w1 + maxIndex)*densityMaxIcmDecay[rangeState];
 
         w1 = w1 * densityMaxIcmDecay[rangeState];
         w2 = w2 * densityMaxIcmDecay[rangeState];
-        w3 = densityMaxIcmDecay[rangeState] - w2;
 
         for (i = w1; i < w2; i++) {
             S1[i - w1] = s1[i];
         }
 
-        //将前后4个点改为zoom_icm_list[range]
-        for (i = (max_index - densityMaxIcmDecay[rangeState]); i < (max_index + densityMaxIcmDecay[rangeState]); i++) {
+        for (i = (maxIndex - densityMaxIcmDecay[rangeState]); i < (maxIndex + densityMaxIcmDecay[rangeState]); i++) {
             for (k = 0; k < w2-w1; k++) {
-                S2[k] = s2[k + i];
+              S2[k] = s2[k + i];
             }
             //清零
             p = (float) 0.0;
             //进行相关运算S
             for (j = 0;j < (w2 - w1);j++)
             {
-                p += S1[j] * S2[j] * (-1.0f);
+                p += S1[j] * S2[j] * (float)(-1.0);
             }
             //将整条波形的相关运算值存入P数组中
-            P[i - (max_index-densityMaxIcmDecay[rangeState])] = p;
+            P[i - (maxIndex-densityMaxIcmDecay[rangeState])] = p;
         }
         max = P[0];
-        int max_index1 = 0;
-        //将前后4个点改为zoom_icm_list[range]
+        int maxIndex1 = 0;
         for (i = 0; i < densityMaxIcmDecay[rangeState] * 2; i++) {
             if (P[i] > max) {
                 max = P[i];
-                max_index1 = i;
+                maxIndex1 = i;
             }
         }
-        max_index = max_index - densityMaxIcmDecay[range] + max_index1 - w1;
-
-        calculate_distance2(max_index);
-        faultResult = max_index;
+        Log.e("ICM", " maxIndex1:" + maxIndex1);
+        //G? BUG
+       // int maxIndex2 = maxIndex - densityMaxIcmDecay[range] + maxIndex1 - w1;//sc
+        int maxIndex2 = maxIndex - densityMaxIcmDecay[rangeState] + maxIndex1 - w1;
+        calculateDistanceAuto(maxIndex2);
+        faultResult = maxIndex2;
     }
 
     /**
      * 脉冲电流方式  计算极小值点   方向脉冲法自动计算-使用极小值点找放电脉冲
      */
-    float reference = 0;
-    int[] min_peak = new int[255];
     private void findMinPeak() {
         int i = 170;
         int first;
-        int peak_max = 0;
-        int[] min_data = new int[255];
+        int peakMax = 0;
+        int[] minData = new int[255];
         int j = 0;
         int k;
         int l = 0;
-        float  first_min;
+        float   firstMin;
+        float   reference = 0;
 
         //25M采样
         if(rangeState >= 6) {
             i = 150;
         }
-
-        while ( (j < 255) && ( i < (READ_ICM_DECAY[rangeState] - 55) ) ) {
-            if( (dataBuf_filter[i] < dataBuf_filter[i - 1]) && (dataBuf_filter[i] <= dataBuf_filter[i + 1]) ) {
-                if ( (i > 5) && (dataBuf_filter[i - 1] < dataBuf_filter[i - 2]) ) {
-                    if (dataBuf_filter[i - 2] < dataBuf_filter[i - 3]) {
-                        if (dataBuf_filter[i - 3] < dataBuf_filter[i - 4]) {
-                            if (dataBuf_filter[i - 4] < dataBuf_filter[i - 5]) {
-                                min_data[j] = i;
+        //G? 数据个数修改
+        while ( (j < 255) && ( i < dataMax - removeIcmDecay[rangeState] ) ) {
+            if( (waveArrayFilter[i] < waveArrayFilter[i - 1]) && (waveArrayFilter[i] <= waveArrayFilter[i + 1]) ) {
+                if ( (i > 5) && (waveArrayFilter[i - 1] < waveArrayFilter[i - 2]) ) {
+                    if (waveArrayFilter[i - 2] < waveArrayFilter[i - 3]) {
+                        if (waveArrayFilter[i - 3] < waveArrayFilter[i - 4]) {
+                            if (waveArrayFilter[i - 4] < waveArrayFilter[i - 5]) {
+                                minData[j] = i;
                                 j++;
                             }
                         }
@@ -1393,37 +1387,60 @@ public class MainActivity extends BaseActivity {
             j = j - 1;
         }
         //找出第1个最小值在原始数组中的位置First
-        first_min = dataBuf_filter[min_data[0]];
-        first = min_data[0];
+        firstMin = waveArrayFilter[minData[0]];
+        first = minData[0];
         for (k = 0;k <= j;k++) {
-            if (dataBuf_filter[min_data[k]] < first_min) {
-                first = min_data[k];
-                first_min = dataBuf_filter[min_data[k]];
-                peak_max = k;
+            if (waveArrayFilter[minData[k]] < firstMin) {
+                first = minData[k];
+                firstMin = waveArrayFilter[minData[k]];
+                peakMax = k;
             }
         }
         breakdownPosition = first;
         //求出负的最大极值
-        reference = dataBuf_filter[breakdownPosition];
+        reference = waveArrayFilter[breakdownPosition];
 
-        for (k = 0; k <= peak_max; k++) {
-            if ( dataBuf_filter[min_data[k]] < (float)(reference * 0.7) ) {
-                min_peak[l] = min_data[k];
+        for (k = 0; k <= peakMax; k++) {
+            if ( waveArrayFilter[minData[k]] < (float)(reference * 0.7) ) {
+                minPeak[l] = minData[k];
                 l++;
             }
         }
     }
 
     /**
-     * 脉冲电流方式光标自动定位
+     * 击穿点位置判断
      */
-    private void ICMAutoCursor() {
-        zero = break_bk;
-        pointDistance = zero + faultResult;
-        //超出范围居中画光标
-        if(pointDistance >= dataMax)
-        {
-            pointDistance = dataMax / 2;
+    private void breakPointCalculate() {
+        int i;
+        int bk_pos;
+        //G?
+        long remainder;
+
+        i = breakdownPosition - minPeak[0];
+
+        if ( (faultResult - (i % faultResult)) < (i % faultResult) ) {
+            remainder = faultResult - (i % faultResult);
+        } else {
+            remainder = (i % faultResult);
+        }
+        int k = 1;
+        //方式选择
+        if ((mode == ICM) && (rangeState >= 6)) {
+            k = 4;
+        }
+
+        if ((float)remainder  <= (float)(0.05* faultResult + (float)(((float)3000/velocity)/(float)k))) {
+            bk_pos = minPeak[0];
+        } else {
+            bk_pos = breakdownPosition;
+        }
+        for (i = bk_pos;i > 100;i--) {
+            if (waveArrayFilter[i-1] < waveArrayFilter[i]) {
+                //时光标
+                breakBk = i;
+                break;
+            }
         }
     }
 
@@ -1441,16 +1458,24 @@ public class MainActivity extends BaseActivity {
                 //GC20190709
                 switchDensity();
                 initCursor();
+                //GC20190710
+                tvInformation.setVisibility(View.GONE);
+                tvIcm.setVisibility(View.GONE);
+                tvAutoDistance.setVisibility(View.GONE);
                 //GC20190705 信息栏显示
                 tvBalance.setVisibility(View.VISIBLE);
                 vlBalance.setVisibility(View.VISIBLE);
                 tvDelay.setVisibility(View.GONE);
                 vlDelay.setVisibility(View.GONE);
+                tvInductor.setVisibility(View.GONE);
+                vlInductor.setVisibility(View.GONE);
                 //调节栏fragment显示
                 adjustFragment.btnBalancePlus.setVisibility(View.VISIBLE);
                 adjustFragment.btnBalanceMinus.setVisibility(View.VISIBLE);
                 adjustFragment.btnDelayPlus.setVisibility(View.GONE);
                 adjustFragment.btnDelayMinus.setVisibility(View.GONE);
+                adjustFragment.btnInductorPlus.setVisibility(View.GONE);
+                adjustFragment.btnInductorMinus.setVisibility(View.GONE);
                 //操作栏fragment显示
                 waveFragment.btnMemory.setVisibility(View.VISIBLE);
                 waveFragment.btnCompare.setVisibility(View.VISIBLE);
@@ -1465,10 +1490,14 @@ public class MainActivity extends BaseActivity {
                 vlBalance.setVisibility(View.GONE);
                 tvDelay.setVisibility(View.VISIBLE);
                 vlDelay.setVisibility(View.VISIBLE);
+                tvInductor.setVisibility(View.VISIBLE);
+                vlInductor.setVisibility(View.VISIBLE);
                 adjustFragment.btnBalancePlus.setVisibility(View.GONE);
                 adjustFragment.btnBalanceMinus.setVisibility(View.GONE);
                 adjustFragment.btnDelayPlus.setVisibility(View.VISIBLE);
                 adjustFragment.btnDelayMinus.setVisibility(View.VISIBLE);
+                adjustFragment.btnInductorPlus.setVisibility(View.VISIBLE);
+                adjustFragment.btnInductorMinus.setVisibility(View.VISIBLE);
                 waveFragment.btnMemory.setVisibility(View.VISIBLE);
                 waveFragment.btnCompare.setVisibility(View.VISIBLE);
                 waveFragment.btnWavePrevious.setVisibility(View.INVISIBLE);
@@ -1478,14 +1507,21 @@ public class MainActivity extends BaseActivity {
                 vlMode.setText(getResources().getString(R.string.btn_sim));
                 switchDensity();
                 initCursor();
+                tvInformation.setVisibility(View.GONE);
+                tvIcm.setVisibility(View.GONE);
+                tvAutoDistance.setVisibility(View.GONE);
                 tvBalance.setVisibility(View.GONE);
                 vlBalance.setVisibility(View.GONE);
                 tvDelay.setVisibility(View.GONE);
                 vlDelay.setVisibility(View.GONE);
+                tvInductor.setVisibility(View.GONE);
+                vlInductor.setVisibility(View.GONE);
                 adjustFragment.btnBalancePlus.setVisibility(View.GONE);
                 adjustFragment.btnBalanceMinus.setVisibility(View.GONE);
                 adjustFragment.btnDelayPlus.setVisibility(View.GONE);
                 adjustFragment.btnDelayMinus.setVisibility(View.GONE);
+                adjustFragment.btnInductorPlus.setVisibility(View.GONE);
+                adjustFragment.btnInductorMinus.setVisibility(View.GONE);
                 waveFragment.btnMemory.setVisibility(View.GONE);
                 waveFragment.btnCompare.setVisibility(View.GONE);
                 waveFragment.btnWavePrevious.setVisibility(View.VISIBLE);
@@ -1495,14 +1531,21 @@ public class MainActivity extends BaseActivity {
                 vlMode.setText(getResources().getString(R.string.btn_decay));
                 switchDensity();
                 initCursor();
+                tvInformation.setVisibility(View.GONE);
+                tvIcm.setVisibility(View.GONE);
+                tvAutoDistance.setVisibility(View.GONE);
                 tvBalance.setVisibility(View.GONE);
                 vlBalance.setVisibility(View.GONE);
                 tvDelay.setVisibility(View.VISIBLE);
                 vlDelay.setVisibility(View.VISIBLE);
+                tvInductor.setVisibility(View.GONE);
+                vlInductor.setVisibility(View.GONE);
                 adjustFragment.btnBalancePlus.setVisibility(View.GONE);
                 adjustFragment.btnBalanceMinus.setVisibility(View.GONE);
                 adjustFragment.btnDelayPlus.setVisibility(View.VISIBLE);
                 adjustFragment.btnDelayMinus.setVisibility(View.VISIBLE);
+                adjustFragment.btnInductorPlus.setVisibility(View.GONE);
+                adjustFragment.btnInductorMinus.setVisibility(View.GONE);
                 waveFragment.btnMemory.setVisibility(View.VISIBLE);
                 waveFragment.btnCompare.setVisibility(View.VISIBLE);
                 waveFragment.btnWavePrevious.setVisibility(View.INVISIBLE);

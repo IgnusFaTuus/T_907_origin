@@ -34,15 +34,14 @@ public class BaseActivity extends AppCompatActivity {
     public int  densityMax;
     public int  balance;
     public int  delay;
-    public int  selectSim;
+    public int  inductor;
     public int  dataMax;
+    public int  selectSim;
     /**
      * 光标位置（变化范围0-509）
      */
     public int  positionReal;
     public int  positionVirtual;
-    public int  zero;
-    public int  pointDistance;
     /**
      * 光标状态
      */
@@ -52,9 +51,13 @@ public class BaseActivity extends AppCompatActivity {
      */
     public int  gainState;
     public int  breakdownPosition;
-    public int  break_bk;
-    public int  icmInductor;
+    public int  breakBk;
     public int  faultResult;
+    public float[] waveArrayFilter      = new float[65560];
+    public float[] waveArrayIntegral    = new float[65560];
+    public float[] s1 = new float[65560];
+    public float[] s2 = new float[65560];
+    public int[] minPeak = new int[255];
     /**
      * 波形数据原始数组
      */
@@ -195,6 +198,7 @@ public class BaseActivity extends AppCompatActivity {
         density = 1;
         balance = 5;
         delay = 0;
+        inductor = 3;
         selectSim = 1;
 
         positionReal = 0;
@@ -202,7 +206,7 @@ public class BaseActivity extends AppCompatActivity {
 
         //增益大小状态
         gainState = 0;
-        //故障击穿时刻对应的那一点
+        //是否有击穿放电的位置
         breakdownPosition = 0;
 
     }
@@ -222,4 +226,5 @@ public class BaseActivity extends AppCompatActivity {
 //GC20190705 fragment切换显示优化
 //GC20190706 数据处理优化
 //GC20190708 ICM自动测距
-//GC20190709 距离计算，比例选择
+//GC20190709 距离计算;比例选择
+//GC20190710 增加电感;自动测距提示信息;收取wifiStream数据时将掺杂在一起的command和wave分开

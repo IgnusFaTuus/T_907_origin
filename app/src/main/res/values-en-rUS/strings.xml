@@ -60,5 +60,13 @@
     <string name="tv_density">ZOOM:</string>
     <string name="btn_wave_next">NEXT</string>
     <string name="You_can_not_compare">You can not compare with different mode or range</string>
+    <string name="tv_inductor">IND:</string>
+    <string name="btn_inductor_minus">IND-</string>
+    <string name="btn_inductor_plus">IND+</string>
+    <string name="break_down">Break down!</string>
+    <string name="auto_fault_distance">"Auto DIS:  "</string>
+    <string name="not_break_down">No break down!</string>
+    <string name="gain_too_high">Gain too high for auto. location</string>
+    <string name="gain_too_low">Gain too low for auto. location</string>
 
 </resources>
