@@ -47,6 +47,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -113,6 +114,8 @@ public class MainActivity extends BaseActivity {
     TextView  tvInductor;
     @BindView(R.id.vl_inductor)
     TextView  vlInductor;
+    @BindView(R.id.tv_temp_n)
+    TextView  tvTempN;
 
     /**
      * 用于展示Fragment
@@ -142,6 +145,7 @@ public class MainActivity extends BaseActivity {
     public static final int GET_COMMAND         = 5;
     public static final int GET_WAVE            = 6;
     public static final int WHAT_REFRESH        = 7;
+    public static final int DISPLAY_DATABASE    = 8;
 
     public Handler handler = new Handler(msg -> {
         switch (msg.what) {
@@ -168,6 +172,9 @@ public class MainActivity extends BaseActivity {
             case WHAT_REFRESH:
                 organizeWaveData();
                 displayWave();
+                break;
+            case DISPLAY_DATABASE:
+                drawDateBase();
                 break;
             default:
                 break;
@@ -206,7 +213,7 @@ public class MainActivity extends BaseActivity {
         vlMode.setText(getResources().getString(R.string.btn_tdr));
         Constant.ModeValue = TDR;
         vlRange.setText(getResources().getString(R.string.btn_500m));
-        Constant.RangeValue = RANGE_500;
+        Constant.RangeState = 0;
         vlGain.setText(String.valueOf(gain));
         Constant.Gain = gain;
         vlVel.setText(velocity + "m/μs");
@@ -252,11 +259,13 @@ public class MainActivity extends BaseActivity {
      */
     private void initBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
+        IntentFilter ifRefresh = new IntentFilter(ListActivity.REFRESH_ACTION);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(receiver, intentFilter);
+        registerReceiver(receiver, ifRefresh);
     }
 
     /**
@@ -404,6 +413,7 @@ public class MainActivity extends BaseActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            handler.sendEmptyMessage(Objects.requireNonNull(intent.getExtras()).getInt("re"));
             String action = intent.getAction();
             assert action != null;
             if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
@@ -414,7 +424,7 @@ public class MainActivity extends BaseActivity {
                 SharedPreferences sp = getSharedPreferences("config", Context.MODE_PRIVATE);
                 SharedPreferences.Editor edit = sp.edit();
                 Intent netIntent = new Intent();
-                netIntent.setAction("android.intent.action.netState");
+                netIntent.setAction("android.intent.REFRESH_ACTION.netState");
 
                 //当前开关状态
                 boolean netAvailable;
@@ -763,34 +773,42 @@ public class MainActivity extends BaseActivity {
             case 1:
                 System.arraycopy(simDraw1, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData1;
+                tvTempN.setText("1");
                 break;
             case 2:
                 System.arraycopy(simDraw2, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData2;
+                tvTempN.setText("2");
                 break;
-            case 3 :
+            case 3:
                 System.arraycopy(simDraw3, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData3;
+                tvTempN.setText("3");
                 break;
             case 4:
                 System.arraycopy(simDraw4, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData4;
+                tvTempN.setText("4");
                 break;
             case 5:
                 System.arraycopy(simDraw5, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData5;
+                tvTempN.setText("5");
                 break;
             case 6:
                 System.arraycopy(simDraw6, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData6;
+                tvTempN.setText("6");
                 break;
             case 7:
                 System.arraycopy(simDraw7, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData7;
+                tvTempN.setText("7");
                 break;
             case 8:
                 System.arraycopy(simDraw8, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData8;
+                tvTempN.setText("8");
                 break;
             default:
                 break;
@@ -895,6 +913,15 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    /**
+     * 绘制数据库中存储的波形
+     */
+    public void drawDateBase() {
+        setDateBaseParameter();
+        organizeWaveDataBase();
+        displayWave();
+    }
+
 
     /**
      * 设置波形绘制参数
@@ -927,7 +954,6 @@ public class MainActivity extends BaseActivity {
             //利用比较功能绘制SIM的第二条波形数据
             isCom = true;
         }
-
     }
 
     /**
@@ -967,6 +993,7 @@ public class MainActivity extends BaseActivity {
         Constant.WaveData = waveArray;
     }
 
+
     /**
      * 组织需要绘制的波形数组（抽点510个）——最终得到waveDraw和waveCompare    //GC20190702
      */
@@ -990,6 +1017,7 @@ public class MainActivity extends BaseActivity {
             //组织SIM的第二条波形的数据
             if (mode == SIM) {
                 waveCompare[j] = Constant.SimData[i];
+                tvTempN.setText("1");
                 simDraw1[j] = simArray1[i];
                 simDraw2[j] = simArray2[i];
                 simDraw3[j] = simArray3[i];
@@ -998,6 +1026,56 @@ public class MainActivity extends BaseActivity {
                 simDraw6[j] = simArray6[i];
                 simDraw7[j] = simArray7[i];
                 simDraw8[j] = simArray8[i];
+            }
+        }
+    }
+
+    /**
+     * 设置波形绘制参数
+     */
+    public void setDateBaseParameter() {
+        //读取数据库的参数
+        setMode(Constant.Para[0]);
+        setRange(Constant.Para[1]);
+        setGain(Constant.Para[2]);
+        setVelocity(Constant.Para[3]);
+        //擦除比较波形
+        isCom = false;
+        if (Constant.Para[0] == TDR) {
+            dataMax = READ_TDR_SIM[Constant.Para[1]];
+        } else if ((Constant.Para[0] == ICM) || (Constant.Para[0] == DECAY)) {
+            dataMax = READ_ICM_DECAY[Constant.Para[1]];
+        } else if (Constant.Para[0] == SIM) {
+            dataMax = READ_TDR_SIM[Constant.Para[1]];
+            //利用比较功能绘制SIM的第二条波形数据
+            isCom = true;
+        }
+
+    }
+
+    /**
+     * 组织需要绘制的波形数组（抽点510个）
+     */
+    public void organizeWaveDataBase() {
+        //起始位置
+        int start = 0;
+        //波形数据的居中位置
+        int k = 510 * density / 2;
+        //寻找波形显示的起始地址在波形数据数组中的所处的位置  (根据虚光标位置判断)
+        if (positionVirtual > 255) {
+            if ((mode == TDR) || (mode == SIM)) {
+                start = dataMax - removeTdrSim[rangeState] - 2 * k;
+            } else if ((mode == ICM) || (mode == DECAY)) {
+                start = dataMax - removeIcmDecay[rangeState] - 2 * k;
+            }
+        }
+        //波形按比例抽出510个点
+        for (int i = start, j = 0; j < 510; i = i + density, j++) {
+            //组织TDR、ICM、DECAY和SIM的第一条波形的数据
+            waveDraw[j] = Constant.WaveData[i];
+            //组织SIM的第二条波形的数据
+            if (mode == SIM) {
+                waveCompare[j] = Constant.SimData[i];
             }
         }
     }
@@ -1556,7 +1634,6 @@ public class MainActivity extends BaseActivity {
      */
     public void setRange(int range) {
         this.range = range;
-        Constant.RangeValue = range;
         command = COMMAND_RANGE;
         dataTransfer = range;
         sendCommand();
@@ -1629,6 +1706,7 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
+        Constant.RangeState = rangeState;
     }
 
     public int getRange() {
@@ -1703,14 +1781,16 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onPause() {
-        /*if (receiver != null) {
-            unregisterReceiver(receiver);
-        }*/
+
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+            receiver = null;
+        }
         super.onDestroy();
     }
 

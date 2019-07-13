@@ -2,6 +2,7 @@ package net.kehui.www.t_907_origin.base;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
@@ -9,7 +10,6 @@ import android.view.WindowManager;
 
 import net.kehui.www.t_907_origin.adpter.DataAdapter;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapterBase;
-import net.kehui.www.t_907_origin.application.Constant;
 import net.kehui.www.t_907_origin.dao.DataDao;
 import net.kehui.www.t_907_origin.entity.Data;
 import net.kehui.www.t_907_origin.global.BaseAppData;
@@ -17,6 +17,10 @@ import net.kehui.www.t_907_origin.thread.ConnectThread;
 
 import java.io.BufferedReader;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import io.reactivex.Flowable;
 
 /**
  * @author IF
@@ -239,7 +243,6 @@ public class BaseActivity extends AppCompatActivity {
         dao = db.dataDao();
 
     }
-
 }
 
 /*更改记录*/

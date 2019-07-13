@@ -1,13 +1,11 @@
 package net.kehui.www.t_907_origin.view;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +26,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -46,13 +43,15 @@ public class ListActivity extends BaseActivity {
 
     private RecyclerView.LayoutManager layoutManager;
 
+    public static final String REFRESH_ACTION = "refresh_action";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         ButterKnife.bind(this);
-
+        setFinishOnTouchOutside(true);
         initAdapter();
     }
 
@@ -63,9 +62,11 @@ public class ListActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        adapter.setOnItemClickListener((view, dataId, selectedWave[],selectedSim[],position) -> {
+        adapter.setOnItemClickListener((view, dataId, selectedPara[],selectedWave[],selectedSim[],
+                                        position) -> {
             adapter.changeSelected(position);
             selectedId = dataId;
+            Constant.Para = selectedPara;
             Constant.WaveData = selectedWave;
             Constant.SimData = selectedSim;
             pos = position;
@@ -107,7 +108,7 @@ public class ListActivity extends BaseActivity {
         switch (view.getId()) {
             case R.id.btn_Dele:
                 Flowable.create((FlowableOnSubscribe<List>) e -> {
-                    Data[] datas = null;
+                    Data[] datas;
                     datas = dao.queryDataId(selectedId);
                     dao.deleteData(datas);
                     e.onNext(Arrays.asList(dao.query()));
@@ -139,6 +140,9 @@ public class ListActivity extends BaseActivity {
                 layoutManager.scrollToPosition(0);
                 break;
             case R.id.btn_Disp:
+                Intent intent = new Intent(REFRESH_ACTION);
+                intent.putExtra("re", 8);
+                sendBroadcast(intent);
                 finish();
                 break;
             default:
