@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.kehui.www.t_907_origin.R;
-import net.kehui.www.t_907_origin.application.Constant;
 import net.kehui.www.t_907_origin.entity.Data;
 
 import java.util.List;

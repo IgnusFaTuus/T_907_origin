@@ -1,5 +1,6 @@
 package net.kehui.www.t_907_origin.entity;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
@@ -27,13 +28,22 @@ public class Data {
     /**
      * 波形信息
      */
+    @ColumnInfo(name = "date")
     public String date;
+    @ColumnInfo(name = "time")
     public String time;
     public String mode;
     public String range;
+
+    @ColumnInfo(name = "line")
     public String line;
+
     public String phase;
+
+    @ColumnInfo(name = "tester")
     public String tester;
+
+    @ColumnInfo(name = "location")
     public String location;
 
     /**
