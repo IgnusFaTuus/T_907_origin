@@ -10,6 +10,8 @@ import android.widget.Button;
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.view.MainActivity;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -21,11 +23,11 @@ import butterknife.Unbinder;
  */
 public class WaveFragment extends Fragment {
     @BindView(R.id.btn_zoom_in)
-    Button btnZoomIn;
+    public Button btnZoomIn;
     @BindView(R.id.btn_zoom_out)
-    Button btnZoomOut;
+    public Button btnZoomOut;
     @BindView(R.id.btn_res)
-    Button btnRes;
+    public Button btnRes;
     @BindView(R.id.btn_memory)
     public Button btnMemory;
     @BindView(R.id.btn_compare)
@@ -53,12 +55,12 @@ public class WaveFragment extends Fragment {
         btnCompare.setVisibility(View.VISIBLE);
         btnWavePrevious.setVisibility(View.INVISIBLE);
         btnWaveNext.setVisibility(View.INVISIBLE);
-        //初始化按键无效
+        //初始化按键无效显示效果
         btnZoomIn.setEnabled(false);
         btnZoomOut.setEnabled(false);
         btnRes.setEnabled(false);
         btnWavePrevious.setEnabled(false);
-        btnWaveNext.setEnabled(false);
+        btnWaveNext.setEnabled(true);
 
     }
 
@@ -72,10 +74,40 @@ public class WaveFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_zoom_in:
+                //GC20190711
+                int density = ((MainActivity) Objects.requireNonNull(getActivity())).getDensity();
+                if (density > 1) {
+                    density = density / 2;
+                    ((MainActivity) getActivity()).setDensity(density);
+                    btnZoomOut.setEnabled(true);
+                    btnRes.setEnabled(true);
+                }
+                //无法放大
+                if (density == 1) {
+                    btnZoomIn.setEnabled(false);
+                }
                 break;
             case R.id.btn_zoom_out:
+                density = ((MainActivity) Objects.requireNonNull(getActivity())).getDensity();
+                int densityMax = ((MainActivity) Objects.requireNonNull(getActivity())).getDensityMax();
+                if (density < densityMax) {
+                    density = density * 2;
+                    ((MainActivity) getActivity()).setDensity(density);
+                    btnZoomIn.setEnabled(true);
+                    btnRes.setEnabled(true);
+                }
+                //缩小到最初显示，只显示放大按钮
+                if (density == densityMax) {
+                    btnZoomOut.setEnabled(false);
+                    btnRes.setEnabled(false);
+                }
                 break;
             case R.id.btn_res:
+                densityMax = ((MainActivity) Objects.requireNonNull(getActivity())).getDensityMax();
+                ((MainActivity) getActivity()).setDensity(densityMax);
+                btnZoomIn.setEnabled(true);
+                btnZoomOut.setEnabled(false);
+                btnRes.setEnabled(false);
                 break;
             case R.id.btn_memory:
                 ((MainActivity) getActivity()).clickMemory();
@@ -85,31 +117,32 @@ public class WaveFragment extends Fragment {
                 break;
             case R.id.wavePrevious:
                 //GC20190702 SIM共8组，从1-8
-                int selectSim = ((MainActivity) getActivity()).getSelectSim();
-                if (selectSim < 8) {
-                    selectSim++;
+                //GC20190702 SIM共8组，从1-8
+                int selectSim = ((MainActivity) Objects.requireNonNull(getActivity())).getSelectSim();
+                if (selectSim > 1) {
+                    selectSim--;
                     ((MainActivity) getActivity()).setSelectSim(selectSim);
                     btnWaveNext.setEnabled(true);
                 }
-                //到第8组波形，上翻按钮点击无效
-                if (selectSim == 8) {
+                //到第1组波形，下翻按钮点击无效
+                if (selectSim == 1) {
                     btnWavePrevious.setEnabled(false);
                 }
                 break;
             case R.id.waveNext:
-                selectSim = ((MainActivity) getActivity()).getSelectSim();
-                if (selectSim > 1) {
-                    selectSim--;
+                selectSim = ((MainActivity) Objects.requireNonNull(getActivity())).getSelectSim();
+                if (selectSim < 8) {
+                    selectSim++;
                     ((MainActivity) getActivity()).setSelectSim(selectSim);
                     btnWavePrevious.setEnabled(true);
                 }
-                //到第1组波形，下翻按钮点击无效
-                if (selectSim == 1) {
+                //到第8组波形，上翻按钮点击无效
+                if (selectSim == 8) {
                     btnWaveNext.setEnabled(false);
                 }
                 break;
-                default:
-                    break;
+            default:
+                break;
 
         }
     }

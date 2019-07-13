@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class DataAdapter extends RecyclerView.Adapter {
 
-    private DataAdapter.OnItemClickListener onItemClickListener;
+    private OnItemClickListener onItemClickListener;
 
     public  List<Data> datas;
     private int        selected = 0;
@@ -39,8 +39,9 @@ public class DataAdapter extends RecyclerView.Adapter {
         holder.time.setText(data.time);
         holder.mode.setText(data.mode);
         holder.range.setText(data.range);
-        int[]selectedWave = data.waveData;
-        int[]selectedSim = data.waveDataSim;
+        int[] selectedPara = data.para;
+        int[] selectedWave = data.waveData;
+        int[] selectedSim = data.waveDataSim;
         int selectedId = data.dataId;
         if (selected == position) {
             viewHolder.itemView.setBackgroundResource(R.color.T_99);
@@ -50,7 +51,8 @@ public class DataAdapter extends RecyclerView.Adapter {
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
                 int pos = holder.getLayoutPosition();
-                onItemClickListener.onItemClick(holder.itemView, selectedId, selectedWave,
+                onItemClickListener.onItemClick(holder.itemView, selectedId, selectedPara,
+                        selectedWave,
                         selectedSim, pos);
             }
         });
@@ -88,7 +90,7 @@ public class DataAdapter extends RecyclerView.Adapter {
      *
      * @param listener
      */
-    public void setOnItemClickListener(DataAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
 
@@ -97,6 +99,7 @@ public class DataAdapter extends RecyclerView.Adapter {
          * @param view
          * @param position
          */
-        void onItemClick(View view, int dataId, int[]waveData,int[]simData, int position);
+        void onItemClick(View view, int dataId, int[] para, int[] waveData, int[] simData,
+                         int position);
     }
 }

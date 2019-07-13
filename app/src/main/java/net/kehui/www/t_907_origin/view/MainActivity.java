@@ -27,6 +27,7 @@ import com.timmy.tdialog.listener.OnViewClickListener;
 
 import net.kehui.www.t_907_origin.R;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapterBase;
+import net.kehui.www.t_907_origin.application.AppConfig;
 import net.kehui.www.t_907_origin.application.Constant;
 import net.kehui.www.t_907_origin.base.BaseActivity;
 import net.kehui.www.t_907_origin.fragment.AdjustFragment;
@@ -37,6 +38,7 @@ import net.kehui.www.t_907_origin.fragment.RangeFragment;
 import net.kehui.www.t_907_origin.fragment.SettingFragment;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
 import net.kehui.www.t_907_origin.ui.SparkView.SparkView;
+import net.kehui.www.t_907_origin.util.StateUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -47,6 +49,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -113,6 +116,8 @@ public class MainActivity extends BaseActivity {
     TextView  tvInductor;
     @BindView(R.id.vl_inductor)
     TextView  vlInductor;
+    @BindView(R.id.tv_temp_n)
+    TextView tvSim;
 
     /**
      * 用于展示Fragment
@@ -142,6 +147,7 @@ public class MainActivity extends BaseActivity {
     public static final int GET_COMMAND         = 5;
     public static final int GET_WAVE            = 6;
     public static final int WHAT_REFRESH        = 7;
+    public static final int DISPLAY_DATABASE    = 8;
 
     public Handler handler = new Handler(msg -> {
         switch (msg.what) {
@@ -166,8 +172,13 @@ public class MainActivity extends BaseActivity {
                 doWifiWave(wifiStream);
                 break;
             case WHAT_REFRESH:
+                resetWhatNeed();
                 organizeWaveData();
                 displayWave();
+                break;
+            case DISPLAY_DATABASE:
+                //GC20190713
+                drawDateBase();
                 break;
             default:
                 break;
@@ -206,7 +217,7 @@ public class MainActivity extends BaseActivity {
         vlMode.setText(getResources().getString(R.string.btn_tdr));
         Constant.ModeValue = TDR;
         vlRange.setText(getResources().getString(R.string.btn_500m));
-        Constant.RangeValue = RANGE_500;
+        Constant.RangeState = 0;
         vlGain.setText(String.valueOf(gain));
         Constant.Gain = gain;
         vlVel.setText(velocity + "m/μs");
@@ -221,11 +232,13 @@ public class MainActivity extends BaseActivity {
         tvInductor.setVisibility(View.GONE);
         vlInductor.setVisibility(View.GONE);
         //初始化距离显示
-        calculateDistance(Math.abs(positionVirtual - positionReal));
+        calculateDistance(Math.abs((positionVirtual - positionReal) * density));
         //自动测距显示    //GC20190710
         tvInformation.setVisibility(View.GONE);
         tvIcm.setVisibility(View.GONE);
         tvAutoDistance.setVisibility(View.GONE);
+        //SIM光标位置初始化    //GC20190712
+        simCursor = StateUtils.getInt(MainActivity.this, AppConfig.CURRENT_CURSOR_POSITION, 12);
     }
 
     /**
@@ -252,11 +265,14 @@ public class MainActivity extends BaseActivity {
      */
     private void initBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
+        //GC20190713
+        IntentFilter ifDisplay = new IntentFilter(ListActivity.action);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(receiver, intentFilter);
+        registerReceiver(receiver, ifDisplay);
     }
 
     /**
@@ -284,15 +300,20 @@ public class MainActivity extends BaseActivity {
             if (cursorState) {
                 //实光标   //GC20190629
                 fullWave.setScrubLineReal((Integer) value);
+                //GT
+//                zero =  zero + (positionReal - (int) value) * density;
                 positionReal = (int) value;
+                zero = positionReal * density;
             } else {
                 //虚光标
                 fullWave.setScrubLineVirtual((Integer) value);
+//                pointDistance =  pointDistance + (positionVirtual - (int) value) * density;
                 positionVirtual = (int) value;
+                pointDistance = positionVirtual * density;
             }
-            Log.i("光标移动数值", "" + value); //GN 数值从0开始计数
-            //GC20190709    响应移动光标显示的距离
-            calculateDistance(Math.abs(positionVirtual - positionReal));
+            Log.e("光标移动数值", "" + value); //GN 数值从0开始计数
+            //GC20190709    响应移动光标显示的距离 //G?
+            calculateDistance(Math.abs(pointDistance - zero));
         });
     }
 
@@ -404,6 +425,8 @@ public class MainActivity extends BaseActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //GC20190713
+            handler.sendEmptyMessage(Objects.requireNonNull(intent.getExtras()).getInt("re"));
             String action = intent.getAction();
             assert action != null;
             if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
@@ -680,14 +703,13 @@ public class MainActivity extends BaseActivity {
         }
         //DECAY方式距离/2
         if (mode == DECAY) {
-            distance = ((cursorDistance * velocity / 2) * k) / 2 * 0.01 * density;
+            distance = (((double)cursorDistance * velocity / 2) * k) / 2 * 0.01;
         } else {
-            distance = ((cursorDistance * velocity) * k) / 2 * 0.01 * density;
+            distance = (((double)cursorDistance * velocity) * k) / 2 * 0.01;
         }
         //距离界面显示
         tvDistance.setText(new DecimalFormat("0.00").format(distance) + "m");
     }
-
 
     /**
      * @param samplingPoints 方向脉冲法自动计算-显示故障距离
@@ -702,15 +724,36 @@ public class MainActivity extends BaseActivity {
             k = 1;
         }
         //sc
-        distance = (((double) samplingPoints * velocity) * k) / 2 * 0.01;
+        distance = (((double)samplingPoints * velocity) * k) / 2 * 0.01;
+        //自动距离界面显示
+//        tvAutoDistance.setText(new DecimalFormat("0.00").format(distance) + "m");
         //距离界面显示
-        tvAutoDistance.setText(new DecimalFormat("0.00").format(distance) + "m");
+        tvDistance.setText(new DecimalFormat("0.00").format(distance) + "m");
 
     }
 
     public int getVelocity() {
         return velocity;
     }
+
+    /**
+     * @param density 响应状态栏波速度变化
+     */
+    public void setDensity(int density) {
+        this.density = density;
+        vlDensity.setText("1 : " + density);
+        organizeWaveData();
+        displayWaveMain();
+    }
+
+    public int getDensity() {
+        return density;
+    }
+
+    public int getDensityMax() {
+        return densityMax;
+    }
+
 
     /**
      * @param balance 需要发送的平衡控制命令值 / 响应信息栏平衡变化
@@ -755,7 +798,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * @param selectSim SIM显示波形的组数
+     * @param selectSim SIM显示波形的组数  //GC20190705
      */
     public void setSelectSim(int selectSim) {
         this.selectSim = selectSim;
@@ -763,34 +806,42 @@ public class MainActivity extends BaseActivity {
             case 1:
                 System.arraycopy(simDraw1, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData1;
+                tvSim.setText("波形1");
                 break;
             case 2:
                 System.arraycopy(simDraw2, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData2;
+                tvSim.setText("波形2");
                 break;
             case 3 :
                 System.arraycopy(simDraw3, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData3;
+                tvSim.setText("波形3");
                 break;
             case 4:
                 System.arraycopy(simDraw4, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData4;
+                tvSim.setText("波形4");
                 break;
             case 5:
                 System.arraycopy(simDraw5, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData5;
+                tvSim.setText("波形5");
                 break;
             case 6:
                 System.arraycopy(simDraw6, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData6;
+                tvSim.setText("波形6");
                 break;
             case 7:
                 System.arraycopy(simDraw7, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData7;
+                tvSim.setText("波形7");
                 break;
             case 8:
                 System.arraycopy(simDraw8, 0, waveCompare, 0, 510);
                 Constant.SimData = Constant.TempData8;
+                tvSim.setText("波形8");
                 break;
             default:
                 break;
@@ -801,6 +852,14 @@ public class MainActivity extends BaseActivity {
 
     public int getSelectSim() {
         return selectSim;
+    }
+
+    /**
+     * @param simCursor 光标零点设置 //GC20190712
+     */
+    public void setSimCursor(int simCursor) {
+        this.simCursor = simCursor;
+        StateUtils.setInt(MainActivity.this, AppConfig.CURRENT_CURSOR_POSITION, simCursor);
     }
 
     /**
@@ -895,7 +954,6 @@ public class MainActivity extends BaseActivity {
 
     }
 
-
     /**
      * 设置波形绘制参数
      */
@@ -927,6 +985,8 @@ public class MainActivity extends BaseActivity {
             //利用比较功能绘制SIM的第二条波形数据
             isCom = true;
         }
+        zero = positionReal * densityMax;
+        pointDistance = positionVirtual * densityMax;
 
     }
 
@@ -936,7 +996,7 @@ public class MainActivity extends BaseActivity {
     private void doWifiWave(int[] wifiArray) {
         if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
             System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
-            handler.sendEmptyMessage(WHAT_REFRESH);
+//            handler.sendEmptyMessage(WHAT_REFRESH);
             //ICM自动测距
             if (mode == ICM) {
                 icmAutoTest();
@@ -968,9 +1028,57 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
+     * 刷新重置
+     */
+    private void resetWhatNeed() {
+        //GC201907052   优化SIM显示
+        if (mode == SIM) {
+            selectSim = 1;
+            tvSim.setText("波形1");
+            waveFragment.btnWavePrevious.setEnabled(false);
+        } else {
+            tvSim.setText("");
+        }
+        //GC20190711
+        if (density > 1) {
+            waveFragment.btnZoomIn.setEnabled(true);
+            if (density == densityMax) {
+                waveFragment.btnZoomOut.setEnabled(false);
+                waveFragment.btnRes.setEnabled(false);
+
+            }
+        }
+    }
+
+    /**
      * 组织需要绘制的波形数组（抽点510个）——最终得到waveDraw和waveCompare    //GC20190702
      */
     private void organizeWaveData() {
+        //GT
+        /*int k = 510 * density / 2;
+        int i = pointDistance - k;
+        if (pointDistance < k) {
+            i = 0;
+        } else if ((dataMax - pointDistance) < k) {
+            i = dataMax - 2 * k;
+        }
+        //波形按比例抽出510个点
+        for (int j = 0; j < 510; i = i + density, j++) {
+            //组织TDR、ICM、DECAY和SIM的第一条波形的数据
+            waveDraw[j] = Constant.WaveData[i];
+            //组织SIM的第二条波形的数据
+            if (mode == SIM) {
+                waveCompare[j] = Constant.SimData[i];
+                simDraw1[j] = simArray1[i];
+                simDraw2[j] = simArray2[i];
+                simDraw3[j] = simArray3[i];
+                simDraw4[j] = simArray4[i];
+                simDraw5[j] = simArray5[i];
+                simDraw6[j] = simArray6[i];
+                simDraw7[j] = simArray7[i];
+                simDraw8[j] = simArray8[i];
+            }
+        }*/
         //起始位置
         int start = 0;
         //波形数据的居中位置
@@ -1014,8 +1122,7 @@ public class MainActivity extends BaseActivity {
             if (isCom) {
                 myChartAdapterMainWave.setmCompareArray(waveCompare);
                 myChartAdapterFullWave.setmCompareArray(waveCompare);
-                //GC201907052 优化SIM显示   //G?    检查显示效果是否正常
-                waveFragment.btnWavePrevious.setEnabled(true);
+                //GC201907052 优化SIM显示  每次刷新波形按钮下翻显示
                 waveFragment.btnWaveNext.setEnabled(true);
             }
         }
@@ -1033,6 +1140,84 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
+     * 在sparkView界面显示放大缩小的波形    //GC20190711
+     */
+    public void displayWaveMain() {
+        //GT
+        /*mainWave.setScrubLineReal(255);
+        if ((Math.abs(pointDistance - zero)) < 255 * density) {
+            mainWave.setScrubLineRealState();
+        }*/
+        myChartAdapterMainWave.setmTempArray(waveDraw);
+        myChartAdapterMainWave.setShowCompareLine(isCom);
+        if (mode == SIM) {
+            if (isCom) {
+                myChartAdapterMainWave.setmCompareArray(waveCompare);
+            }
+        }
+        myChartAdapterMainWave.notifyDataSetChanged();
+    }
+
+    /**
+     * 绘制数据库中存储的波形
+     */
+    public void drawDateBase() {
+        setDateBaseParameter();
+        organizeWaveDataBase();
+        displayWave();
+    }
+
+    /**
+     * 设置波形绘制参数
+     */
+    public void setDateBaseParameter() {
+        //读取数据库的参数
+        setMode(Constant.Para[0]);
+        setRange(Constant.Para[1]);
+        setGain(Constant.Para[2]);
+        setVelocity(Constant.Para[3]);
+        //擦除比较波形
+        isCom = false;
+        if (Constant.Para[0] == TDR) {
+            dataMax = READ_TDR_SIM[Constant.Para[1]];
+        } else if ((Constant.Para[0] == ICM) || (Constant.Para[0] == DECAY)) {
+            dataMax = READ_ICM_DECAY[Constant.Para[1]];
+        } else if (Constant.Para[0] == SIM) {
+            dataMax = READ_TDR_SIM[Constant.Para[1]];
+            //利用比较功能绘制SIM的第二条波形数据
+            isCom = true;
+        }
+
+    }
+
+    /**
+     * 组织需要绘制的波形数组（抽点510个）
+     */
+    public void organizeWaveDataBase() {
+        //起始位置
+        int start = 0;
+        //波形数据的居中位置
+        int k = 510 * density / 2;
+        //寻找波形显示的起始地址在波形数据数组中的所处的位置  (根据虚光标位置判断)
+        if (positionVirtual > 255) {
+            if ((mode == TDR) || (mode == SIM)) {
+                start = dataMax - removeTdrSim[rangeState] - 2 * k;
+            } else if ((mode == ICM) || (mode == DECAY)) {
+                start = dataMax - removeIcmDecay[rangeState] - 2 * k;
+            }
+        }
+        //波形按比例抽出510个点
+        for (int i = start, j = 0; j < 510; i = i + density, j++) {
+            //组织TDR、ICM、DECAY和SIM的第一条波形的数据
+            waveDraw[j] = Constant.WaveData[i];
+            //组织SIM的第二条波形的数据
+            if (mode == SIM) {
+                waveCompare[j] = Constant.SimData[i];
+            }
+        }
+    }
+
+    /**
      * 脉冲电流故障自动计算过程  //GC20190708
      */
     private void icmAutoTest() {
@@ -1041,7 +1226,7 @@ public class MainActivity extends BaseActivity {
         switch (gainState) {
             case 0:
                 //擦除字符显示  sc
-                tvInformation.setText("    ");
+                tvInformation.setText("");
                 break;
             case 1:
                 gainState = 0;
@@ -1050,7 +1235,7 @@ public class MainActivity extends BaseActivity {
                 //显示增益过大    //GC20190710
                 tvInformation.setVisibility(View.VISIBLE);
                 tvInformation.setText(getResources().getString(R.string.gain_too_high));
-                return;     //G?    是否按照设想正常运行
+                return;
             case 2:
                 gainState = 0;
                 //组织数据画波形   //GC20190710
@@ -1078,13 +1263,13 @@ public class MainActivity extends BaseActivity {
         }
         //计算方向脉冲
         calculatePulse();
-        //计算并显示故障距离
+        //计算故障距离并在界面显示
         correlationSimple();
-        //放电脉冲位置确定
+        //放电脉冲位置确定——确定实光标
         breakPointCalculate();
         //光标自动定位
         icmAutoCursor();
-        //GN组织数据画波形
+        //组织数据画波形
         handler.sendEmptyMessage(WHAT_REFRESH);
     }
 
@@ -1103,13 +1288,13 @@ public class MainActivity extends BaseActivity {
                 max = Math.abs(sub);
             }
         }
-        if (max <= 42) {
+        if (max <= 38) {
             //判断增益过小
             gainState = 2;
             return;
         }
         for (i = 0; i < dataMax - removeIcmDecay[rangeState]; i++) {
-            if ((waveArray[i] > 242) || (waveArray[i] < 13)) {
+            if ((waveArray[i] > 242) || (waveArray[i] < 16)) {
                 //判断增益过大
                 gainState = 1;
                 return;
@@ -1124,17 +1309,14 @@ public class MainActivity extends BaseActivity {
         int i;
         for (i = 1; i < dataMax - removeIcmDecay[rangeState]; i++) {
             if (rangeState >= 6) {
-                waveArrayFilter[i] =
-                        (float) 0.8618 * waveArrayFilter[i - 1] + (float) 0.1382 * (float) (waveArray[i] - 128);
+                waveArrayFilter[i] = (float) 0.8618 * waveArrayFilter[i - 1] + (float) 0.1382 * (float) (waveArray[i] - 128);
             } else {
-                waveArrayFilter[i] =
-                        (float) 0.9524 * waveArrayFilter[i - 1] + (float) 0.0476 * (float) (waveArray[i] - 128);
+                waveArrayFilter[i] = (float) 0.9524 * waveArrayFilter[i - 1] + (float) 0.0476 * (float) (waveArray[i] - 128);
+                //sc
+                waveArrayFilter[i] = (float)0.8744 * waveArrayFilter[i - 1] + (float)0.1256 * (float)(waveArray[i] - 128);
+                //waveArrayFilter[i] = (float)0.9524 * waveArrayFilter[i - 1] + (float)0.0476 * (float)(waveArray[i] - 128);
             }
         }
-        //只处理波形靠前的位置    //G? 是否需要再加6
-        /*for( i = 1; i < 2000; i++) {
-            waveArrayFilter[i] = waveArrayFilter[i] + 6;
-        }*///sc
     }
 
     /**
@@ -1169,8 +1351,7 @@ public class MainActivity extends BaseActivity {
         }
         //积分电流
         a = 80 * min;
-        //G? 数个数修改  sc  64
-        for (i = start + 80; i < (dataMax - removeIcmDecay[rangeState]); i++) {
+        for (i = start + 64; i < (dataMax - removeIcmDecay[rangeState]); i++) {
             //1.8
             if ((waveArrayIntegral[i] < 0) && (waveArrayIntegral[i] < 1.3 * a)) {
                 breakdownPosition = i;
@@ -1215,7 +1396,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 脉冲电流方式  计算故障距离(抽点做数据相关)  方向脉冲法自动计算-使用相关计算故障距离   //G?
+     * 脉冲电流方式  计算故障距离(抽点做数据相关)  方向脉冲法自动计算-使用相关计算故障距离
      */
     private void correlationSimple() {
         int i;
@@ -1270,8 +1451,8 @@ public class MainActivity extends BaseActivity {
         w2 = w2 / densityMaxIcmDecay[rangeState];
         w3 = 512 - w2;
 
-        float[] S1 = new float[400];
-        float[] S2 = new float[400];
+        float[] S1 = new float[65556];
+        float[] S2 = new float[65556];
 
         for (i = w1; i < w2; i++) {
             S1[i - w1] = s1_simple[i];
@@ -1280,7 +1461,6 @@ public class MainActivity extends BaseActivity {
             for (k = w1; k < w2; k++) {
                 S2[k - w1] = s2_simple[k + i];
             }
-            //G?清零
             p = (float) 0.0;
             //进行相关运算
             for (j = 0; j < (w2 - w1); j++) {
@@ -1331,9 +1511,6 @@ public class MainActivity extends BaseActivity {
                 maxIndex1 = i;
             }
         }
-        Log.e("ICM", " maxIndex1:" + maxIndex1);
-        //G? BUG
-        // int maxIndex2 = maxIndex - densityMaxIcmDecay[range] + maxIndex1 - w1;//sc
         int maxIndex2 = maxIndex - densityMaxIcmDecay[rangeState] + maxIndex1 - w1;
         calculateDistanceAuto(maxIndex2);
         faultResult = maxIndex2;
@@ -1357,7 +1534,6 @@ public class MainActivity extends BaseActivity {
         if (rangeState >= 6) {
             i = 150;
         }
-        //G? 数据个数修改
         while ((j < 255) && (i < dataMax - removeIcmDecay[rangeState])) {
             if ((waveArrayFilter[i] < waveArrayFilter[i - 1]) && (waveArrayFilter[i] <= waveArrayFilter[i + 1])) {
                 if ((i > 5) && (waveArrayFilter[i - 1] < waveArrayFilter[i - 2])) {
@@ -1404,7 +1580,6 @@ public class MainActivity extends BaseActivity {
     private void breakPointCalculate() {
         int i;
         int bk_pos;
-        //G?
         long remainder;
 
         i = breakdownPosition - minPeak[0];
@@ -1427,7 +1602,7 @@ public class MainActivity extends BaseActivity {
         }
         for (i = bk_pos; i > 100; i--) {
             if (waveArrayFilter[i - 1] < waveArrayFilter[i]) {
-                //时光标
+                //实光标位置
                 breakBk = i;
                 break;
             }
@@ -1556,7 +1731,6 @@ public class MainActivity extends BaseActivity {
      */
     public void setRange(int range) {
         this.range = range;
-        Constant.RangeValue = range;
         command = COMMAND_RANGE;
         dataTransfer = range;
         sendCommand();
@@ -1629,6 +1803,7 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
+        Constant.RangeState = rangeState;
     }
 
     public int getRange() {
@@ -1654,19 +1829,24 @@ public class MainActivity extends BaseActivity {
      * 光标位置和距离显示初始化 //GC20190709
      */
     private void initCursor() {
-        //刷新后显示控制虚光标
-        cursorState = false;
-        myChartAdapterMainWave.setCursorState(false);
-        btnCursor.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.T_purple));
-        //画光标
-        positionReal = 0;
+        //光标距离
+        if (mode == SIM) {
+            //GC20190712
+            zero = simCursor;
+            Log.e("TEST","位置" + positionReal);
+        } else {
+            zero = 0;
+        }
+        pointDistance = 255 * densityMax;
+        //计算并在界面显示距离
+        calculateDistance(Math.abs(pointDistance - zero));
+        //界面定位
+        positionReal = zero / densityMax;
+        positionVirtual = pointDistance / densityMax;
         mainWave.setScrubLineReal(positionReal);
         fullWave.setScrubLineReal(positionReal);
-        positionVirtual = 255;
         mainWave.setScrubLineVirtual(positionVirtual);
         fullWave.setScrubLineVirtual(positionVirtual);
-        //显示距离
-        calculateDistance(Math.abs(positionVirtual - positionReal));
     }
 
     /**
@@ -1692,8 +1872,8 @@ public class MainActivity extends BaseActivity {
         this.velocity = velocity;
         vlVel.setText(velocity + "m/μs");
         Constant.Velocity = velocity;
-        //GC20190709
-        calculateDistance(Math.abs(positionVirtual - positionReal));
+        //GC20190709    //G?
+        calculateDistance(Math.abs(pointDistance - zero));
     }
 
     @Override

@@ -361,6 +361,11 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         invalidate();
     }
 
+    public void setScrubLineRealState() {
+        scrubLinePath.reset();
+        invalidate();
+    }
+
     /**
      * @param position 虚光标位置（设置固定值）
      */

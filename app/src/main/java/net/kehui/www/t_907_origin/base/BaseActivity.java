@@ -33,6 +33,7 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * 波形参数
      */
+    public int simCursor;
     public int mode;
     public int modeBefore;
     public int range;
@@ -53,6 +54,8 @@ public class BaseActivity extends AppCompatActivity {
      */
     public int positionReal;
     public int positionVirtual;
+    public int  zero;
+    public int  pointDistance;
 
     /**
      * 光标状态
@@ -132,7 +135,7 @@ public class BaseActivity extends AppCompatActivity {
 
     /**
      * 魔法值定义，改善代码易读性
-     * <p>
+     *
      * APP发送部分
      */
     public final static int COMMAND_DATA_LENGTH  = 0x03;
@@ -179,13 +182,13 @@ public class BaseActivity extends AppCompatActivity {
      * 发送命令(16进制显示)
      * 数据头   数据长度  指令  传输数据  校验和
      * eb90aa55     03      01      11       15
-     * <p>
+     *
      * eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
-     * <p>
+     *
      * 接收波形
      * 数据头      数据长度    传输数据    校验和
      * eb90aaxx    aabbccdd       X         xx
-     * <p>
+     *
      * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
      */
 
@@ -228,6 +231,8 @@ public class BaseActivity extends AppCompatActivity {
 
         positionReal = 0;
         positionVirtual = 255;
+        zero = 0;
+        pointDistance = 255;
 
         //增益大小状态
         gainState = 0;
@@ -252,7 +257,10 @@ public class BaseActivity extends AppCompatActivity {
 //GC20190702 波形绘制参数准备工作
 //GC20190703 记忆比较功能
 //GC20190704 增益、平衡、延时命令调节
-//GC20190705 fragment切换显示优化
+//GC20190705 fragment切换显示优化，SIM波形选择
 //GC20190706 数据处理优化
 //GC20190708 ICM自动测距
 //GC20190709 距离计算，比例选择
+//GC20190711 放大缩小
+//GC20190712 光标零点设置
+//GC20190713 数据库波形显示

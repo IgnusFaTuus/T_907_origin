@@ -1,5 +1,6 @@
 package net.kehui.www.t_907_origin.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -45,7 +46,8 @@ public class ListActivity extends BaseActivity {
     int pos;
 
     private RecyclerView.LayoutManager layoutManager;
-
+    //GC20190713
+    public static final String action = "refresh_action";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,8 @@ public class ListActivity extends BaseActivity {
         setContentView(R.layout.activity_list);
         ButterKnife.bind(this);
 
+        //添加点击侧边消失
+        setFinishOnTouchOutside(true);
         initAdapter();
     }
 
@@ -63,9 +67,11 @@ public class ListActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        adapter.setOnItemClickListener((view, dataId, selectedWave[],selectedSim[],position) -> {
+        adapter.setOnItemClickListener((view, dataId,selectedPara[], selectedWave[],selectedSim[],position) -> {
             adapter.changeSelected(position);
             selectedId = dataId;
+            //GC20190713
+            Constant.Para = selectedPara;
             Constant.WaveData = selectedWave;
             Constant.SimData = selectedSim;
             pos = position;
@@ -139,6 +145,10 @@ public class ListActivity extends BaseActivity {
                 layoutManager.scrollToPosition(0);
                 break;
             case R.id.btn_Disp:
+                //GC20190713
+                Intent intent = new Intent(action);
+                intent.putExtra("re",8);
+                sendBroadcast(intent);
                 finish();
                 break;
             default:

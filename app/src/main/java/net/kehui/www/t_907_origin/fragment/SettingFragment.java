@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.view.MainActivity;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +46,8 @@ public class SettingFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_zero:
+                int simCursor = ((MainActivity) Objects.requireNonNull(getActivity())).positionReal;
+                ((MainActivity) getActivity()).setSimCursor(simCursor);
                 break;
             case R.id.btn_lang:
                 break;

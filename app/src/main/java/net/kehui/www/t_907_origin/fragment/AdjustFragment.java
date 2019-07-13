@@ -61,7 +61,7 @@ public class AdjustFragment extends Fragment {
         btnDelayMinus.setVisibility(View.GONE);
         btnInductorPlus.setVisibility(View.GONE);
         btnInductorMinus.setVisibility(View.GONE);
-        //初始化按键无效
+        //初始化按键无效显示效果
         btnDelayMinus.setEnabled(false);
         btnInductorMinus.setEnabled(false);
 
