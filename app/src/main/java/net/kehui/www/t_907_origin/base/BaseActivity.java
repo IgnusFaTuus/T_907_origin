@@ -97,6 +97,8 @@ public class BaseActivity extends AppCompatActivity {
      */
     public int[] waveDraw;
     public int[] waveCompare;
+    public int[] waveDrawFull;
+    public int[] waveCompareFull;
     public int[] simDraw1;
     public int[] simDraw2;
     public int[] simDraw3;
@@ -105,6 +107,14 @@ public class BaseActivity extends AppCompatActivity {
     public int[] simDraw6;
     public int[] simDraw7;
     public int[] simDraw8;
+    public int[] simDraw1Full;
+    public int[] simDraw2Full;
+    public int[] simDraw3Full;
+    public int[] simDraw4Full;
+    public int[] simDraw5Full;
+    public int[] simDraw6Full;
+    public int[] simDraw7Full;
+    public int[] simDraw8Full;
 
     /**
      * 不同范围和方式下，波形数据的点数、需要去掉的冗余点数、比例值
@@ -212,6 +222,7 @@ public class BaseActivity extends AppCompatActivity {
         waveArray   = new int[540];
         //sparkView需要绘制的波形数组初始化
         waveDraw = new int[510];
+        waveDrawFull = new int[510];
         simDraw1 = new int[510];
         simDraw2 = new int[510];
         simDraw3 = new int[510];
@@ -220,7 +231,16 @@ public class BaseActivity extends AppCompatActivity {
         simDraw6 = new int[510];
         simDraw7 = new int[510];
         simDraw8 = new int[510];
+        simDraw1Full = new int[510];
+        simDraw2Full = new int[510];
+        simDraw3Full = new int[510];
+        simDraw4Full = new int[510];
+        simDraw5Full = new int[510];
+        simDraw6Full = new int[510];
+        simDraw7Full = new int[510];
+        simDraw8Full = new int[510];
         waveCompare = new int[510];
+        waveCompareFull = new int[510];
 
         mode = 0x11;
         range = 0x11;

@@ -174,6 +174,7 @@ public class MainActivity extends BaseActivity {
             case WHAT_REFRESH:
                 resetWhatNeed();
                 organizeWaveData();
+                organizeWaveDataFull();
                 displayWave();
                 break;
             case DISPLAY_DATABASE:
@@ -805,41 +806,49 @@ public class MainActivity extends BaseActivity {
         switch (selectSim) {
             case 1:
                 System.arraycopy(simDraw1, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw1Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData1;
                 tvSim.setText("波形1");
                 break;
             case 2:
                 System.arraycopy(simDraw2, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw2Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData2;
                 tvSim.setText("波形2");
                 break;
             case 3 :
                 System.arraycopy(simDraw3, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw3Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData3;
                 tvSim.setText("波形3");
                 break;
             case 4:
                 System.arraycopy(simDraw4, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw4Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData4;
                 tvSim.setText("波形4");
                 break;
             case 5:
                 System.arraycopy(simDraw5, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw5Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData5;
                 tvSim.setText("波形5");
                 break;
             case 6:
                 System.arraycopy(simDraw6, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw6Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData6;
                 tvSim.setText("波形6");
                 break;
             case 7:
                 System.arraycopy(simDraw7, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw7Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData7;
                 tvSim.setText("波形7");
                 break;
             case 8:
                 System.arraycopy(simDraw8, 0, waveCompare, 0, 510);
+                System.arraycopy(simDraw8Full, 0, waveCompareFull, 0, 510);
                 Constant.SimData = Constant.TempData8;
                 tvSim.setText("波形8");
                 break;
@@ -1111,17 +1120,42 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
+     * 组织需要绘制的波形数组（抽点510个）——最终得到waveDraw和waveCompare    //GC20190702
+     */
+    private void organizeWaveDataFull() {
+        //起始位置
+        int start = 0;
+        //波形按比例抽出510个点
+        for (int i = start, j = 0; j < 510; i = i + densityMax, j++) {
+            //组织TDR、ICM、DECAY和SIM的第一条波形的数据
+            waveDrawFull[j] = Constant.WaveData[i];
+            //组织SIM的第二条波形的数据
+            if (mode == SIM) {
+                waveCompareFull[j] = Constant.SimData[i];
+                simDraw1Full[j] = simArray1[i];
+                simDraw2Full[j] = simArray2[i];
+                simDraw3Full[j] = simArray3[i];
+                simDraw4Full[j] = simArray4[i];
+                simDraw5Full[j] = simArray5[i];
+                simDraw6Full[j] = simArray6[i];
+                simDraw7Full[j] = simArray7[i];
+                simDraw8Full[j] = simArray8[i];
+            }
+        }
+    }
+
+    /**
      * 在sparkView界面显示波形
      */
     private void displayWave() {
         myChartAdapterMainWave.setmTempArray(waveDraw);
-        myChartAdapterFullWave.setmTempArray(waveDraw);
+        myChartAdapterFullWave.setmTempArray(waveDrawFull);
         myChartAdapterMainWave.setShowCompareLine(isCom);
         myChartAdapterFullWave.setShowCompareLine(isCom);
         if (mode == SIM) {
             if (isCom) {
                 myChartAdapterMainWave.setmCompareArray(waveCompare);
-                myChartAdapterFullWave.setmCompareArray(waveCompare);
+                myChartAdapterFullWave.setmCompareArray(waveCompareFull);
                 //GC201907052 优化SIM显示  每次刷新波形按钮下翻显示
                 waveFragment.btnWaveNext.setEnabled(true);
             }
