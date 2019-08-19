@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import net.kehui.www.t_907_origin.R;
+import net.kehui.www.t_907_origin.application.Constant;
 import net.kehui.www.t_907_origin.view.MainActivity;
 
 import java.util.Objects;
@@ -50,9 +51,7 @@ public class WaveFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //GC20190705 操作栏fragment初始化——没有波形选择按钮
-        btnMemory.setVisibility(View.VISIBLE);
-        btnCompare.setVisibility(View.VISIBLE);
+        //GC20190705 操作栏fragment初始化——无波形选择按钮
         btnWavePrevious.setVisibility(View.INVISIBLE);
         btnWaveNext.setVisibility(View.INVISIBLE);
         //初始化按键无效显示效果
@@ -60,7 +59,7 @@ public class WaveFragment extends Fragment {
         btnZoomOut.setEnabled(false);
         btnRes.setEnabled(false);
         btnWavePrevious.setEnabled(false);
-        btnWaveNext.setEnabled(true);
+        btnWaveNext.setEnabled(false);
 
     }
 
@@ -89,34 +88,31 @@ public class WaveFragment extends Fragment {
                 break;
             case R.id.btn_zoom_out:
                 density = ((MainActivity) Objects.requireNonNull(getActivity())).getDensity();
-                int densityMax = ((MainActivity) Objects.requireNonNull(getActivity())).getDensityMax();
-                if (density < densityMax) {
+                if (density < Constant.DensityMax) {
                     density = density * 2;
                     ((MainActivity) getActivity()).setDensity(density);
                     btnZoomIn.setEnabled(true);
                     btnRes.setEnabled(true);
                 }
                 //缩小到最初显示，只显示放大按钮
-                if (density == densityMax) {
+                if (density == Constant.DensityMax) {
                     btnZoomOut.setEnabled(false);
                     btnRes.setEnabled(false);
                 }
                 break;
             case R.id.btn_res:
-                densityMax = ((MainActivity) Objects.requireNonNull(getActivity())).getDensityMax();
-                ((MainActivity) getActivity()).setDensity(densityMax);
+                ((MainActivity) Objects.requireNonNull(getActivity())).setDensity(Constant.DensityMax);
                 btnZoomIn.setEnabled(true);
                 btnZoomOut.setEnabled(false);
                 btnRes.setEnabled(false);
                 break;
             case R.id.btn_memory:
-                ((MainActivity) getActivity()).clickMemory();
+                ((MainActivity) Objects.requireNonNull(getActivity())).clickMemory();
                 break;
             case R.id.btn_compare:
-                ((MainActivity) getActivity()).clickCompare();
+                ((MainActivity) Objects.requireNonNull(getActivity())).clickCompare();
                 break;
             case R.id.wavePrevious:
-                //GC20190702 SIM共8组，从1-8
                 //GC20190702 SIM共8组，从1-8
                 int selectSim = ((MainActivity) Objects.requireNonNull(getActivity())).getSelectSim();
                 if (selectSim > 1) {

@@ -2,13 +2,10 @@ package net.kehui.www.t_907_origin.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +26,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -46,8 +42,10 @@ public class ListActivity extends BaseActivity {
     int pos;
 
     private RecyclerView.LayoutManager layoutManager;
-    //GC20190713
-    public static final String action = "refresh_action";
+    /**
+     * //GC20190713
+     */
+    public static final String DISPLAY_ACTION = "display_action";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +144,8 @@ public class ListActivity extends BaseActivity {
                 break;
             case R.id.btn_Disp:
                 //GC20190713
-                Intent intent = new Intent(action);
-                intent.putExtra("re",8);
+                Intent intent = new Intent(DISPLAY_ACTION);
+                intent.putExtra("display_action",8);
                 sendBroadcast(intent);
                 finish();
                 break;

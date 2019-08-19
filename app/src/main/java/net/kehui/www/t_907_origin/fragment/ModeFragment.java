@@ -23,13 +23,13 @@ import butterknife.Unbinder;
  */
 public class ModeFragment extends Fragment {
     @BindView(R.id.btn_tdr)
-    Button btnTdr;
+    public Button btnTdr;
     @BindView(R.id.btn_icm)
-    Button btnIcm;
+    public Button btnIcm;
     @BindView(R.id.btn_sim)
-    Button btnSim;
+    public Button btnSim;
     @BindView(R.id.btn_decay)
-    Button btnDecay;
+    public Button btnDecay;
     Unbinder unbinder;
 
     @Override
@@ -59,14 +59,10 @@ public class ModeFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_tdr:
-                ((MainActivity)getActivity()).setMode(0x11);
-                btnTdr.setEnabled(false);
-                btnIcm.setEnabled(true);
-                btnSim.setEnabled(true);
-                btnDecay.setEnabled(true);
+                ((MainActivity) Objects.requireNonNull(getActivity())).setMode(0x11);
                 break;
             case R.id.btn_icm:
-                ((MainActivity)getActivity()).setMode(0x22);
+                ((MainActivity) Objects.requireNonNull(getActivity())).setMode(0x22);
                 btnTdr.setEnabled(true);
                 btnIcm.setEnabled(false);
                 btnSim.setEnabled(true);

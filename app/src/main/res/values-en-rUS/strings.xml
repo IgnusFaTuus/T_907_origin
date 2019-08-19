@@ -90,6 +90,9 @@
     <string name="not_break_down">No break down!</string>
     <string name="gain_too_high">Gain too high for auto. location</string>
     <string name="gain_too_low">Gain too low for auto. location</string>
+    <string name="cursor_zero_set_success">Cursor zero setting successfully!</string>
+    <string name="connect_success">Connect T-907 success!</string>
+    <string name="communication_failed">通信失败，请检查网络后重试</string>
 
 
 </resources>

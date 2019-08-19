@@ -361,7 +361,10 @@ public class SparkView extends View implements ScrubGestureDetector.ScrubListene
         invalidate();
     }
 
-    public void setScrubLineRealState() {
+    /**
+     *  去掉实光标
+     */
+    public void setScrubLineRealDisappear() {
         scrubLinePath.reset();
         invalidate();
     }

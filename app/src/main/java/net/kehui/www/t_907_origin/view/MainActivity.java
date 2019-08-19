@@ -66,6 +66,9 @@ import butterknife.OnClick;
  */
 public class MainActivity extends BaseActivity {
 
+    /**
+     * View布局
+     */
     @BindView(R.id.mainWave)
     SparkView mainWave;
     @BindView(R.id.tv_information)
@@ -130,11 +133,6 @@ public class MainActivity extends BaseActivity {
     private FileFragment    fileFragment;
     private SettingFragment settingFragment;
 
-    /**
-     * APP下发命令 指令内容command/传输数据data
-     */
-    private int     command;
-    private int     dataTransfer;
     private TDialog tDialog;
 
     /**
@@ -146,7 +144,7 @@ public class MainActivity extends BaseActivity {
     public static final int SEND_ERROR          = 4;
     public static final int GET_COMMAND         = 5;
     public static final int GET_WAVE            = 6;
-    public static final int WHAT_REFRESH        = 7;
+    public static final int VIEW_REFRESH        = 7;
     public static final int DISPLAY_DATABASE    = 8;
 
     public Handler handler = new Handler(msg -> {
@@ -154,11 +152,10 @@ public class MainActivity extends BaseActivity {
             case DEVICE_CONNECTED:
                 sendInitCommand();
                 break;
-            case DEVICE_DISCONNECTED:
-                break;
             case GET_COMMAND:
                 if (!isSuccessful) {
-                    Toast.makeText(MainActivity.this, "T-907连接成功！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getResources().getString(R.string
+                            .connect_success), Toast.LENGTH_SHORT).show();
                     isSuccessful = true;
                 }
                 wifiStream = msg.getData().getIntArray("CMD");
@@ -171,21 +168,22 @@ public class MainActivity extends BaseActivity {
                 setWaveParameter();
                 doWifiWave(wifiStream);
                 break;
-            case WHAT_REFRESH:
-                resetWhatNeed();
+            case VIEW_REFRESH:
                 organizeWaveData();
-                organizeWaveDataFull();
                 displayWave();
                 break;
             case DISPLAY_DATABASE:
-                //GC20190713
-                drawDateBase();
+                //数据库波形显示   //GC20190713
+                setDateBaseParameter();
+                organizeWaveData();
+                displayWave();
                 break;
             default:
                 break;
         }
         return false;
     });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,7 +202,7 @@ public class MainActivity extends BaseActivity {
      */
     public void initFrame() {
         fragmentManager = getSupportFragmentManager();
-        //GC201907052  先初始化（否则fragment切换bug）
+        //GC20190705  先初始化（否则fragment切换bug）
         setTabSelection(2);
         setTabSelection(3);
         //第一次启动时选中第0个tab
@@ -218,7 +216,7 @@ public class MainActivity extends BaseActivity {
         vlMode.setText(getResources().getString(R.string.btn_tdr));
         Constant.ModeValue = TDR;
         vlRange.setText(getResources().getString(R.string.btn_500m));
-        Constant.RangeState = 0;
+        Constant.RangeValue = 0x11;
         vlGain.setText(String.valueOf(gain));
         Constant.Gain = gain;
         vlVel.setText(velocity + "m/μs");
@@ -233,13 +231,13 @@ public class MainActivity extends BaseActivity {
         tvInductor.setVisibility(View.GONE);
         vlInductor.setVisibility(View.GONE);
         //初始化距离显示
-        calculateDistance(Math.abs((positionVirtual - positionReal) * density));
+        calculateDistance(Math.abs(pointDistance - zero));
         //自动测距显示    //GC20190710
         tvInformation.setVisibility(View.GONE);
         tvIcm.setVisibility(View.GONE);
         tvAutoDistance.setVisibility(View.GONE);
         //SIM光标位置初始化    //GC20190712
-        simCursor = StateUtils.getInt(MainActivity.this, AppConfig.CURRENT_CURSOR_POSITION, 12);
+        simZero = StateUtils.getInt(MainActivity.this, AppConfig.CURRENT_CURSOR_POSITION, 12);
     }
 
     /**
@@ -266,13 +264,13 @@ public class MainActivity extends BaseActivity {
      */
     private void initBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
-        //GC20190713
-        IntentFilter ifDisplay = new IntentFilter(ListActivity.action);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(receiver, intentFilter);
+        //初始化画数据库监听广播   //GC20190713
+        IntentFilter ifDisplay = new IntentFilter(ListActivity.DISPLAY_ACTION);
         registerReceiver(receiver, ifDisplay);
     }
 
@@ -302,17 +300,21 @@ public class MainActivity extends BaseActivity {
                 //实光标   //GC20190629
                 fullWave.setScrubLineReal((Integer) value);
                 //GT
-//                zero =  zero + (positionReal - (int) value) * density;
+                Log.e("zero", "" + zero);
+                zero =  zero + ((int) value - positionReal) * density;
+                Log.e("zero", "" + zero);
                 positionReal = (int) value;
-                zero = positionReal * density;
+//                zero = positionReal * density;
             } else {
                 //虚光标
                 fullWave.setScrubLineVirtual((Integer) value);
-//                pointDistance =  pointDistance + (positionVirtual - (int) value) * density;
+                Log.e("pointDistance", "" + pointDistance);
+                pointDistance =  pointDistance + ((int) value - positionVirtual) * density;
+                Log.e("pointDistance", "" + pointDistance);
                 positionVirtual = (int) value;
-                pointDistance = positionVirtual * density;
+//                pointDistance = positionVirtual * density;
             }
-            Log.e("光标移动数值", "" + value); //GN 数值从0开始计数
+            Log.e("光标所在位置", "" + value); //GN 数值从0开始计数
             //GC20190709    响应移动光标显示的距离 //G?
             calculateDistance(Math.abs(pointDistance - zero));
         });
@@ -335,9 +337,9 @@ public class MainActivity extends BaseActivity {
      * @param index 侧边栏设置
      */
     public void setTabSelection(int index) {
-        // 开启一个Fragment事务
+        //开启一个Fragment事务
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        // 先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况
+        //先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况
         hideFragment(transaction);
 
         switch (index) {
@@ -427,7 +429,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             //GC20190713
-            handler.sendEmptyMessage(Objects.requireNonNull(intent.getExtras()).getInt("re"));
+            handler.sendEmptyMessage(Objects.requireNonNull(intent.getExtras()).getInt("display_action"));
             String action = intent.getAction();
             assert action != null;
             if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
@@ -466,8 +468,8 @@ public class MainActivity extends BaseActivity {
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
-                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "通信失败，请检查网络后重试",
-                                    Toast.LENGTH_LONG).show());
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, getResources().getString(R.string
+                                    .communication_failed), Toast.LENGTH_LONG).show());
                         }
                     });
                     if (tDialog != null) {
@@ -518,8 +520,7 @@ public class MainActivity extends BaseActivity {
     private ArrayList<String> getConnectedIP() {
         ArrayList<String> connectedIP = new ArrayList<String>();
         try {
-            br = new BufferedReader(new FileReader(
-                    "/proc/net/arp"));
+            br = new BufferedReader(new FileReader("/proc/net/arp"));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] splitted = line.split(" +");
@@ -632,6 +633,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void clickSetting() {
+        //GT
+        setCursor();
         setTabSelection(5);
         btnMtd.setEnabled(true);
         btnRange.setEnabled(true);
@@ -659,8 +662,8 @@ public class MainActivity extends BaseActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    command = COMMAND_RECEIVE_DATA;
-                    dataTransfer = RECEIVING_DATA;
+                    command = COMMAND_RECEIVE_WAVE;
+                    dataTransfer = 0x11;
                     sendCommand();
                 }
             }, 20);
@@ -744,17 +747,12 @@ public class MainActivity extends BaseActivity {
         this.density = density;
         vlDensity.setText("1 : " + density);
         organizeWaveData();
-        displayWaveMain();
+        displayWave();
     }
 
     public int getDensity() {
         return density;
     }
-
-    public int getDensityMax() {
-        return densityMax;
-    }
-
 
     /**
      * @param balance 需要发送的平衡控制命令值 / 响应信息栏平衡变化
@@ -856,7 +854,6 @@ public class MainActivity extends BaseActivity {
                 break;
         }
         displayWave();
-
     }
 
     public int getSelectSim() {
@@ -864,18 +861,21 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * @param simCursor 光标零点设置 //GC20190712
+     * @param simZero 光标零点设置    //GC20190712
      */
-    public void setSimCursor(int simCursor) {
-        this.simCursor = simCursor;
-        StateUtils.setInt(MainActivity.this, AppConfig.CURRENT_CURSOR_POSITION, simCursor);
+    public void setSimZero(int simZero) {
+        this.simZero = simZero;
+        StateUtils.setInt(MainActivity.this, AppConfig.CURRENT_CURSOR_POSITION, simZero);
+        Toast.makeText(this, getResources().getString(R.string
+                .cursor_zero_set_success), Toast.LENGTH_SHORT).show();
+
     }
 
     /**
      * 点击记忆按钮执行的方法  //GC20190703
      */
     public void clickMemory() {
-        clickMemory = true;
+        isMemory = true;
         System.arraycopy(waveDraw, 0, waveCompare, 0, 510);
         //记录记忆数据的方式范围   //GC20190703再优化
         modeBefore = mode;
@@ -886,7 +886,7 @@ public class MainActivity extends BaseActivity {
      * 点击比较按钮执行的方法  //GC20190703
      */
     public void clickCompare() {
-        if (clickMemory) {
+        if (isMemory) {
             //GC20190703再优化
             if ((modeBefore == mode) && (rangeBefore == range)) {
                 isCom = !isCom;
@@ -897,7 +897,6 @@ public class MainActivity extends BaseActivity {
             } else {
                 Toast.makeText(this, getResources().getString(R.string
                         .You_can_not_compare), Toast.LENGTH_SHORT).show();
-                clickMemory = false;
             }
         } else {
             Toast.makeText(this, getResources().getString(R.string
@@ -927,11 +926,13 @@ public class MainActivity extends BaseActivity {
      */
     public void sendCommand() {
         byte[] request = new byte[8];
+        //数据头部分
         request[0] = (byte) 0xeb;
         request[1] = (byte) 0x90;
         request[2] = (byte) 0xaa;
         request[3] = (byte) 0x55;
-        request[4] = (byte) COMMAND_DATA_LENGTH;
+        //数据长度
+        request[4] = (byte) 0x03;
         request[5] = (byte) command;
         request[6] = (byte) dataTransfer;
         int sum = request[4] + request[5] + request[6];
@@ -946,8 +947,8 @@ public class MainActivity extends BaseActivity {
     private void doWifiCommand(int[] wifiArray) {
         //仪器触发时：APP发送接收数据命令
         if ((wifiArray[5] == COMMAND_TRIGGER) && (wifiArray[6] == TRIGGERED)) {
-            command = COMMAND_RECEIVE_DATA;
-            dataTransfer = RECEIVING_DATA;
+            command = COMMAND_RECEIVE_WAVE;
+            dataTransfer = 0x11;
             sendCommand();
             if (tDialog != null) {
                 tDialog.dismiss();
@@ -964,12 +965,39 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
+     * 比例选择 //GC20190709
+     */
+    private void switchDensity() {
+        if ((mode == TDR) || (mode == SIM)) {
+            densityMax = densityMaxTdrSim[rangeState];
+        } else if ((mode == ICM) || (mode == DECAY)) {
+            densityMax = densityMaxIcmDecay[rangeState];
+        }
+        density = densityMax;
+        vlDensity.setText("1 : " + density);
+    }
+
+    /**
      * 设置波形绘制参数
      */
     private void setWaveParameter() {
+        //记录当前显示波形的参数   //GC20190716 避免切换范围、方式之后存储的波形参数与波形数据不对应
+        Constant.ModeValue = mode;
+        Constant.RangeValue = range;
+        Constant.Gain = gain;
+        Constant.Velocity = velocity;
+        //GC20190716 规避放大缩小操作的bug
+        Constant.DensityMax = densityMax;
+        if (density > densityMax) {
+            density = densityMax;
+            vlDensity.setText("1 : " + density);
+        }
+        //非显示数据库波形状态
+        isDatabase = false;
         //擦除比较波形
         isCom = false;
         if (mode == TDR) {
+            //需要绘制的波形原始数组初始化
             dataMax = READ_TDR_SIM[rangeState];
             waveArray = new int[dataMax];
             Constant.WaveData = new int[dataMax];
@@ -982,7 +1010,7 @@ public class MainActivity extends BaseActivity {
             waveArray = new int[dataMax];
             Constant.WaveData = new int[dataMax];
             Constant.SimData = new int[dataMax];
-            //GC20190702 SIM绘制波形数组准备
+            //GC20190702 SIM第二条波形初始化
             simArray1 = new int[dataMax];
             simArray2 = new int[dataMax];
             simArray3 = new int[dataMax];
@@ -1000,17 +1028,73 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
+     * 设置数据库波形绘制参数  //GC20190713
+     */
+    public void setDateBaseParameter() {
+        //读取并设置数据库的参数
+        setMode(Constant.Para[0]);
+        setRange(Constant.Para[1]);
+        setGain(Constant.Para[2]);
+        setVelocity(Constant.Para[3]);
+        //显示数据库波形状态
+        isDatabase = true;
+        //擦除比较波形
+        isCom = false;
+        //需要绘制的波形原始数组初始化
+        if (mode == TDR) {
+            dataMax = READ_TDR_SIM[rangeState];
+        } else if ((mode == ICM) || (mode == DECAY)) {
+            dataMax = READ_ICM_DECAY[rangeState];
+        } else if (mode == SIM) {
+            dataMax = READ_TDR_SIM[rangeState];
+            //利用比较功能绘制SIM的第二条波形数据
+            isCom = true;
+        }
+
+    }
+
+    /**
+     * 根据参数重置显示效果
+     */
+    public void resetWhatNeed() {
+        //二次脉冲显示组数重置    //GC201907052   优化SIM显示
+        if (mode == SIM) {
+            selectSim = 1;
+            tvSim.setText("波形1");
+            waveFragment.btnWavePrevious.setEnabled(false);
+            waveFragment.btnWaveNext.setEnabled(true);
+        } else {
+            tvSim.setText("");
+        }
+
+        if (isDatabase) {
+            //GC201907052   优化SIM显示
+            waveFragment.btnWavePrevious.setEnabled(false);
+            waveFragment.btnWaveNext.setEnabled(false);
+        }
+        //放大缩小按钮显示重置    //GC20190711
+        if (density == densityMax) {
+            if (density == 1) {
+                waveFragment.btnZoomIn.setEnabled(false);
+            } else {
+                waveFragment.btnZoomIn.setEnabled(true);
+            }
+            waveFragment.btnZoomOut.setEnabled(false);
+            waveFragment.btnRes.setEnabled(false);
+        }
+    }
+
+    /**
      * 处理APP接收的波形数据
      */
     private void doWifiWave(int[] wifiArray) {
         if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
             System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
-//            handler.sendEmptyMessage(WHAT_REFRESH);
-            //ICM自动测距
             if (mode == ICM) {
+                //ICM自动测距功能
                 icmAutoTest();
             } else {
-                handler.sendEmptyMessage(WHAT_REFRESH);
+                handler.sendEmptyMessage(VIEW_REFRESH);
             }
         } else if (wifiArray[3] == WAVE_SIM) {
             System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
@@ -1031,32 +1115,10 @@ public class MainActivity extends BaseActivity {
             Constant.TempData7 = simArray7;
             Constant.TempData8 = simArray8;
             Constant.SimData = Constant.TempData1;
-            handler.sendEmptyMessage(WHAT_REFRESH);
+            handler.sendEmptyMessage(VIEW_REFRESH);
         }
+        //记录当前显示波形的数据
         Constant.WaveData = waveArray;
-    }
-
-    /**
-     * 刷新重置
-     */
-    private void resetWhatNeed() {
-        //GC201907052   优化SIM显示
-        if (mode == SIM) {
-            selectSim = 1;
-            tvSim.setText("波形1");
-            waveFragment.btnWavePrevious.setEnabled(false);
-        } else {
-            tvSim.setText("");
-        }
-        //GC20190711
-        if (density > 1) {
-            waveFragment.btnZoomIn.setEnabled(true);
-            if (density == densityMax) {
-                waveFragment.btnZoomOut.setEnabled(false);
-                waveFragment.btnRes.setEnabled(false);
-
-            }
-        }
     }
 
     /**
@@ -1100,46 +1162,44 @@ public class MainActivity extends BaseActivity {
                 start = dataMax - removeIcmDecay[rangeState] - 2 * k;
             }
         }
-        //波形按比例抽出510个点
+        //mainWave按比例抽出510个点
         for (int i = start, j = 0; j < 510; i = i + density, j++) {
             //组织TDR、ICM、DECAY和SIM的第一条波形的数据
             waveDraw[j] = Constant.WaveData[i];
             //组织SIM的第二条波形的数据
             if (mode == SIM) {
                 waveCompare[j] = Constant.SimData[i];
-                simDraw1[j] = simArray1[i];
-                simDraw2[j] = simArray2[i];
-                simDraw3[j] = simArray3[i];
-                simDraw4[j] = simArray4[i];
-                simDraw5[j] = simArray5[i];
-                simDraw6[j] = simArray6[i];
-                simDraw7[j] = simArray7[i];
-                simDraw8[j] = simArray8[i];
+                if (!isDatabase) {
+                    simDraw1[j] = simArray1[i];
+                    simDraw2[j] = simArray2[i];
+                    simDraw3[j] = simArray3[i];
+                    simDraw4[j] = simArray4[i];
+                    simDraw5[j] = simArray5[i];
+                    simDraw6[j] = simArray6[i];
+                    simDraw7[j] = simArray7[i];
+                    simDraw8[j] = simArray8[i];
+                }
             }
         }
-    }
-
-    /**
-     * 组织需要绘制的波形数组（抽点510个）——最终得到waveDraw和waveCompare    //GC20190702
-     */
-    private void organizeWaveDataFull() {
-        //起始位置
-        int start = 0;
-        //波形按比例抽出510个点
-        for (int i = start, j = 0; j < 510; i = i + densityMax, j++) {
-            //组织TDR、ICM、DECAY和SIM的第一条波形的数据
-            waveDrawFull[j] = Constant.WaveData[i];
-            //组织SIM的第二条波形的数据
-            if (mode == SIM) {
-                waveCompareFull[j] = Constant.SimData[i];
-                simDraw1Full[j] = simArray1[i];
-                simDraw2Full[j] = simArray2[i];
-                simDraw3Full[j] = simArray3[i];
-                simDraw4Full[j] = simArray4[i];
-                simDraw5Full[j] = simArray5[i];
-                simDraw6Full[j] = simArray6[i];
-                simDraw7Full[j] = simArray7[i];
-                simDraw8Full[j] = simArray8[i];
+        if (density == densityMax) {
+            //fullWave按最大比例抽出510个点
+            for (int i = 0, j = 0; j < 510; i = i + densityMax, j++) {
+                //组织TDR、ICM、DECAY和SIM的第一条波形的数据
+                waveDrawFull[j] = Constant.WaveData[i];
+                //组织SIM的第二条波形的数据
+                if (mode == SIM) {
+                    waveCompareFull[j] = Constant.SimData[i];
+                    if (!isDatabase) {
+                        simDraw1Full[j] = simArray1[i];
+                        simDraw2Full[j] = simArray2[i];
+                        simDraw3Full[j] = simArray3[i];
+                        simDraw4Full[j] = simArray4[i];
+                        simDraw5Full[j] = simArray5[i];
+                        simDraw6Full[j] = simArray6[i];
+                        simDraw7Full[j] = simArray7[i];
+                        simDraw8Full[j] = simArray8[i];
+                    }
+                }
             }
         }
     }
@@ -1148,6 +1208,7 @@ public class MainActivity extends BaseActivity {
      * 在sparkView界面显示波形
      */
     private void displayWave() {
+        //画波形
         myChartAdapterMainWave.setmTempArray(waveDraw);
         myChartAdapterFullWave.setmTempArray(waveDrawFull);
         myChartAdapterMainWave.setShowCompareLine(isCom);
@@ -1156,99 +1217,19 @@ public class MainActivity extends BaseActivity {
             if (isCom) {
                 myChartAdapterMainWave.setmCompareArray(waveCompare);
                 myChartAdapterFullWave.setmCompareArray(waveCompareFull);
-                //GC201907052 优化SIM显示  每次刷新波形按钮下翻显示
-                waveFragment.btnWaveNext.setEnabled(true);
             }
         }
         myChartAdapterMainWave.notifyDataSetChanged();
         myChartAdapterFullWave.notifyDataSetChanged();
+        //有对话框消对话框
         if (tDialog != null) {
             tDialog.dismiss();
+            Log.e("DIA", "正在接受数据隐藏" + " 波形绘制完成");
         }
-        Log.e("DIA", "正在接受数据隐藏" + " 波形绘制完成");
-
-        //刷新后显示控制虚光标    //GC20190629
+        //刷新波形后后显示控制虚光标    //GC20190629
         cursorState = false;
         myChartAdapterMainWave.setCursorState(false);
         btnCursor.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.T_purple));
-    }
-
-    /**
-     * 在sparkView界面显示放大缩小的波形    //GC20190711
-     */
-    public void displayWaveMain() {
-        //GT
-        /*mainWave.setScrubLineReal(255);
-        if ((Math.abs(pointDistance - zero)) < 255 * density) {
-            mainWave.setScrubLineRealState();
-        }*/
-        myChartAdapterMainWave.setmTempArray(waveDraw);
-        myChartAdapterMainWave.setShowCompareLine(isCom);
-        if (mode == SIM) {
-            if (isCom) {
-                myChartAdapterMainWave.setmCompareArray(waveCompare);
-            }
-        }
-        myChartAdapterMainWave.notifyDataSetChanged();
-    }
-
-    /**
-     * 绘制数据库中存储的波形
-     */
-    public void drawDateBase() {
-        setDateBaseParameter();
-        organizeWaveDataBase();
-        displayWave();
-    }
-
-    /**
-     * 设置波形绘制参数
-     */
-    public void setDateBaseParameter() {
-        //读取数据库的参数
-        setMode(Constant.Para[0]);
-        setRange(Constant.Para[1]);
-        setGain(Constant.Para[2]);
-        setVelocity(Constant.Para[3]);
-        //擦除比较波形
-        isCom = false;
-        if (Constant.Para[0] == TDR) {
-            dataMax = READ_TDR_SIM[Constant.Para[1]];
-        } else if ((Constant.Para[0] == ICM) || (Constant.Para[0] == DECAY)) {
-            dataMax = READ_ICM_DECAY[Constant.Para[1]];
-        } else if (Constant.Para[0] == SIM) {
-            dataMax = READ_TDR_SIM[Constant.Para[1]];
-            //利用比较功能绘制SIM的第二条波形数据
-            isCom = true;
-        }
-
-    }
-
-    /**
-     * 组织需要绘制的波形数组（抽点510个）
-     */
-    public void organizeWaveDataBase() {
-        //起始位置
-        int start = 0;
-        //波形数据的居中位置
-        int k = 510 * density / 2;
-        //寻找波形显示的起始地址在波形数据数组中的所处的位置  (根据虚光标位置判断)
-        if (positionVirtual > 255) {
-            if ((mode == TDR) || (mode == SIM)) {
-                start = dataMax - removeTdrSim[rangeState] - 2 * k;
-            } else if ((mode == ICM) || (mode == DECAY)) {
-                start = dataMax - removeIcmDecay[rangeState] - 2 * k;
-            }
-        }
-        //波形按比例抽出510个点
-        for (int i = start, j = 0; j < 510; i = i + density, j++) {
-            //组织TDR、ICM、DECAY和SIM的第一条波形的数据
-            waveDraw[j] = Constant.WaveData[i];
-            //组织SIM的第二条波形的数据
-            if (mode == SIM) {
-                waveCompare[j] = Constant.SimData[i];
-            }
-        }
     }
 
     /**
@@ -1265,7 +1246,7 @@ public class MainActivity extends BaseActivity {
             case 1:
                 gainState = 0;
                 //组织数据画波形
-                handler.sendEmptyMessage(WHAT_REFRESH);
+                handler.sendEmptyMessage(VIEW_REFRESH);
                 //显示增益过大    //GC20190710
                 tvInformation.setVisibility(View.VISIBLE);
                 tvInformation.setText(getResources().getString(R.string.gain_too_high));
@@ -1273,7 +1254,7 @@ public class MainActivity extends BaseActivity {
             case 2:
                 gainState = 0;
                 //组织数据画波形   //GC20190710
-                handler.sendEmptyMessage(WHAT_REFRESH);
+                handler.sendEmptyMessage(VIEW_REFRESH);
                 //显示增益过小
                 tvInformation.setVisibility(View.VISIBLE);
                 tvInformation.setText(getResources().getString(R.string.gain_too_low));
@@ -1289,7 +1270,7 @@ public class MainActivity extends BaseActivity {
         breakdownJudgment();
         if (breakdownPosition == 0) {
             //组织数据画波形
-            handler.sendEmptyMessage(WHAT_REFRESH);
+            handler.sendEmptyMessage(VIEW_REFRESH);
             //显示不击穿    //GC20190710
             tvInformation.setVisibility(View.VISIBLE);
             tvInformation.setText(getResources().getString(R.string.not_break_down));
@@ -1304,7 +1285,7 @@ public class MainActivity extends BaseActivity {
         //光标自动定位
         icmAutoCursor();
         //组织数据画波形
-        handler.sendEmptyMessage(WHAT_REFRESH);
+        handler.sendEmptyMessage(VIEW_REFRESH);
     }
 
     /**
@@ -1648,7 +1629,6 @@ public class MainActivity extends BaseActivity {
      */
     public void setMode(int mode) {
         this.mode = mode;
-        Constant.ModeValue = mode;
         command = COMMAND_MODE;
         dataTransfer = mode;
         sendCommand();
@@ -1669,6 +1649,11 @@ public class MainActivity extends BaseActivity {
                 vlDelay.setVisibility(View.GONE);
                 tvInductor.setVisibility(View.GONE);
                 vlInductor.setVisibility(View.GONE);
+                //方式栏fragment显示
+                modeFragment.btnTdr.setEnabled(false);
+                modeFragment.btnIcm.setEnabled(true);
+                modeFragment.btnSim.setEnabled(true);
+                modeFragment.btnDecay.setEnabled(true);
                 //调节栏fragment显示
                 adjustFragment.btnBalancePlus.setVisibility(View.VISIBLE);
                 adjustFragment.btnBalanceMinus.setVisibility(View.VISIBLE);
@@ -1837,26 +1822,10 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
-        Constant.RangeState = rangeState;
     }
 
     public int getRange() {
         return range;
-    }
-
-    /**
-     * 比例选择 //GC20190709
-     */
-    private void switchDensity() {
-        if ((mode == TDR) || (mode == SIM)) {
-            densityMax = densityMaxTdrSim[rangeState];
-            density = densityMax;
-            vlDensity.setText("1 : " + density);
-        } else if ((mode == ICM) || (mode == DECAY)) {
-            densityMax = densityMaxIcmDecay[rangeState];
-            density = densityMax;
-            vlDensity.setText("1 : " + density);
-        }
     }
 
     /**
@@ -1866,7 +1835,7 @@ public class MainActivity extends BaseActivity {
         //光标距离
         if (mode == SIM) {
             //GC20190712
-            zero = simCursor;
+            zero = simZero;
             Log.e("TEST","位置" + positionReal);
         } else {
             zero = 0;
@@ -1892,7 +1861,6 @@ public class MainActivity extends BaseActivity {
         dataTransfer = gain;
         sendCommand();
         vlGain.setText(String.valueOf(gain));
-        Constant.Gain = gain;
     }
 
     public int getGain() {
@@ -1905,7 +1873,6 @@ public class MainActivity extends BaseActivity {
     public void setVelocity(int velocity) {
         this.velocity = velocity;
         vlVel.setText(velocity + "m/μs");
-        Constant.Velocity = velocity;
         //GC20190709    //G?
         calculateDistance(Math.abs(pointDistance - zero));
     }
@@ -1931,7 +1898,6 @@ public class MainActivity extends BaseActivity {
 
     /**
      * ##############################以下为测试代码，留作参考##############################
-     * <p>
      * GT 测试绘制效果    //GC20181227
      */
     public void testWaveData() {
@@ -1987,6 +1953,11 @@ public class MainActivity extends BaseActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //GT
+    public void setCursor() {
+        mainWave.setScrubLineRealDisappear();
     }
 
 }

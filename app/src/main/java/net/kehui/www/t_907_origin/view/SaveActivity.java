@@ -143,37 +143,37 @@ public class SaveActivity extends BaseActivity {
     }
 
     private void setEtRange() {
-        int range = Constant.RangeState;
+        int range = Constant.RangeValue;
         switch (range) {
-            case 0:
+            case RANGE_500:
                 etRange.setText(getResources().getString(R.string.btn_500m));
                 Constant.Range = getResources().getString(R.string.btn_500m);
                 break;
-            case 1:
+            case RANGE_1_KM:
                 etRange.setText(getResources().getString(R.string.btn_1km));
                 Constant.Range = getResources().getString(R.string.btn_1km);
                 break;
-            case 2:
+            case RANGE_2_KM:
                 etRange.setText(getResources().getString(R.string.btn_2km));
                 Constant.Range = getResources().getString(R.string.btn_2km);
                 break;
-            case 3:
+            case RANGE_4_KM:
                 etRange.setText(getResources().getString(R.string.btn_4km));
                 Constant.Range = getResources().getString(R.string.btn_4km);
                 break;
-            case 4:
+            case RANGE_8_KM:
                 etRange.setText(getResources().getString(R.string.btn_8km));
                 Constant.Range = getResources().getString(R.string.btn_8km);
                 break;
-            case 5:
+            case RANGE_16_KM:
                 etRange.setText(getResources().getString(R.string.btn_16km));
                 Constant.Range = getResources().getString(R.string.btn_16km);
                 break;
-            case 6:
+            case RANGE_32_KM:
                 etRange.setText(getResources().getString(R.string.btn_32km));
                 Constant.Range = getResources().getString(R.string.btn_32km);
                 break;
-            case 7:
+            case RANGE_64_KM:
                 etRange.setText(getResources().getString(R.string.btn_64km));
                 Constant.Range = getResources().getString(R.string.btn_64km);
                 break;
@@ -284,7 +284,7 @@ public class SaveActivity extends BaseActivity {
         data.waveData = Constant.WaveData;
         data.waveDataSim = Constant.SimData;
         //参数数据 方式  范围 增益 波速度
-        data.para = new int[]{Constant.ModeValue, Constant.RangeState, Constant.Gain,
+        data.para = new int[]{Constant.ModeValue, Constant.RangeValue, Constant.Gain,
                 Constant.Velocity};
         return data;
     }

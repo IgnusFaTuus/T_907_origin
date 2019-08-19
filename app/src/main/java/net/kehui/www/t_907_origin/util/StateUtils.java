@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * @author Gong
  * @date 2019/07/12
- **/
+ */
 public class StateUtils {
     public static boolean getBoolean(Context ctx, String key, boolean defValue) {
         SharedPreferences sp = ctx.getSharedPreferences("config", Context.MODE_PRIVATE);

@@ -14,8 +14,8 @@ import java.net.Socket;
 
 import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_MODE;
 import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RANGE;
-import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_DATA;
-import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_RIGHT;
+import static net.kehui.www.t_907_origin.base.BaseActivity.COMMAND_RECEIVE_WAVE;
+import static net.kehui.www.t_907_origin.base.BaseActivity.RECEIVE_RIGHT;
 import static net.kehui.www.t_907_origin.base.BaseActivity.TDR;
 import static net.kehui.www.t_907_origin.base.BaseActivity.ICM;
 import static net.kehui.www.t_907_origin.base.BaseActivity.DECAY;
@@ -32,8 +32,8 @@ import static net.kehui.www.t_907_origin.base.BaseActivity.READ_ICM_DECAY;
 import static net.kehui.www.t_907_origin.base.BaseActivity.READ_TDR_SIM;
 
 /**
- * @author IF
- * @date 2018/12/26
+ * @author Gong
+ * @date 2019/07/15
  */
 public class ConnectThread extends Thread {
 
@@ -50,7 +50,6 @@ public class ConnectThread extends Thread {
 
     public ConnectThread(Socket socket, Handler handler) {
         setName("ConnectThread");
-        Log.w("AAA", "ConnectThread");
         this.socket = socket;
         this.handler = handler;
     }
@@ -97,8 +96,8 @@ public class ConnectThread extends Thread {
                         //将字节数组转变为int数组
                         wifiCommand[i] = command[i] & 0xff;
                     }
-                    //收到返回的“收取数据”命令后，准备接受波形数据
-                    if ( (wifiCommand[5] == COMMAND_RECEIVE_DATA) && (wifiCommand[6] == COMMAND_RECEIVE_RIGHT) ) {
+                    //接收到“收取数据”命令后，准备接受波形数据
+                    if ( (wifiCommand[5] == COMMAND_RECEIVE_WAVE) && (wifiCommand[6] == RECEIVE_RIGHT) ) {
                         isCommand = false;
                     }
                     Message message = Message.obtain();
@@ -146,7 +145,7 @@ public class ConnectThread extends Thread {
     }
 
     /**
-     * 命令发送处理   //GC20190102
+     * 命令发送处理
      */
     public void sendCommand(byte[] request) {
         if (outputStream != null) {
@@ -227,7 +226,7 @@ public class ConnectThread extends Thread {
         } else if (mode == SIM) {
             wifiStreamLen = ( READ_TDR_SIM[range] + 9 ) * 9;
         }
-        Log.e("WAVE", " 需要绘制:" + wifiStreamLen);
+        Log.i("WAVE", " 需要绘制:" + wifiStreamLen);
     }
 
 }

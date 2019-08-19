@@ -54,9 +54,7 @@ public class AdjustFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //GC20190705 调节栏fragment初始化——没有延时按钮
-        btnBalancePlus.setVisibility(View.VISIBLE);
-        btnBalanceMinus.setVisibility(View.VISIBLE);
+        //GC20190705 调节栏fragment初始化——无延时、电感按钮
         btnDelayPlus.setVisibility(View.GONE);
         btnDelayMinus.setVisibility(View.GONE);
         btnInductorPlus.setVisibility(View.GONE);

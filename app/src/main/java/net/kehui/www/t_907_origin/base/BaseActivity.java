@@ -2,7 +2,6 @@ package net.kehui.www.t_907_origin.base;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
@@ -11,77 +10,47 @@ import android.view.WindowManager;
 import net.kehui.www.t_907_origin.adpter.DataAdapter;
 import net.kehui.www.t_907_origin.adpter.MyChartAdapterBase;
 import net.kehui.www.t_907_origin.dao.DataDao;
-import net.kehui.www.t_907_origin.entity.Data;
 import net.kehui.www.t_907_origin.global.BaseAppData;
 import net.kehui.www.t_907_origin.thread.ConnectThread;
 
 import java.io.BufferedReader;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
-import io.reactivex.Flowable;
 
 /**
- * @author IF
- * @date 2019/3/26
+ * @author Gong
+ * @date 2019/07/15
  */
 public class BaseActivity extends AppCompatActivity {
 
     /**
-     * sparkView波形绘制部分
+     * sparkView图形绘制部分
      */
-    public MyChartAdapterBase myChartAdapterMainWave;
-    public MyChartAdapterBase myChartAdapterFullWave;
+    public MyChartAdapterBase   myChartAdapterMainWave;
+    public MyChartAdapterBase   myChartAdapterFullWave;
 
     /**
      * 波形参数
      */
-    public int simCursor;
-    public int mode;
-    public int modeBefore;
-    public int range;
-    public int rangeBefore;
-    public int rangeState;
-    public int gain;
-    public int velocity;
-    public int density;
-    public int densityMax;
-    public int balance;
-    public int delay;
-    public int inductor;
-    public int dataMax;
-    public int selectSim;
+    public int  mode;
+    public int  modeBefore;
+    public int  range;
+    public int  rangeBefore;
+    public int  rangeState;
+    public int  gain;
+    public int  velocity;
+    public int  density;
+    public int  densityMax;
+    public int  balance;
+    public int  delay;
+    public int  inductor;
+    public int  selectSim;
+    public boolean isCom;
+    public boolean isMemory;
+    public boolean isDatabase;
 
     /**
-     * 光标位置（变化范围0-509）
+     * 波形原始数据数组
      */
-    public int positionReal;
-    public int positionVirtual;
-    public int  zero;
-    public int  pointDistance;
-
-    /**
-     * 光标状态
-     */
-    public boolean cursorState;
-
-    /**
-     * ICM自动测距参数
-     */
-    public int     gainState;
-    public int     breakdownPosition;
-    public int     breakBk;
-    public int     faultResult;
-    public float[] waveArrayFilter   = new float[65560];
-    public float[] waveArrayIntegral = new float[65560];
-    public float[] s1                = new float[65560];
-    public float[] s2                = new float[65560];
-    public int[]   minPeak           = new int[255];
-
-    /**
-     * 波形数据原始数组
-     */
+    public int  dataMax;
     public int[] waveArray;
     public int[] simArray1;
     public int[] simArray2;
@@ -93,7 +62,7 @@ public class BaseActivity extends AppCompatActivity {
     public int[] simArray8;
 
     /**
-     * 波形数据绘制数组（510个点）
+     * 波形绘制数据数组（抽点510个）
      */
     public int[] waveDraw;
     public int[] waveCompare;
@@ -119,21 +88,35 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * 不同范围和方式下，波形数据的点数、需要去掉的冗余点数、比例值
      */
-    public final static int[] READ_TDR_SIM   = {540, 1052, 2076, 4124, 8220, 16412, 32796,
-            65556};
-    public final static int[] READ_ICM_DECAY = {2068, 4116, 8212, 16404, 32788, 65556, 32788,
-            65556};
-
-    public int[] removeTdrSim       = {30, 32, 36, 44, 60, 92, 156, 276};
+    public final static int[] READ_TDR_SIM   = {540 , 1052, 2076, 4124 , 8220 , 16412, 32796, 65556};
+    public final static int[] READ_ICM_DECAY = {2068, 4116, 8212, 16404, 32788, 65556, 32788, 65556};
+    public int[] removeTdrSim       = {30, 32, 36, 44, 60 , 92 , 156, 276};
     public int[] removeIcmDecay     = {28, 36, 52, 84, 148, 276, 148, 276};
-    public int[] densityMaxTdrSim   = {1, 2, 4, 8, 16, 32, 64, 128};
+    public int[] densityMaxTdrSim   = {1, 2, 4 , 8 , 16, 32 , 64, 128};
     public int[] densityMaxIcmDecay = {4, 8, 16, 32, 64, 128, 64, 128};
 
     /**
-     * 是否比较波形的标志
+     * 光标参数
      */
-    public boolean isCom;
-    public boolean clickMemory;
+    public int  zero;
+    public int  pointDistance;
+    public int  simZero;
+    public int  positionReal;
+    public int  positionVirtual;
+    public boolean  cursorState;
+
+    /**
+     * ICM自动测距参数
+     */
+    public int     gainState;
+    public int     breakdownPosition;
+    public int     breakBk;
+    public int     faultResult;
+    public float[] waveArrayFilter   = new float[65560];
+    public float[] waveArrayIntegral = new float[65560];
+    public float[] s1                = new float[65560];
+    public float[] s2                = new float[65560];
+    public int[]   minPeak           = new int[255];
 
 
     /**
@@ -148,19 +131,20 @@ public class BaseActivity extends AppCompatActivity {
     public              int[]          wifiStream;
 
     /**
-     * 魔法值定义，改善代码易读性
-     *
-     * APP发送部分
+     * APP下发命令——指令内容command/传输数据data
+     * 示例
+     * 数据头   数据长度  指令  传输数据  校验和
+     * eb90aa55     03     09      11       1d      //接收数据命令
      */
-    public final static int COMMAND_DATA_LENGTH  = 0x03;
+    public int  command;
     public final static int COMMAND_TEST         = 0x01;
     public final static int COMMAND_MODE         = 0x02;
     public final static int COMMAND_RANGE        = 0x03;
     public final static int COMMAND_GAIN         = 0x04;
     public final static int COMMAND_DELAY        = 0x05;
     public final static int COMMAND_BALANCE      = 0x07;
-    public final static int COMMAND_TRIGGER      = 0x08;
-    public final static int COMMAND_RECEIVE_DATA = 0x09;
+    public final static int COMMAND_RECEIVE_WAVE = 0x09;
+    public int  dataTransfer;
     public final static int TESTING              = 0x11;
     public final static int CANCEL_TEST          = 0x22;
     public final static int TDR                  = 0x11;
@@ -175,36 +159,30 @@ public class BaseActivity extends AppCompatActivity {
     public final static int RANGE_16_KM          = 0x66;
     public final static int RANGE_32_KM          = 0x77;
     public final static int RANGE_64_KM          = 0x88;
-    public final static int RECEIVING_DATA       = 0x11;
 
     /**
-     * APP接收部分
+     * APP接收命令
      */
-    public final static int COMMAND               = 0x55;
+    public final static int COMMAND_TRIGGER = 0x08;
+    public final static int TRIGGERED       = 0x11;
+    public final static int RECEIVE_RIGHT   = 0x33;
+    public final static int RECEIVE_WRONG   = 0x44;
+
+    /**
+     * APP接收波形数据头
+     * 数据头      数据长度    传输数据    校验和
+     * eb90aaXX    aabbccdd     X……X        xx
+     */
     public final static int WAVE_TDR_ICM_DECAY    = 0x66;
     public final static int WAVE_SIM              = 0x77;
-    public final static int TRIGGERED             = 0x11;
-    public final static int COMMAND_RECEIVE_RIGHT = 0x33;
-    public final static int COMMAND_RECEIVE_WRONG = 0x44;
 
+
+    /**
+     * 数据库存储波形部分
+     */
     public DataAdapter adapter;
     public DataDao     dao;
     public int         selectedId;
-    public List<Data>  datas;
-
-    /**
-     * 发送命令(16进制显示)
-     * 数据头   数据长度  指令  传输数据  校验和
-     * eb90aa55     03      01      11       15
-     *
-     * eb90aa55 03 09 11 1d		//G后续添加 接收数据命令
-     *
-     * 接收波形
-     * 数据头      数据长度    传输数据    校验和
-     * eb90aaxx    aabbccdd       X         xx
-     *
-     * eb90aa55 03 08 11 1c		//G后续添加 接收到触发信号
-     */
 
 
     @Override
@@ -213,16 +191,32 @@ public class BaseActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        initData();
-
+        initParameter();
     }
 
-    private void initData() {
+    /**
+     * 参数初始化
+     */
+    private void initParameter() {
+        mode    = 0x11;
+        range   = 0x11;
+        rangeState  = 0;
+        gain        = 13;
+        velocity    = 172;
+        density     = 1;
+        densityMax  = 1;
+        balance     = 5;
+        delay       = 0;
+        inductor    = 3;
+        //二次脉冲多组数据选择
+        selectSim = 1;
+
         dataMax = 540;
         waveArray   = new int[540];
-        //sparkView需要绘制的波形数组初始化
-        waveDraw = new int[510];
-        waveDrawFull = new int[510];
+        waveDraw        = new int[510];
+        waveDrawFull    = new int[510];
+        waveCompare     = new int[510];
+        waveCompareFull = new int[510];
         simDraw1 = new int[510];
         simDraw2 = new int[510];
         simDraw3 = new int[510];
@@ -239,34 +233,24 @@ public class BaseActivity extends AppCompatActivity {
         simDraw6Full = new int[510];
         simDraw7Full = new int[510];
         simDraw8Full = new int[510];
-        waveCompare = new int[510];
-        waveCompareFull = new int[510];
 
-        mode = 0x11;
-        range = 0x11;
-        rangeState = 0;
-        gain = 13;
-        velocity = 172;
-        density = 1;
-        balance = 5;
-        delay = 0;
-        inductor = 3;
-        selectSim = 1;
-
-        positionReal = 0;
-        positionVirtual = 255;
         zero = 0;
         pointDistance = 255;
+        //光标显示的位置（变化范围0-509）
+        positionReal = 0;
+        positionVirtual = 255;
+        //默认控制虚光标
+        cursorState = false;
 
         //增益大小状态
         gainState = 0;
         //故障击穿时刻对应的那一点
         breakdownPosition = 0;
+        //击穿点
+        breakBk = 0;
 
-        BaseAppData db = Room.databaseBuilder(getApplicationContext(),
-                BaseAppData.class, "database-wave").build();
+        BaseAppData db = Room.databaseBuilder(getApplicationContext(), BaseAppData.class, "database-wave").build();
         dao = db.dataDao();
-
     }
 }
 
@@ -287,3 +271,4 @@ public class BaseActivity extends AppCompatActivity {
 //GC20190711 放大缩小
 //GC20190712 光标零点设置
 //GC20190713 数据库波形显示
+//GC20190716 存储显示、放大缩小操作之后的bug修正

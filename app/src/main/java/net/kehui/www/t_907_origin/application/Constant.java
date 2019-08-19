@@ -6,12 +6,12 @@ package net.kehui.www.t_907_origin.application;
  */
 public class Constant {
 
-    public static int    ModeValue;
-    public static int    RangeState;
-    public static int    Gain;
-    public static int    Velocity;
-    public static int    Balance;
-    public static int    Density;
+    public static int   ModeValue;
+    public static int   RangeValue;
+    public static int   Gain;
+    public static int   Velocity;
+    public static int   Density;
+    public static int   DensityMax;
     public static String Date;
     public static String Time;
     public static String Mode;

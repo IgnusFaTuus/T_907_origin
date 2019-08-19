@@ -90,5 +90,8 @@
     <string name="break_down">击穿！</string>
     <string name="not_break_down">不击穿！</string>
     <string name="auto_fault_distance">自动测距：</string>
+    <string name="cursor_zero_set_success">光标零点设置成功！</string>
+    <string name="connect_success">T-907连接成功！</string>
+    <string name="communication_failed">通信失败，请检查网络后重试</string>
 
 </resources>

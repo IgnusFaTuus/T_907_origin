@@ -46,8 +46,9 @@ public class SettingFragment extends Fragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_zero:
-                int simCursor = ((MainActivity) Objects.requireNonNull(getActivity())).positionReal;
-                ((MainActivity) getActivity()).setSimCursor(simCursor);
+                //GC20190712    //G?
+                int simZero = ((MainActivity) Objects.requireNonNull(getActivity())).zero;
+                ((MainActivity) getActivity()).setSimZero(simZero);
                 break;
             case R.id.btn_lang:
                 break;
