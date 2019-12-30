@@ -268,6 +268,7 @@ public class BaseActivity extends AppCompatActivity {
 //GC20190706 数据处理优化
 //GC20190708 ICM自动测距
 //GC20190709 距离计算，比例选择
+//GC20191230 增加电感
 //GC20190711 放大缩小
 //GC20190712 光标零点设置
 //GC20190713 数据库波形显示

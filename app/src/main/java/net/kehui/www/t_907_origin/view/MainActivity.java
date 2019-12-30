@@ -169,6 +169,7 @@ public class MainActivity extends BaseActivity {
                 doWifiWave(wifiStream);
                 break;
             case VIEW_REFRESH:
+                resetWhatNeed();
                 organizeWaveData();
                 displayWave();
                 break;
@@ -232,7 +233,7 @@ public class MainActivity extends BaseActivity {
         vlInductor.setVisibility(View.GONE);
         //初始化距离显示
         calculateDistance(Math.abs(pointDistance - zero));
-        //自动测距显示    //GC20190710
+        //自动测距显示    //GC20190708
         tvInformation.setVisibility(View.GONE);
         tvIcm.setVisibility(View.GONE);
         tvAutoDistance.setVisibility(View.GONE);
@@ -275,7 +276,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 脉冲电流方式光标自动定位
+     * 脉冲电流方式光标自动定位 //GC20190708
      */
     private void icmAutoCursor() {
         positionReal = breakBk / densityMax;
@@ -1090,6 +1091,7 @@ public class MainActivity extends BaseActivity {
     private void doWifiWave(int[] wifiArray) {
         if (wifiArray[3] == WAVE_TDR_ICM_DECAY) {
             System.arraycopy(wifiArray, 8, waveArray, 0, dataMax);
+            //GC20190708
             if (mode == ICM) {
                 //ICM自动测距功能
                 icmAutoTest();
